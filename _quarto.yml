@@ -1,0 +1,35 @@
+project:
+  type: website
+
+website:
+  title: ""
+  navbar:
+    tools:
+    - icon: github 
+      href: https://github.com/amynang
+    - icon: mastodon
+      href: https://ecoevo.social/@amyntas
+    - icon: twitter
+      href: https://twitter.com/AmyntasAngelos
+    search: false
+    background: rgb(247, 247, 239)
+    right:
+      - href: index.qmd
+        text: home
+      - href: about.qmd
+        text: about me
+      - href: cv.qmd
+        text: cv
+      - href: contact.qmd
+        text: contact
+      - href: posts.qmd
+        text: posts
+
+format:
+  html:
+    #theme: cosmo
+    css: styles.css
+    toc: false
+
+editor: visual
+
