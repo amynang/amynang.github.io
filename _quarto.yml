@@ -5,7 +5,7 @@ website:
   title: ""
   navbar:
     tools:
-    - icon: github
+    - icon: github 
       href: https://github.com/amynang
     - icon: mastodon
       href: https://ecoevo.social/@amyntas
@@ -16,7 +16,8 @@ website:
     right:
       - href: index.qmd
         text: home
-      - about.qmd
+      - href: about.qmd
+        text: about me
       - href: cv.qmd
         text: cv
       - href: contact.qmd

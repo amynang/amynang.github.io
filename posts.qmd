@@ -5,6 +5,7 @@ format:
     css: styles.css
 mainfont: constantia 
 fontcolor: rgb(48, 48, 18)
+linkcolor: rgb(196,98,16)
 backgroundcolor: rgb(247, 247, 239)
 listing: 
   contents: posts # all Quarto docs in the `posts` directory will be included on your listing page
