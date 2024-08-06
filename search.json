@@ -1,5 +1,12 @@
 [
   {
+    "objectID": "posts.html",
+    "href": "posts.html",
+    "title": "posts",
+    "section": "",
+    "text": "test\n\n\n\n\n\n\nQuarto\n\n\n\nfiguring out how to write blog posts in quarto\n\n\n\n\n\nAug 6, 2024\n\n\nAngelos Amyntas\n\n\n\n\n\n\nNo matching items"
+  },
+  {
     "objectID": "index.html",
     "href": "index.html",
     "title": "Angelos Amyntas",
@@ -26,5 +33,12 @@
     "title": "Curriculum Vitae",
     "section": "",
     "text": "soon"
+  },
+  {
+    "objectID": "posts/20240806/index.html",
+    "href": "posts/20240806/index.html",
+    "title": "test",
+    "section": "",
+    "text": "bla\n\n\n\nCitationBibTeX citation:@online{amyntas2024,\n  author = {Amyntas, Angelos},\n  title = {Test},\n  date = {2024-08-06},\n  url = {https://amynang.github.io/posts/20240806/},\n  langid = {en}\n}\nFor attribution, please cite this work as:\nAmyntas, Angelos. 2024. “Test.” August 6, 2024. https://amynang.github.io/posts/20240806/."
   }
 ]

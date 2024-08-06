@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://amynang.github.io/posts.html</loc>
+    <lastmod>2024-08-06T17:19:42.758Z</lastmod>
+  </url>
+  <url>
     <loc>https://amynang.github.io/index.html</loc>
     <lastmod>2024-08-06T16:55:08.535Z</lastmod>
   </url>
@@ -15,5 +19,9 @@
   <url>
     <loc>https://amynang.github.io/cv.html</loc>
     <lastmod>2024-08-06T16:50:59.989Z</lastmod>
+  </url>
+  <url>
+    <loc>https://amynang.github.io/posts/20240806/index.html</loc>
+    <lastmod>2024-08-06T17:24:21.427Z</lastmod>
   </url>
 </urlset>
