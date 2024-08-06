@@ -19,6 +19,8 @@ website:
       - about.qmd
       - href: cv.qmd
         text: cv
+      - href: contact.qmd
+        text: contact
 
 format:
   html:
