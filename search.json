@@ -1,5 +1,12 @@
 [
   {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Angelos Amyntas",
+    "section": "",
+    "text": "Angelos Amyntas\n\n\n\n\n\n\n\n\nI am a community ecologist. I am interested in understanding how the assembly of multi-trophic communities changes the functioning of ecosystems in space and across time."
+  },
+  {
     "objectID": "posts.html",
     "href": "posts.html",
     "title": "posts",
@@ -7,11 +14,11 @@
     "text": "test\n\n\n\n\n\n\nQuarto\n\n\n\nfiguring out how to write blog posts in quarto\n\n\n\n\n\nAug 6, 2024\n\n\nAngelos Amyntas\n\n\n\n\n\n\nNo matching items"
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Angelos Amyntas",
+    "objectID": "cv.html",
+    "href": "cv.html",
+    "title": "Curriculum Vitae",
     "section": "",
-    "text": "Angelos Amyntas\n\n\n\n\n\n\n\n\nI am a community ecologist. I am interested in understanding how the assembly of multi-trophic communities changes the functioning of ecosystems in space and across time."
+    "text": "soon"
   },
   {
     "objectID": "contact.html",
@@ -28,17 +35,17 @@
     "text": "I am currently preparing for my PhD defense.\nThe last four and a half years, I did research in the context of the Jena Experiment, a longterm grassland biodiversity and ecosystem functioning field experiment, located outside of Jena in Thuringia, Germany. In that phase of the experiment, we were interested in understanding why the positive effect of plant diversity on ecosystem functions — such as productivity — apparently strengthens over time. My project focused on the belowground component of the ecosystem. We examined the effects of plant diversity on functions performed by the multi-trophic community of soil fauna, in old and new communities. This work combined a field experiment, a mesocosm experiment and a bit of modelling.\nMy experiences and readings during this time have shifted my attention towards diversity and functioning relationships at larger spatial scales and under changing environmental conditions. So, to the links that represent trophic relationships between different populations in a community, I am now adding the links that represent interconnected communities in a landscape. Networks everywhere.\n\n\n\nIt’s all connected.\n\n\nI am also increasingly enthusiastic about Bayesian statistics and Agent Based Modelling. For the first, after joining Richard McElreath’s course a couple of years ago, I am teaching myself Stan (although for my work, my needs are usually covered by {brms}). For the second, I am slowly working my way through Paul Smaldino’s Modeling social behavior: Mathematical and agent-based models of social dynamics and cultural evolution, solving the exercises in NetLogo and sometimes trying to do the same using Agents.jl. Why would an ecologist choose a social science textbook to learn ABMs? I like the way he thinks and writes about modelling.\nWhen I am not sciencing, I read novels, listen to noisy music, watch old films or wander about in nature. In order of decreasing frequency."
   },
   {
-    "objectID": "cv.html",
-    "href": "cv.html",
-    "title": "Curriculum Vitae",
-    "section": "",
-    "text": "soon"
-  },
-  {
     "objectID": "posts/20240806/index.html",
     "href": "posts/20240806/index.html",
     "title": "test",
     "section": "",
     "text": "bla\n\n\n\nCitationBibTeX citation:@online{amyntas2024,\n  author = {Amyntas, Angelos},\n  title = {Test},\n  date = {2024-08-06},\n  url = {https://amynang.github.io/posts/20240806/},\n  langid = {en}\n}\nFor attribution, please cite this work as:\nAmyntas, Angelos. 2024. “Test.” August 6, 2024. https://amynang.github.io/posts/20240806/."
+  },
+  {
+    "objectID": "publications.html",
+    "href": "publications.html",
+    "title": "publications",
+    "section": "",
+    "text": "google scholar\nhttps://orcid.org/0000-0003-3777-3843\n\n\nAmyntas, Angelos, Emilio Berti, Benoit Gauzens, Georg Albert, Wentao Yu, Alexandra S. Werner, Nico Eisenhauer, and Ulrich Brose. 2023. “Niche Complementarity Among Plants and Animals Can Alter the Biodiversityecosystem Functioning Relationship.” Functional Ecology 37 (10): 2652–65. https://doi.org/10.1111/1365-2435.14419.\n\n\nDyer, Alexander, Remo Ryser, Ulrich Brose, Angelos Amyntas, Nora Bodnar, Thomas Boy, Solveig Franziska Bucher, et al. 2023. “Insect Communities Under Skyglow: Diffuse Night-Time Illuminance Induces Spatio-Temporal Shifts in Movement and Predation.” Philosophical Transactions of the Royal Society B: Biological Sciences 378 (1892). https://doi.org/10.1098/rstb.2022.0359.\n\n\nJochum, Malte, Andrew D. Barnes, Ulrich Brose, Benoit Gauzens, Marie Sünnemann, Angelos Amyntas, and Nico Eisenhauer. 2021. “For Flux’s Sake: General Considerations for Energy-Flux Calculations in Ecological Communities.” Ecology and Evolution 11 (19): 12948–69. https://doi.org/10.1002/ece3.8060.\n\n\nTerlau, Jördis F., Ulrich Brose, Nico Eisenhauer, Angelos Amyntas, Thomas Boy, Alexander Dyer, Alban Gebler, et al. 2023. “Microhabitat Conditions Remedy Heat Stress Effects on Insect Activity.” Global Change Biology 29 (13): 3747–58. https://doi.org/10.1111/gcb.16712."
   }
 ]
