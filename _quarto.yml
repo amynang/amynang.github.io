@@ -18,6 +18,8 @@ website:
         text: home
       - href: about.qmd
         text: about me
+      - href: publications.qmd
+        text: publications 
       - href: cv.qmd
         text: cv
       - href: contact.qmd
