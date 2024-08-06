@@ -1,0 +1,23 @@
+---
+title: "publications"
+format: 
+  html: 
+    css: styles.css
+mainfont: constantia 
+fontcolor: rgb(48, 48, 18)
+linkcolor: rgb(196,98,16)
+backgroundcolor: rgb(247, 247, 239)
+bibliography: references.bib
+nocite: |
+  @dyer2023, 
+  @amyntas2023, 
+  @terlau2023, 
+  @jochum2021
+---
+
+[google scholar](https://scholar.google.com/citations?hl=en&user=bR4j2V8AAAAJ)
+
+<https://orcid.org/0000-0003-3777-3843>
+
+::: {#refs}
+:::
