@@ -18,5 +18,5 @@ backgroundcolor: rgb(247, 247, 239)
 
 ::: cent
 I am a community ecologist.
-I am interested in understanding how the assembly of multitrophic communities changes the functioning of ecosystems in space and across time.
+I am interested in understanding how the assembly of multi-trophic communities changes the functioning of ecosystems in space and across time.
 :::
