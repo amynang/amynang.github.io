@@ -1,0 +1,22 @@
+---
+title: ""
+format: 
+  html: 
+    css: styles.css
+mainfont: constantia 
+fontcolor: rgb(48, 48, 18)
+backgroundcolor: rgb(247, 247, 239)
+---
+
+::: column-page
+::: cent
+# Angelos Amyntas
+:::
+:::
+
+![](images/me.png){fig-align="center" width="281"}
+
+::: cent
+I am a community ecologist.
+I am interested in understanding how the assembly of multitrophic communities changes the functioning of ecosystems in space and across time.
+:::
