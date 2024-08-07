@@ -8,4 +8,7 @@ fontcolor: rgb(48, 48, 18)
 backgroundcolor: rgb(247, 247, 239)
 ---
 
-soon
+![](files/amyntasCV.pdf){width=100%}
+
+
+
