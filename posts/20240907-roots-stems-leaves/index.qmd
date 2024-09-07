@@ -398,6 +398,38 @@ If you compare it with the previous figure, the credible envelopes are chonkier.
 
 For completeness, [here](https://raw.githubusercontent.com/amynang/JevonLang2022/main/figs/figS1.png) are the estimates of the three-Betas equivalent of the phylogenetic model.
 
+And finally, inspired by this amazing [plot](https://stats.andrewheiss.com/compassionate-clam/notebook/analysis-issue.html), let's make our own version of figure 2d in @jevon2022. We will stick with median height:
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: "Show the code"
+library(scales)
+
+fig5 = within.sp %>%
+  data_grid(rel.ht = c(0),
+            leaf_habit = c("deciduous",
+                           "evergreen"),
+            myc_group = c("ECM","AM")) %>%
+  add_epred_draws(m.all.rsl_hhm2_h.ph, re_formula = NA) %>% 
+  mutate(.category=fct_relevel(.category,c("leaves","stems","roots"))) %>% 
+  ggplot(aes(x = .draw, y = .epred)) +
+  geom_area(aes(fill = .category), position = position_stack()) +
+  labs(x = NULL, y = "Proportion of total biomass", fill = NULL) +
+  scale_x_continuous(breaks = NULL, expand = c(0, 0)) +
+  scale_y_continuous(labels = label_percent(), expand = c(0, 0)) +
+  scale_fill_manual(values = c("#9dbc9bcc","#8d8067cc","#efd08ecc")) +
+  facet_wrap(leaf_habit~myc_group, strip.position = "bottom", nrow = 1) +
+  theme_bw()
+
+ggsave("figs/fig5.png", fig5, units = "mm",
+       width = 140,
+       height = 140,
+       scale = 1)
+```
+
+![Figure 5: Biomass allocation for an individual of median height. The fuzzy areas demonstrate the uncertainty for the expected proportions](figs/fig5.png){fig-align="center" width="513"}
+
 ## conclusions
 
 A Dirichlet regression is three Beta regressions under a trenchcoat 🤷.
