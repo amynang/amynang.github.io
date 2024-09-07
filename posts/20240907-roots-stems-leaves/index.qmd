@@ -48,6 +48,8 @@ I am not a *forest* ecologist. I have not spent nearly as much time[^5] thinking
 
 ## baby steps
 
+*if you'd like to play along, the script is available [here](https://github.com/amynang/JevonLang2022).*
+
 Let's start simple, by examining the effect of tree height on root, stem[^6] and leaf (relative) mass for a single species, *Betula alleghaniensis.* It's a good place to start because it is the species with the largest number of individuals in the data (295 trees, unevenly distributed across three locations). Median height is 1.59 m with a range of 0.5-24.42 m. It's worth keeping in mind that within-species variation in height and biomass allocation does not only depend on ontogeny but also influenced by the environment (*e.g.* competition with neighbouring trees, climate).
 
 [^6]: I was very invested in a *shoots and leaves* joke but
