@@ -353,9 +353,9 @@ ggsave("figs/fig3.png", fig3, units = "mm",
 
 Finally, we can take our already complex multivariate, multivariable , varying intercepts, varying slopes regression model and have the intercepts and height slopes further constrained by phylogeny. This means that when we are partially pooling information across species, the extent of pooling depends on how closely related the different species are. You can read more about phylogenetic multilevel models with {brms} [here](https://cran.r-project.org/web/packages/brms/vignettes/brms_phylogenetics.html). Getting the data set-up right was a process of trial and error, but {brms} throws fairly informative errors. We need:
 
-1.  a phylogenetic tree (provided by @jevon2022) to construct the variance-covariance matrix
+1.  a phylogenetic tree (provided by @jevon2022) to construct the variance-covariance matrix,
 
-2.  a grouping variable (*phylo*) telling us which node of the tree each observation belongs to, *but* this needs to be distinct from our species variable (*SppName*) even though they (must) contain the same information
+2.  a grouping variable (*phylo*) telling us which node of the tree each observation belongs to, *but* this needs to be distinct from our species variable (*SppName*) even though they (must) contain the same information,
 
 3.  the names of the vcv matrix need to match the elements of *phylo.*
 
