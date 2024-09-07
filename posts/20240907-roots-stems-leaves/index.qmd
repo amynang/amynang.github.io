@@ -396,7 +396,11 @@ And here are the estimates of the phylogenetic model:
 
 If you compare it with the previous figure, the credible envelopes are chonkier. That's as it should be; the information we get from each species is not independent from other, related species.
 
+For completeness, [here](https://raw.githubusercontent.com/amynang/JevonLang2022/main/figs/figS1.png) are the estimates of the three-Betas equivalent of the phylogenetic model.
+
 ## conclusions
+
+A Dirichlet regression is three Beta regressions under a trenchcoat 🤷.
 
 Working with the output of a Dirichlet model, to produce figures or to get estimates at specific values, was more straightforward than I anticipated. As far as I can tell, it is not possible to use {marginaleffects} or {emmeans} to calculate contrasts, for example. But these can be calculated manually from the posterior draws (left as an exercise for the reader 😉).
 
