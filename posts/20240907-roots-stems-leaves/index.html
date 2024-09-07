@@ -579,9 +579,11 @@ div.csl-indent {
 </figure>
 </div>
 <p>If you compare it with the previous figure, the credible envelopes are chonkier. That’s as it should be; the information we get from each species is not independent from other, related species.</p>
+<p>For completeness, <a href="https://raw.githubusercontent.com/amynang/JevonLang2022/main/figs/figS1.png">here</a> are the estimates of the three-Betas equivalent of the phylogenetic model.</p>
 </section>
 <section id="conclusions" class="level2">
 <h2 class="anchored" data-anchor-id="conclusions">conclusions</h2>
+<p>A Dirichlet regression is three Beta regressions under a trenchcoat 🤷.</p>
 <p>Working with the output of a Dirichlet model, to produce figures or to get estimates at specific values, was more straightforward than I anticipated. As far as I can tell, it is not possible to use {marginaleffects} or {emmeans} to calculate contrasts, for example. But these can be calculated manually from the posterior draws (left as an exercise for the reader 😉).</p>
 <p>The phylogenetic model is simple enough to specify but can be computationally prohibitive depending on your processor and RAM.</p>
 <p>Trees are interesting 🤔.</p>
