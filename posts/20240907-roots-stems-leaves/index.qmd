@@ -6,8 +6,9 @@ date: 2024-09-07
 categories: [proportional data, Dirichlet, phylogenetic regression]
 toc: true
 toc-title: ""
-toccolor: rgb(247, 247, 239)
-format: html
+format:
+  html:
+    css: styles.css
 editor: visual
 mainfont: constantia
 fontcolor: rgb(48, 48, 18)
@@ -47,7 +48,7 @@ I am not a *forest* ecologist. I have not spent nearly as much time[^5] thinking
 
 ## baby steps
 
-Let's start simple, by examining the effect of tree height on root, stem[^6] and leaf (relative) mass for a single species, *Betula alleghaniensis.* It's a good place to start because it is the species with the largest number of individuals in the data (295 trees, unevenly distributed across three locations). Median height is 1.59 m with a range of 0.5-24.42 m. It's worth keeping in mind that within-species variation in height and biomass allocation is a combination of ontogeny *and* environment (*e.g.* competition, climate).
+Let's start simple, by examining the effect of tree height on root, stem[^6] and leaf (relative) mass for a single species, *Betula alleghaniensis.* It's a good place to start because it is the species with the largest number of individuals in the data (295 trees, unevenly distributed across three locations). Median height is 1.59 m with a range of 0.5-24.42 m. It's worth keeping in mind that within-species variation in height and biomass allocation does not only depend on ontogeny but also influenced by the environment (*e.g.* competition with neighbouring trees, climate).
 
 [^6]: I was very invested in a *shoots and leaves* joke but
 
@@ -55,7 +56,7 @@ Let's start simple, by examining the effect of tree height on root, stem[^6] and
 
     -   turns out stems and shoots are not interchangeable. Apparently, *any* *ecologist should know that*.
 
-Before any model fitting, we are going to standardize our predictor, height; let's divide the height of each *B. alleghaniensis* individual by the median height of that species and then take the base 2 logarithm of that quantity. The first of these steps brings individuals of median height at 1. The second step pushes them at 0 (`log2(1) = 0`) so that the intercepts, the model's estimates at 0, will be the estimated proportions for a median individual of *B. alleghaniensis* **and** now a one-unit change (which is what the coefficient for the predictor represents) corresponds to a doubling of height. I'll do this for all species, not just the focal one.
+Before any model fitting, we are going to standardize our predictor, height; let's divide the height of each *B. alleghaniensis* individual by the median height of that species and then take the base 2 logarithm of that quantity. The first of these steps brings individuals of median height at 1. The second step pushes them at 0 (`log2(1) = 0`) so that the intercepts, the model's estimates at 0, will be the estimated proportions for a median individual of *B. alleghaniensis* **and** now a one-unit change (which is what the coefficient for the predictor corresponds to) amounts to a doubling of height. I'll do this for all species, not just the focal one.
 
 ```{r}
 #| eval: false
@@ -252,9 +253,11 @@ ggsave("figs/fig1.png", fig1, units = "mm",
 
 They are not alarmingly different but you can see the wider uncertainty for the stem proportion across the height gradient and the change in the shape of the root-height relationship. The big picture is the same though and at this point, while we are only looking at one species and not yet asking how leaf habit or mycorrhizal association can modify this relationship, these differences are inconsequential.
 
+So taller trees allocate increasingly more biomass to stems, relative to roots or leaves. An individual of median height is already around 50% stem, while leaves are the smallest proportion. (Probably not news to anyone studying tree allometry; I wouldn't know).
+
 ## all together now
 
-Getting cocky, we are now going to throw the full dataset into the Dirichlet model. We now have 55 species with different leaf habits and mycorrhizal associations. I will cut a few corners here[^8], going directly to a model that includes relative height, habit and mycorrhizal group as well as their two-way interactions as predictors. We have a fairly sparse dataset with species information coming from more than one study/location while studies/locations feature more than one species. This sounds like a case for crossed random effects; we will account for the clustering of observations within species and within studies. We are also going to let the effect of height vary by species. Remember that we are still looking at *within* species height variation, with median height as our baseline. We're just partially pooling information across species about the effects of within-species height variation on biomass allocation.
+Getting cocky, we are now going to throw the full dataset into the Dirichlet model. We now have 55 species with different leaf habits and mycorrhizal associations. Biomass allocation, as well as its relationship to height, may be influenced by these factors. I will cut a few corners here[^8], going directly to a model that includes relative height, habit and mycorrhizal group as well as their two-way interactions as predictors. We have a fairly sparse dataset with species information coming from more than one study/location while studies/locations feature more than one species. This sounds like a case for crossed random effects; we will account for the clustering of observations within species and within studies. We are also going to let the effect of height vary by species. Remember that we are still looking at *within* species height variation, with species' median height as our baseline. We're just partially pooling information across species about the effects of within-species height variation on biomass allocation.
 
 [^8]: There were no convergence problems with models that included no interactions and intercept-only random effects.
 
@@ -276,11 +279,85 @@ m.all.rsl_hhm2 <- brm(bf(RSL ~ (rel.ht  + leaf_habit + myc_group)^2 +
 # Total execution time: 4191.0 seconds.
 ```
 
+We have now ramped up both the number of observations and, more importantly, the number of coefficients to be estimated. This model took a while to get there.
+
 ![Figure 2: Estimates of the Dirichlet model for all species, faceted by leaf habit and mycorrhizal association. Thin lines are the median estimates, bound by 90% credible envelopes.](figs/fig2.png){fig-align="center"}
+
+What stood out to me first, by eyeballing figure 2, is that ECM-associated trees seem to have a more pronounced stem to leaf biomass trade-off, especially above median height.
+
+Here are the model estimates at median height for the two leaf habits and mycorrhizal associations.
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: "Show the code"
+fig3a = within.sp %>% 
+  data_grid(expand_grid(rel.ht = c(0),
+                        leaf_habit = c("deciduous"),
+                        myc_group = c("ECM","AM"))) %>% 
+  add_epred_draws(m.all.rsl_hhm2,
+                  re_formula = NA) %>% 
+  mutate(group = str_c(.category, myc_group)) %>% 
+  ggplot(aes(x = .epred, fill = factor(group))) +
+  stat_halfeye(aes(shape = myc_group),
+               .width = c(.9),
+               size = 5,
+               alpha = .5) +
+  scale_fill_manual(values = c("#9dbc9b","#9dbc9b",
+                               "#efd08e","#efd08e",
+                               "#8d8067","#8d8067"),
+                    guide = "none") +
+  ylab("") +
+  xlab("estimate") +
+  facet_wrap(~.category,
+             scales = "free") +
+  theme_bw() + 
+  ggtitle("Biomass allocation of deciduous trees at median height")
+
+fig3b = within.sp %>% 
+  data_grid(expand_grid(rel.ht = c(0),
+                        leaf_habit = c("evergreen"),
+                        myc_group = c("ECM","AM"))) %>% 
+  add_epred_draws(m.all.rsl_hhm2,
+                  re_formula = NA) %>% 
+  mutate(group = str_c(.category, myc_group)) %>% 
+  ggplot(aes(x = .epred, fill = factor(group))) +
+  stat_halfeye(aes(shape = myc_group),
+               .width = c(.9),
+               size = 5,
+               alpha = .5) +
+  scale_fill_manual(values = c("#9dbc9b","#9dbc9b",
+                               "#efd08e","#efd08e",
+                               "#8d8067","#8d8067"),
+                    guide = "none") +
+  ylab("") +
+  xlab("estimate") +
+  facet_wrap(~.category,
+             scales = "free") +
+  theme_bw() + 
+  ggtitle("Biomass allocation of evergreen trees at median height")
+
+
+fig3 = fig3a/fig3b
+ggsave("figs/fig3.png", fig3, units = "mm",
+       width = 180,
+       height = 120,
+       scale = 1.4)
+```
+
+![Figure 3: Estimated proportions at median height. Points are the median estimate bound by 90% credible intervals. Note that each facet has its own scale for the x axis. The y axis is not informative; I forgot to remove it.](figs/fig3.png){fig-align="center"}
 
 ## the other kind of tree
 
-You can read more about phylogenetic multilevel models with {brms} [here](https://cran.r-project.org/web/packages/brms/vignettes/brms_phylogenetics.html).
+Finally, we can take our already complex multivariate, multivariable , varying intercepts, varying slopes regression model and have the intercepts and height slopes further constrained by phylogeny. This means that when we are partially pooling information across species, the extent of pooling depends on how closely related the different species are. You can read more about phylogenetic multilevel models with {brms} [here](https://cran.r-project.org/web/packages/brms/vignettes/brms_phylogenetics.html). Getting the data set-up right was a process of trial and error, but {brms} throws fairly informative errors. We need:
+
+1.  a phylogenetic tree (provided by @jevon2022) to construct the variance-covariance matrix
+
+2.  a grouping variable (*phylo*) telling us which node of the tree each observation belongs to, *but* this needs to be distinct from our species variable (*SppName*) even though they (must) contain the same information
+
+3.  the names of the vcv matrix need to match the elements of *phylo.*
+
+Note that we are dealing with a phylogenetic model with repeated measurements within each node/species which is why we need to go through the *SppName-phylo* matching shenanigans. We've also had not just the intercept but also the effect of height on biomass allocation be constrained by phylogeny. This model took a substantial amount of time to finish.
 
 ```{r}
 #| eval: false
@@ -313,6 +390,16 @@ m.all.rsl_hhm2_h.ph <- brm(bf(RSL ~ (rel.ht  + leaf_habit + myc_group)^2 +
 
 And here are the estimates of the phylogenetic model:
 
-![Figure 3: Estimates of the phylogenetic model. Thin lines are the median estimates, bound by 90% credible envelopes.](figs/fig3.png){fig-align="center"}
+![Figure 4: Estimates of the phylogenetic model. Thin lines are the median estimates, bound by 90% credible envelopes.](figs/fig4.png){fig-align="center"}
 
 If you compare it with the previous figure, the credible envelopes are chonkier. That's as it should be; the information we get from each species is not independent from other, related species.
+
+## conclusions
+
+Working with the output of a Dirichlet model, to produce figures or to get estimates at specific values, was more straightforward than I anticipated. As far as I can tell, it is not possible to use {marginaleffects} or {emmeans} to calculate contrasts, for example. But these can be calculated manually from the posterior draws (left as an exercise for the reader 😉).
+
+The phylogenetic model is simple enough to specify but can be computationally prohibitive depending on your processor and RAM.
+
+Trees are interesting 🤔.
+
+## references

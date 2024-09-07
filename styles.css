@@ -2,3 +2,8 @@
 .cent {
   text-align: center
 }
+
+a:hover {
+    color: rgb(196,75,16) !important;
+}
+
