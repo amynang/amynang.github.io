@@ -9,6 +9,7 @@ linkcolor: rgb(196,98,16)
 backgroundcolor: rgb(247, 247, 239)
 bibliography: references.bib
 nocite: |
+  @li2024
   @dyer2023, 
   @amyntas2023, 
   @terlau2023, 
