@@ -53,7 +53,7 @@
     "href": "posts/20240907-roots-stems-leaves/index.html#conclusions",
     "title": "Roots, stems & leaves",
     "section": "conclusions",
-    "text": "conclusions\nA Dirichlet regression is three Beta regressions under a trenchcoat 🤷.\nWorking with the output of a Dirichlet model, to produce figures or to get estimates at specific values, was more straightforward than I anticipated. As far as I can tell, it is not possible to use {marginaleffects} or {emmeans} to calculate contrasts, for example. But these can be calculated manually from the posterior draws (left as an exercise for the reader 😉).\nThe phylogenetic model is simple enough to specify but can be computationally prohibitive depending on your processor and RAM.\nTrees are interesting 🤔."
+    "text": "conclusions\nA Dirichlet regression is three \\(n\\) Beta regressions in a trenchcoat 🤷.\nWorking with the output of a Dirichlet model, to produce figures or to get estimates at specific values, was more straightforward than I anticipated. As far as I can tell, it is not possible to use {marginaleffects} or {emmeans} to calculate contrasts, for example. But these can be calculated manually from the posterior draws (left as an exercise for the reader 😉).\nThe phylogenetic model is simple enough to specify but can be computationally prohibitive depending on your processor and RAM.\nTrees are interesting 🤔."
   },
   {
     "objectID": "posts/20240907-roots-stems-leaves/index.html#footnotes",
