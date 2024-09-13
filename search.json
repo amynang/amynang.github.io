@@ -4,7 +4,7 @@
     "href": "publications.html",
     "title": "publications",
     "section": "",
-    "text": "google scholar\nhttps://orcid.org/0000-0003-3777-3843\n\n\nAmyntas, Angelos, Emilio Berti, Benoit Gauzens, Georg Albert, Wentao Yu, Alexandra S. Werner, Nico Eisenhauer, and Ulrich Brose. 2023. “Niche Complementarity Among Plants and Animals Can Alter the Biodiversityecosystem Functioning Relationship.” Functional Ecology 37 (10): 2652–65. https://doi.org/10.1111/1365-2435.14419.\n\n\nDyer, Alexander, Remo Ryser, Ulrich Brose, Angelos Amyntas, Nora Bodnar, Thomas Boy, Solveig Franziska Bucher, et al. 2023. “Insect Communities Under Skyglow: Diffuse Night-Time Illuminance Induces Spatio-Temporal Shifts in Movement and Predation.” Philosophical Transactions of the Royal Society B: Biological Sciences 378 (1892). https://doi.org/10.1098/rstb.2022.0359.\n\n\nJochum, Malte, Andrew D. Barnes, Ulrich Brose, Benoit Gauzens, Marie Sünnemann, Angelos Amyntas, and Nico Eisenhauer. 2021. “For Flux’s Sake: General Considerations for Energy-Flux Calculations in Ecological Communities.” Ecology and Evolution 11 (19): 12948–69. https://doi.org/10.1002/ece3.8060.\n\n\nTerlau, Jördis F., Ulrich Brose, Nico Eisenhauer, Angelos Amyntas, Thomas Boy, Alexander Dyer, Alban Gebler, et al. 2023. “Microhabitat Conditions Remedy Heat Stress Effects on Insect Activity.” Global Change Biology 29 (13): 3747–58. https://doi.org/10.1111/gcb.16712."
+    "text": "google scholar\nhttps://orcid.org/0000-0003-3777-3843\n\n\nAmyntas, Angelos, Emilio Berti, Benoit Gauzens, Georg Albert, Wentao Yu, Alexandra S. Werner, Nico Eisenhauer, and Ulrich Brose. 2023. “Niche Complementarity Among Plants and Animals Can Alter the Biodiversityecosystem Functioning Relationship.” Functional Ecology 37 (10): 2652–65. https://doi.org/10.1111/1365-2435.14419.\n\n\nDyer, Alexander, Remo Ryser, Ulrich Brose, Angelos Amyntas, Nora Bodnar, Thomas Boy, Solveig Franziska Bucher, et al. 2023. “Insect Communities Under Skyglow: Diffuse Night-Time Illuminance Induces Spatio-Temporal Shifts in Movement and Predation.” Philosophical Transactions of the Royal Society B: Biological Sciences 378 (1892). https://doi.org/10.1098/rstb.2022.0359.\n\n\nJochum, Malte, Andrew D. Barnes, Ulrich Brose, Benoit Gauzens, Marie Sünnemann, Angelos Amyntas, and Nico Eisenhauer. 2021. “For Flux’s Sake: General Considerations for Energy-Flux Calculations in Ecological Communities.” Ecology and Evolution 11 (19): 12948–69. https://doi.org/10.1002/ece3.8060.\n\n\nLi, Yi, Andreas Schuldt, Anne Ebeling, Nico Eisenhauer, Yuanyuan Huang, Georg Albert, Cynthia Albracht, et al. 2024. “Plant Diversity Enhances Ecosystem Multifunctionality via Multitrophic Diversity.” Nature Ecology & Evolution, August, 1–11. https://doi.org/10.1038/s41559-024-02517-2.\n\n\nTerlau, Jördis F., Ulrich Brose, Nico Eisenhauer, Angelos Amyntas, Thomas Boy, Alexander Dyer, Alban Gebler, et al. 2023. “Microhabitat Conditions Remedy Heat Stress Effects on Insect Activity.” Global Change Biology 29 (13): 3747–58. https://doi.org/10.1111/gcb.16712."
   },
   {
     "objectID": "posts/20240907-roots-stems-leaves/index.html",
@@ -63,6 +63,13 @@
     "text": "Footnotes\n\n\nI don’t need to go into that because there an excellent discussion here↩︎\nA few years back Douma and Weedon (2019) wrote a review on how to work with continuous proportions with these two distributions. Their overview of support for proportional models is only slightly out of date; brms does support Dirichlet models.↩︎\n(Falster et al. 2015)↩︎\nThe most important of them was extracting temperature and precipitation data from Worldclim 2.1 instead of 1.4. The latter is no longer accessible1.\n4.1: (a meta-footnote 😎) You’d think this is a breaking change but in their repository, Jevon and Lang include the bioclimatic data necessary to run their code without interruptions. So, from a strict reproducibility perspective, ⭐⭐⭐⭐⭐↩︎\nThis is my twisted idea of a Sunday mornings’ leisure activity.↩︎\nI was very invested in a shoots and leaves joke but\n\nthe roots spoil it\nturns out stems and shoots are not interchangeable. Apparently, any ecologist should know that.\n\n↩︎\nTechnically, were estimating two of them, getting the third one for free, which is why the Dirichlect model has n-1 of everything (intercepts, slope coefficients), for n components. This is similar to how in a Beta regression, we are implicitly also estimating the proportion that is not leaves, for example.↩︎\nThere were no convergence problems with models that included no interactions and intercept-only random effects.↩︎"
   },
   {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Angelos Amyntas",
+    "section": "",
+    "text": "Angelos Amyntas\n\n\n\n\n\n\n\n\nI am a community ecologist. I am interested in understanding how the assembly of multi-trophic communities changes the functioning of ecosystems in space and across time."
+  },
+  {
     "objectID": "contact.html",
     "href": "contact.html",
     "title": "",
@@ -89,12 +96,5 @@
     "title": "posts",
     "section": "",
     "text": "Roots, stems & leaves\n\n\n\n\n\n\nproportional data\n\n\nDirichlet\n\n\nphylogenetic regression\n\n\n\nmodelling proportions and trying a phylogenetic regression, using data from 10.1002/ecy.3688\n\n\n\n\n\nSep 7, 2024\n\n\nAngelos Amyntas\n\n\n\n\n\n\n\n\n\n\n\n\ntest\n\n\n\n\n\n\nQuarto\n\n\n\nfiguring out how to write blog posts in quarto\n\n\n\n\n\nAug 6, 2024\n\n\nAngelos Amyntas\n\n\n\n\n\n\nNo matching items"
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Angelos Amyntas",
-    "section": "",
-    "text": "Angelos Amyntas\n\n\n\n\n\n\n\n\nI am a community ecologist. I am interested in understanding how the assembly of multi-trophic communities changes the functioning of ecosystems in space and across time."
   }
 ]
