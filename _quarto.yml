@@ -29,9 +29,8 @@ website:
 
 format:
   html:
-    #theme: cosmo
     css: styles.css
     toc: false
-
+    highlight-style: zenburn
 editor: visual
 
