@@ -432,7 +432,7 @@ ggsave("figs/fig5.png", fig5, units = "mm",
 
 ## conclusions
 
-A Dirichlet regression is three Beta regressions under a trenchcoat 🤷.
+A Dirichlet regression is ~~three~~ $n$ Beta regressions in a trenchcoat 🤷.
 
 Working with the output of a Dirichlet model, to produce figures or to get estimates at specific values, was more straightforward than I anticipated. As far as I can tell, it is not possible to use {marginaleffects} or {emmeans} to calculate contrasts, for example. But these can be calculated manually from the posterior draws (left as an exercise for the reader 😉).
 
