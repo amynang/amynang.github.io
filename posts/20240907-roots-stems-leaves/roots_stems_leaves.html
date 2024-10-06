@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Angelos Amyntas">
-<meta name="dcterms.date" content="2024-09-07">
+<meta name="dcterms.date" content="2024-09-06">
 <meta name="description" content="modelling proportions and trying a phylogenetic regression, using data from 10.1002/ecy.3688">
 
 <title>Roots, stems &amp; leaves</title>
@@ -124,41 +124,11 @@ div.csl-indent {
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 <link rel="stylesheet" href="../../styles.css">
-<link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-fixed">
+<body class="nav-fixed fullcontent">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top quarto-banner">
@@ -199,7 +169,6 @@ window.Quarto = {
             <div class="quarto-navbar-tools tools-wide">
     <a href="https://github.com/amynang" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
     <a href="https://ecoevo.social/@amyntas" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-mastodon"></i></a>
-    <a href="https://bsky.app/profile/amyntas.bsky.social" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-bluesky"></i></a>
     <a href="https://twitter.com/AmyntasAngelos" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-twitter"></i></a>
 </div>
       </div> <!-- /container-fluid -->
@@ -215,12 +184,7 @@ window.Quarto = {
           modelling proportions and trying a phylogenetic regression, using data from 10.1002/ecy.3688
         </div>
       </div>
-                          <div class="quarto-categories">
-                <div class="quarto-category">proportional data</div>
-                <div class="quarto-category">Dirichlet</div>
-                <div class="quarto-category">phylogenetic regression</div>
-              </div>
-                  </div>
+                </div>
   </div>
     
   
@@ -236,7 +200,7 @@ window.Quarto = {
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">September 7, 2024</p>
+        <p class="date">September 6, 2024</p>
       </div>
     </div>
     
@@ -247,20 +211,7 @@ window.Quarto = {
   </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-   
-  <ul>
-  <li><a href="#the-point-of-this-exercise" id="toc-the-point-of-this-exercise" class="nav-link active" data-scroll-target="#the-point-of-this-exercise">the point of this exercise</a></li>
-  <li><a href="#caveat-lector" id="toc-caveat-lector" class="nav-link" data-scroll-target="#caveat-lector"><em>caveat lector</em></a></li>
-  <li><a href="#baby-steps" id="toc-baby-steps" class="nav-link" data-scroll-target="#baby-steps">baby steps</a></li>
-  <li><a href="#all-together-now" id="toc-all-together-now" class="nav-link" data-scroll-target="#all-together-now">all together now</a></li>
-  <li><a href="#the-other-kind-of-tree" id="toc-the-other-kind-of-tree" class="nav-link" data-scroll-target="#the-other-kind-of-tree">the other kind of tree</a></li>
-  <li><a href="#conclusions" id="toc-conclusions" class="nav-link" data-scroll-target="#conclusions">conclusions</a></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">references</a></li>
-  </ul>
-</nav>
-    </div>
+    
 <!-- main -->
 <main class="content quarto-banner-title-block" id="quarto-document-content">
 
@@ -271,20 +222,18 @@ window.Quarto = {
 <section id="the-point-of-this-exercise" class="level2">
 <h2 class="anchored" data-anchor-id="the-point-of-this-exercise">the point of this exercise</h2>
 <p><span class="citation" data-cites="jevon2022">Jevon and Lang (<a href="#ref-jevon2022" role="doc-biblioref">2022</a>)</span> examined how tree properties like leaf habit (evergreen <em>vs</em> deciduous) and type of mycorrhizal association (arbuscular <em>vs</em> ectomycorrhizal) can influence the relationship between tree size and biomass allocation, across 55 different tree species. Since this post is going to be light on ecology and heavy on stats, you might want to <del>skim</del> peruse their paper first. It’s really good!</p>
-<p>My own interest in this data-set is twofold. Examining biomass allocation means that we are looking at proportions; not just the leaf biomass of a tree but the proportion of its total biomass that is leaves. Proportions, which are bound to (0,1), can be analysed using the Beta distribution, so that model estimates respect their bounded nature<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. A tree can’t have more than 100% of its biomass in leaves and accordingly, a model using the Beta distribution will not make estimates outside the 0-1 range.</p>
-<p>While the Beta distribution allows us to model simple proportions (e.g.&nbsp;proportion of biomass that is leaves vs not leaves), the <em>Dirichlet</em> distribution is an extension of the Beta that can accommodate proportions of more than two components (i.e.&nbsp;proportions of biomass that are leaves, stems and roots)<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>. On the other hand, working with Dirichlet models is more cumbersome and I am not sure that we get more out of them than fitting three individual Beta models, one for each component. Let’s find out.</p>
-<p>The other cool feature of <span class="citation" data-cites="jevon2022">Jevon and Lang (<a href="#ref-jevon2022" role="doc-biblioref">2022</a>)</span> is the phylogenetic tree in (their) Figure 1a, showing the relatedness of the 55 species of their study. The authors did use multilevel models to acount for observations clustered within studies and species but they did not make use of the phylogenetic tree in their analysis. We are going to try and use that information to account for the non-independence of related tree species. We are in luck, because {brms} <a href="https://cran.r-project.org/web/packages/brms/vignettes/brms_phylogenetics.html">supports</a> this.</p>
+<p>My interest in this data-set is twofold. Examining biomass allocation means that we are looking at proportions; not just the leaf biomass of a tree but the proportion of its total biomass that is leaves. Proportions, which are bound to (0,1), can be analysed using the Beta distribution, so that model estimates respect their bounded nature<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. A tree can’t have more than 100% of its biomass in leaves and accordingly, a model using the Beta distribution will not make estimates outside the 0-1 range. While the Beta distribution allows us to model simple proportions (e.g.&nbsp;proportion of biomass that is leaves vs not leaves), the <em>Dirichlet</em> distribution is an extension of the Beta that can accommodate proportions of more than two components (i.e.&nbsp;proportions of biomass that are leaves, stems and roots)<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>. On the other hand, working with Dirichlet models is more cumbersome and I am not sure that we get more out of them than fitting three individual Beta models, one for each component. Let’s find out.</p>
+<p>The other cool feature of <span class="citation" data-cites="jevon2022">Jevon and Lang (<a href="#ref-jevon2022" role="doc-biblioref">2022</a>)</span> is the phylogenetic tree in (their) Figure 1a, showing the relatedness of the 55 species of their study. The authors did use multilevel models to acount for observations clustered within studies and species but they did not make use of the phylogenetic tree in their analysis. We are going to try and use that information to account for the non-independence of related tree species. We are in luck, because brms supports this.</p>
 <p>The authors of the original paper have made all their code available <a href="https://github.com/ashleylang/BAM">here</a>. They’ve also written a very clear Methods section, outlining every choice they made in the selection of the data, which are coming from the Biomass and Allometry Database<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>. I have largely retraced their wrangling steps, with minor adjustments<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>.</p>
 </section>
 <section id="caveat-lector" class="level2">
 <h2 class="anchored" data-anchor-id="caveat-lector"><em>caveat lector</em></h2>
-<p>I am not a <em>forest</em> ecologist. I have not spent nearly as much time<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a> thinking about the processes explored here, as the authors of the original study, nor can I match their expertise on the subject. The motivation behind this is not to question nor affirm the original study. The authors fitted an ecologically motivated model, which they then simplified aiming for parsimony. I am mainly interested in the technicalities of modelling proportions and accounting for phylogenetic relatedness. I will therefore start from the ground up, adding complexity, to see how far I get before I run into trouble. Again, the focus here is on model fitting, not ecology. But I am also, <em>very emphatically,</em> not a statistician. I have tried to explicitly justify every choice I have made and I would like to believe that my choices are sensible. But if you read this and you spot any mistakes, I would be grateful if you point them out to me.</p>
+<p>I am not a <em>forest</em> ecologist. I have not spent nearly as much time<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a> thinking about the processes explored here, as the authors of the original study, nor can I match their expertise on the subject. The motivation behind this is not to question nor affirm the original study. The authors fitted an ecologically motivated model, which they then simplified aiming for parsimony. I am mainly interested in the technicalities of modelling proportions and accounting for phylogenetic relatedness. I will therefore start from the ground up, adding complexity, to see how far I get before I run into trouble. Again, the focus here is on model fitting, not ecology. But I am also, <em>very emphatically,</em> not a statistician. I have tried to explicitly justify every choice I have made here. I would like to believe that my choices are sensible. But if you read this and you spot any mistakes, I would be grateful if you point them out to me.</p>
 </section>
 <section id="baby-steps" class="level2">
 <h2 class="anchored" data-anchor-id="baby-steps">baby steps</h2>
-<p><em>if you’d like to play along, the script is available <a href="https://github.com/amynang/JevonLang2022">here</a>.</em></p>
-<p>Let’s start simple, by examining the effect of tree height on root, stem<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a> and leaf (relative) mass for a single species, <em>Betula alleghaniensis.</em> It’s a good place to start because it is the species with the largest number of individuals in the data (295 trees, unevenly distributed across three locations). Median height is 1.59 m with a range of 0.5-24.42 m. It’s worth keeping in mind that within-species variation in height and biomass allocation does not only depend on ontogeny but also influenced by the environment (<em>e.g.</em> competition with neighbouring trees, climate).</p>
-<p>Before any model fitting, we are going to standardize our predictor, height; let’s divide the height of each <em>B. alleghaniensis</em> individual by the median height of that species and then take the base 2 logarithm of that quantity. The first of these steps brings individuals of median height at 1. The second step pushes them at 0 (<code>log2(1) = 0</code>) so that the intercepts, the model’s estimates at 0, will be the estimated proportions for a median individual of <em>B. alleghaniensis</em> <strong>and</strong> now a one-unit change (which is what the coefficient for the predictor corresponds to) amounts to a doubling of height. I’ll do this for all species, not just the focal one.</p>
+<p>Let’s start simple, by examining the effect of tree height on root, stem<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a> and leaf (relative) mass for a single species, <em>Betula alleghaniensis.</em> It’s a good place to start because it is the species with the largest number of individuals in the data (295 trees, unevenly distributed across three locations). Median height is 1.59 m with a range of 0.5-24.42 m. It’s worth keeping in mind that within-species variation in height and biomass allocation is a combination of ontogeny and environment (<em>e.g.</em> competition, climate).</p>
+<p>Before any model fitting, we are going to standardize our predictor, height; let’s divide the height of each <em>B. alleghaniensis</em> individual by the median height of that species and then take the base 2 logarithm of that quantity. The first of these steps brings individuals of median height at 1. The second step pushes them at 0 (<code>log2(1) = 0</code>) so that the intercepts, the model’s estimates at 0, will be the estimated proportions for a median individual of <em>B. alleghaniensis</em> <strong>and</strong> now a one-unit change (which is what the coefficient for the predictor represents) corresponds to a doubling of height. I’ll do this for all species, not just the focal one.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
@@ -397,7 +346,7 @@ window.Quarto = {
 <span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="fu">ppc_dens_overlay</span>(within.sp<span class="sc">$</span>leaves[within.sp<span class="sc">$</span>SppName <span class="sc">==</span> <span class="st">"Betula_alleghaniensis"</span>], </span>
 <span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>                 yrep[ , <span class="dv">1</span><span class="sc">:</span><span class="dv">295</span>, <span class="dv">3</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>And now we can compare the estimates of the two approaches. To make it easier to see any differences, I have combined the draws from the three Beta models before pushing them through {ggplot}, so that we can have one plot for the three Betas (left) and one for the Dirichlet regression (right):</p>
+<p>And now we can compare the estimates of the two approaches. To make it easier to see any differences, I have combined the draws from the three Beta models before pushing them through ggplot, so that we can have one plot for the three Betas (left) and one for the Dirichlet regression (right):</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
@@ -471,11 +420,10 @@ window.Quarto = {
 </figure>
 </div>
 <p>They are not alarmingly different but you can see the wider uncertainty for the stem proportion across the height gradient and the change in the shape of the root-height relationship. The big picture is the same though and at this point, while we are only looking at one species and not yet asking how leaf habit or mycorrhizal association can modify this relationship, these differences are inconsequential.</p>
-<p>So taller trees allocate increasingly more biomass to stems, relative to roots or leaves. An individual of median height is already around 50% stem, while leaves are the smallest proportion. (Probably not news to anyone studying tree allometry; I wouldn’t know).</p>
 </section>
-<section id="all-together-now" class="level2">
-<h2 class="anchored" data-anchor-id="all-together-now">all together now</h2>
-<p>Getting cocky, we are now going to throw the full dataset into the Dirichlet model. We now have 55 species with different leaf habits and mycorrhizal associations. Biomass allocation, as well as its relationship to height, may be influenced by these factors. I will cut a few corners here<a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a>, going directly to a model that includes relative height, habit and mycorrhizal group as well as their two-way interactions as predictors. We have a fairly sparse dataset with species information coming from more than one study/location while studies/locations feature more than one species. This sounds like a case for crossed random effects; we will account for the clustering of observations within species and within studies. We are also going to let the effect of height vary by species. Remember that we are still looking at <em>within</em> species height variation, with species’ median height as our baseline. We’re just partially pooling information across species about the effects of within-species height variation on biomass allocation.</p>
+<section id="the-next-section" class="level2">
+<h2 class="anchored" data-anchor-id="the-next-section">the next section</h2>
+<p>Getting cocky now, we are going to throw the full dataset into the Dirichlet model. We now have 55 species with different leaf habits and mycorrhizal associations. I will cut a few corners here<a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a>, going directly to a model that includes relative height, habit and mycorrhizal group as well as their two-way interactions as predictors. We have a fairly sparse dataset with species information coming from more than one study/location while studies/locations feature more than one species. This sounds like a case for crossed random effects. We will account for the clustering of observations within species and within studies. We are also going to let the effect of height vary by species.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>m.all.rsl_hhm2 <span class="ot">&lt;-</span> <span class="fu">brm</span>(<span class="fu">bf</span>(RSL <span class="sc">~</span> (rel.ht  <span class="sc">+</span> leaf_habit <span class="sc">+</span> myc_group)<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> </span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                           (<span class="dv">1</span> <span class="sc">+</span> rel.ht<span class="sc">|</span>SppName) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>Study)), </span>
@@ -489,178 +437,58 @@ window.Quarto = {
 <span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">max_treedepth =</span> <span class="dv">12</span>),</span>
 <span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>                      <span class="at">backend =</span> <span class="st">"cmdstanr"</span>,</span>
 <span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>                      <span class="at">file =</span> <span class="st">"fits/m.all.rsl_hhm2"</span>,</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>                      <span class="at">seed =</span> <span class="dv">123</span>)</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Total execution time: 4191.0 seconds.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>We have now ramped up both the number of observations and, more importantly, the number of coefficients to be estimated. This model took a while to get there.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="figs/fig2.png" class="img-fluid figure-img"></p>
-<figcaption>Figure 2: Estimates of the Dirichlet model for all species, faceted by leaf habit and mycorrhizal association. Thin lines are the median estimates, bound by 90% credible envelopes.</figcaption>
-</figure>
-</div>
-<p>What stood out to me first, by eyeballing figure 2, is that ECM-associated trees seem to have a more pronounced stem to leaf biomass trade-off, especially above median height.</p>
-<p>Here are the model estimates at median height for the two leaf habits and mycorrhizal associations.</p>
-<div class="cell">
-<details class="code-fold">
-<summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fig3a <span class="ot">=</span> within.sp <span class="sc">%&gt;%</span> </span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_grid</span>(<span class="fu">expand_grid</span>(<span class="at">rel.ht =</span> <span class="fu">c</span>(<span class="dv">0</span>),</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">leaf_habit =</span> <span class="fu">c</span>(<span class="st">"deciduous"</span>),</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">myc_group =</span> <span class="fu">c</span>(<span class="st">"ECM"</span>,<span class="st">"AM"</span>))) <span class="sc">%&gt;%</span> </span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_epred_draws</span>(m.all.rsl_hhm2,</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">re_formula =</span> <span class="cn">NA</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">group =</span> <span class="fu">str_c</span>(.category, myc_group)) <span class="sc">%&gt;%</span> </span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> .epred, <span class="at">fill =</span> <span class="fu">factor</span>(group))) <span class="sc">+</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_halfeye</span>(<span class="fu">aes</span>(<span class="at">shape =</span> myc_group),</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>               <span class="at">.width =</span> <span class="fu">c</span>(.<span class="dv">9</span>),</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>               <span class="at">size =</span> <span class="dv">5</span>,</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>               <span class="at">alpha =</span> .<span class="dv">5</span>) <span class="sc">+</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#9dbc9b"</span>,<span class="st">"#9dbc9b"</span>,</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>                               <span class="st">"#efd08e"</span>,<span class="st">"#efd08e"</span>,</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>                               <span class="st">"#8d8067"</span>,<span class="st">"#8d8067"</span>),</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>                    <span class="at">guide =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">""</span>) <span class="sc">+</span></span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"estimate"</span>) <span class="sc">+</span></span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>.category,</span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>             <span class="at">scales =</span> <span class="st">"free"</span>) <span class="sc">+</span></span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span> </span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Biomass allocation of deciduous trees at median height"</span>)</span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>fig3b <span class="ot">=</span> within.sp <span class="sc">%&gt;%</span> </span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_grid</span>(<span class="fu">expand_grid</span>(<span class="at">rel.ht =</span> <span class="fu">c</span>(<span class="dv">0</span>),</span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>                        <span class="at">leaf_habit =</span> <span class="fu">c</span>(<span class="st">"evergreen"</span>),</span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>                        <span class="at">myc_group =</span> <span class="fu">c</span>(<span class="st">"ECM"</span>,<span class="st">"AM"</span>))) <span class="sc">%&gt;%</span> </span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_epred_draws</span>(m.all.rsl_hhm2,</span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>                  <span class="at">re_formula =</span> <span class="cn">NA</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">group =</span> <span class="fu">str_c</span>(.category, myc_group)) <span class="sc">%&gt;%</span> </span>
-<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> .epred, <span class="at">fill =</span> <span class="fu">factor</span>(group))) <span class="sc">+</span></span>
-<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_halfeye</span>(<span class="fu">aes</span>(<span class="at">shape =</span> myc_group),</span>
-<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>               <span class="at">.width =</span> <span class="fu">c</span>(.<span class="dv">9</span>),</span>
-<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>               <span class="at">size =</span> <span class="dv">5</span>,</span>
-<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>               <span class="at">alpha =</span> .<span class="dv">5</span>) <span class="sc">+</span></span>
-<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#9dbc9b"</span>,<span class="st">"#9dbc9b"</span>,</span>
-<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>                               <span class="st">"#efd08e"</span>,<span class="st">"#efd08e"</span>,</span>
-<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>                               <span class="st">"#8d8067"</span>,<span class="st">"#8d8067"</span>),</span>
-<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>                    <span class="at">guide =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
-<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">""</span>) <span class="sc">+</span></span>
-<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"estimate"</span>) <span class="sc">+</span></span>
-<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>.category,</span>
-<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>             <span class="at">scales =</span> <span class="st">"free"</span>) <span class="sc">+</span></span>
-<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span> </span>
-<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Biomass allocation of evergreen trees at median height"</span>)</span>
-<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>fig3 <span class="ot">=</span> fig3a<span class="sc">/</span>fig3b</span>
-<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"figs/fig3.png"</span>, fig3, <span class="at">units =</span> <span class="st">"mm"</span>,</span>
-<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>       <span class="at">width =</span> <span class="dv">180</span>,</span>
-<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>       <span class="at">height =</span> <span class="dv">120</span>,</span>
-<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>       <span class="at">scale =</span> <span class="fl">1.4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>                      <span class="at">seed =</span> <span class="dv">123</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="figs/fig3.png" class="img-fluid figure-img"></p>
-<figcaption>Figure 3: Estimated proportions at median height. Points are the median estimate bound by 90% credible intervals. Note that each facet has its own scale for the x axis. The y axis is not informative; I forgot to remove it.</figcaption>
+<p><img src="figs/fig2.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
 </figure>
 </div>
 </section>
 <section id="the-other-kind-of-tree" class="level2">
-<h2 class="anchored" data-anchor-id="the-other-kind-of-tree">the other kind of tree</h2>
-<p>Finally, we can take our already complex multivariate, multivariable , varying intercepts, varying slopes regression model and have the intercepts and height slopes further constrained by phylogeny. This means that when we are partially pooling information across species, the extent of pooling depends on how closely related the different species are. You can read more about phylogenetic multilevel models with {brms} <a href="https://cran.r-project.org/web/packages/brms/vignettes/brms_phylogenetics.html">here</a>. Getting the data set-up right was a process of trial and error, but {brms} throws fairly informative errors. We need:</p>
-<ol type="1">
-<li><p>a phylogenetic tree (provided by <span class="citation" data-cites="jevon2022">Jevon and Lang (<a href="#ref-jevon2022" role="doc-biblioref">2022</a>)</span>) to construct the variance-covariance matrix,</p></li>
-<li><p>a grouping variable (<em>phylo</em>) telling us which node of the tree each observation belongs to, <em>but</em> this needs to be distinct from our species variable (<em>SppName</em>) even though they (must) contain the same information,</p></li>
-<li><p>the names of the vcv matrix need to match the elements of <em>phylo.</em></p></li>
-</ol>
-<p>Note that we are dealing with a phylogenetic model with repeated measurements within each node/species which is why we need to go through the <em>SppName-phylo</em> matching shenanigans. We’ve also had not just the intercept but also the effect of height on biomass allocation be constrained by phylogeny. This model took a substantial amount of time to finish.</p>
+<h2 class="anchored" data-anchor-id="the-other-kind-of-tree">The other kind of tree</h2>
+<p>You can read more about phylogenetic multilevel models with brms <a href="https://cran.r-project.org/web/packages/brms/vignettes/brms_phylogenetics.html">here</a>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ape)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># load the tree</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>phylo <span class="ot">=</span> <span class="fu">read.tree</span>(<span class="st">"phyliptree1.phy"</span>)</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># phylogenetic variance-covariance matrix</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>A <span class="ot">=</span> ape<span class="sc">::</span><span class="fu">vcv.phylo</span>(phylo)</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co"># replaces "name" with name</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">dimnames</span>(A) <span class="ot">=</span> <span class="fu">list</span>(<span class="fu">unique</span>(within.sp<span class="sc">$</span>SppName),</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">unique</span>(within.sp<span class="sc">$</span>SppName))</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co"># grouping of observations by species (brms requires a distinct named variable)</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>within.sp<span class="sc">$</span>phylo <span class="ot">=</span> within.sp<span class="sc">$</span>SppName</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>m.all.rsl_hhm2_h.ph <span class="ot">&lt;-</span> <span class="fu">brm</span>(<span class="fu">bf</span>(RSL <span class="sc">~</span> (rel.ht  <span class="sc">+</span> leaf_habit <span class="sc">+</span> myc_group)<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> </span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>                                (<span class="dv">1</span> <span class="sc">+</span> rel.ht<span class="sc">|</span><span class="fu">gr</span>(phylo, <span class="at">cov =</span> A)) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> rel.ht<span class="sc">|</span>SppName) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>Study)), </span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>                           <span class="at">data =</span> within.sp, </span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>                           <span class="at">data2 =</span> <span class="fu">list</span>(<span class="at">A =</span> A),</span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>                           <span class="at">family =</span> <span class="fu">dirichlet</span>(), </span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>                           <span class="at">chains =</span> <span class="dv">4</span>, </span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>                           <span class="at">iter =</span> <span class="dv">9000</span>, </span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>                           <span class="at">warmup =</span> <span class="dv">3000</span>, </span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>                           <span class="at">cores =</span> <span class="dv">4</span>, </span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>                           <span class="at">control =</span> <span class="fu">list</span>(<span class="at">adapt_delta =</span> <span class="fl">0.99</span>,</span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">max_treedepth =</span> <span class="dv">12</span>),</span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>                           <span class="at">backend =</span> <span class="st">"cmdstanr"</span>,</span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>                           <span class="at">file =</span> <span class="st">"fits/m.all.rsl_hhm2_h.ph"</span>,</span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>                           <span class="at">seed =</span> <span class="dv">123</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ape)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># load the tree</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>phylo <span class="ot">=</span> <span class="fu">read.tree</span>(<span class="st">"phyliptree1.phy"</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># phylogenetic variance-covariance matrix</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>A <span class="ot">=</span> ape<span class="sc">::</span><span class="fu">vcv.phylo</span>(phylo)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co"># replaces "name" with name</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="fu">dimnames</span>(A) <span class="ot">=</span> <span class="fu">list</span>(<span class="fu">unique</span>(within.sp<span class="sc">$</span>SppName),</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">unique</span>(within.sp<span class="sc">$</span>SppName))</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># grouping of observations by species (brms requires a distinct named variable)</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>within.sp<span class="sc">$</span>phylo <span class="ot">=</span> within.sp<span class="sc">$</span>SppName</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>m.all.rsl_hhm2_h.ph <span class="ot">&lt;-</span> <span class="fu">brm</span>(<span class="fu">bf</span>(RSL <span class="sc">~</span> (rel.ht  <span class="sc">+</span> leaf_habit <span class="sc">+</span> myc_group)<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> </span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>                                (<span class="dv">1</span> <span class="sc">+</span> rel.ht<span class="sc">|</span><span class="fu">gr</span>(phylo, <span class="at">cov =</span> A)) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> rel.ht<span class="sc">|</span>SppName) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>Study)), </span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>                           <span class="at">data =</span> within.sp, </span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>                           <span class="at">data2 =</span> <span class="fu">list</span>(<span class="at">A =</span> A),</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>                           <span class="at">family =</span> <span class="fu">dirichlet</span>(), </span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>                           <span class="at">chains =</span> <span class="dv">4</span>, </span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>                           <span class="at">iter =</span> <span class="dv">9000</span>, </span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>                           <span class="at">warmup =</span> <span class="dv">3000</span>, </span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>                           <span class="at">cores =</span> <span class="dv">4</span>, </span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>                           <span class="at">control =</span> <span class="fu">list</span>(<span class="at">adapt_delta =</span> <span class="fl">0.99</span>,</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">max_treedepth =</span> <span class="dv">12</span>),</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>                           <span class="at">backend =</span> <span class="st">"cmdstanr"</span>,</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>                           <span class="at">file =</span> <span class="st">"fits/m.all.rsl_hhm2_h.ph"</span>,</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>                           <span class="at">seed =</span> <span class="dv">123</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>And here are the estimates of the phylogenetic model:</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="figs/fig4.png" class="img-fluid figure-img"></p>
-<figcaption>Figure 4: Estimates of the phylogenetic model. Thin lines are the median estimates, bound by 90% credible envelopes.</figcaption>
+<p><img src="figs/fig3.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
 </figure>
 </div>
 <p>If you compare it with the previous figure, the credible envelopes are chonkier. That’s as it should be; the information we get from each species is not independent from other, related species.</p>
-<p>For completeness, <a href="https://raw.githubusercontent.com/amynang/JevonLang2022/main/figs/figS1.png">here</a> are the estimates of the three-Betas equivalent of the phylogenetic model.</p>
-<p>And finally, inspired by this amazing <a href="https://stats.andrewheiss.com/compassionate-clam/notebook/analysis-issue.html">plot</a>, let’s make our own version of figure 2d in <span class="citation" data-cites="jevon2022">Jevon and Lang (<a href="#ref-jevon2022" role="doc-biblioref">2022</a>)</span>. We will stick with median height:</p>
-<div class="cell">
-<details class="code-fold">
-<summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scales)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>fig5 <span class="ot">=</span> within.sp <span class="sc">%&gt;%</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_grid</span>(<span class="at">rel.ht =</span> <span class="fu">c</span>(<span class="dv">0</span>),</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">leaf_habit =</span> <span class="fu">c</span>(<span class="st">"deciduous"</span>,</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>                           <span class="st">"evergreen"</span>),</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">myc_group =</span> <span class="fu">c</span>(<span class="st">"ECM"</span>,<span class="st">"AM"</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_epred_draws</span>(m.all.rsl_hhm2_h.ph, <span class="at">re_formula =</span> <span class="cn">NA</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">.category=</span><span class="fu">fct_relevel</span>(.category,<span class="fu">c</span>(<span class="st">"leaves"</span>,<span class="st">"stems"</span>,<span class="st">"roots"</span>))) <span class="sc">%&gt;%</span> </span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> .draw, <span class="at">y =</span> .epred)) <span class="sc">+</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_area</span>(<span class="fu">aes</span>(<span class="at">fill =</span> .category), <span class="at">position =</span> <span class="fu">position_stack</span>()) <span class="sc">+</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Proportion of total biomass"</span>, <span class="at">fill =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="cn">NULL</span>, <span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)) <span class="sc">+</span></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> <span class="fu">label_percent</span>(), <span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)) <span class="sc">+</span></span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#9dbc9bcc"</span>,<span class="st">"#8d8067cc"</span>,<span class="st">"#efd08ecc"</span>)) <span class="sc">+</span></span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(leaf_habit<span class="sc">~</span>myc_group, <span class="at">strip.position =</span> <span class="st">"bottom"</span>, <span class="at">nrow =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"figs/fig5.png"</span>, fig5, <span class="at">units =</span> <span class="st">"mm"</span>,</span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>       <span class="at">width =</span> <span class="dv">140</span>,</span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>       <span class="at">height =</span> <span class="dv">140</span>,</span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>       <span class="at">scale =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-</div>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="figs/fig5.png" class="img-fluid figure-img" width="513"></p>
-<figcaption>Figure 5: Biomass allocation for an individual of median height. The fuzzy areas demonstrate the uncertainty for the expected proportions</figcaption>
-</figure>
-</div>
-</section>
-<section id="conclusions" class="level2">
-<h2 class="anchored" data-anchor-id="conclusions">conclusions</h2>
-<p>A Dirichlet regression is <del>three</del> <span class="math inline">\(n\)</span> Beta regressions in a trenchcoat 🤷.</p>
-<p>Working with the output of a Dirichlet model, to produce figures or to get estimates at specific values, was more straightforward than I anticipated. As far as I can tell, it is not possible to use {marginaleffects} or {emmeans} to calculate contrasts, for example. But these can be calculated manually from the posterior draws (left as an exercise for the reader 😉).</p>
-<p>The phylogenetic model is simple enough to specify but can be computationally prohibitive depending on your processor and RAM.</p>
-<p>Trees are interesting 🤔.</p>
-</section>
-<section id="references" class="level2">
-
 
 
 
 </section>
 
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">references</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
 <div id="ref-douma2019" class="csl-entry" role="listitem">
 Douma, Jacob C., and James T. Weedon. 2019. <span>“Analysing Continuous Proportions in Ecology and Evolution: A Practical Introduction to Beta and Dirichlet Regression.”</span> Edited by David Warton. <em>Methods in Ecology and Evolution</em> 10 (9): 1412–30. <a href="https://doi.org/10.1111/2041-210X.13234">https://doi.org/10.1111/2041-210X.13234</a>.
 </div>
@@ -781,7 +609,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp("https:\/\/amynang\.github\.io\/");
+      var filterRegex = new RegExp('/' + window.location.host + '/');
     var isInternal = (href) => {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
