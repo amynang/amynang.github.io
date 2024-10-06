@@ -7,3 +7,10 @@ a:hover {
     color: rgb(196,75,16) !important;
 }
 
+body {
+    hyphens: auto; /* Enable hyphenation */
+    -webkit-hyphens: auto; /* For Safari */
+    -moz-hyphens: auto; /* For Firefox */
+    text-align: justify; /* Justify the text */
+}
+
