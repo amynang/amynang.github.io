@@ -7,18 +7,37 @@ mainfont: constantia
 fontcolor: rgb(48, 48, 18)
 linkcolor: rgb(196,98,16)
 backgroundcolor: rgb(247, 247, 239)
-bibliography: references.bib
-nocite: |
-  @li2024
-  @dyer2023, 
-  @amyntas2023, 
-  @terlau2023, 
-  @jochum2021
+# bibliography: references.bib
+# nocite: |
+#   @hennecke2024,
+#   @amyntas2024,
+#   @sünnemann2024,
+#   @li2024,
+#   @dyer2023, 
+#   @amyntas2023, 
+#   @terlau2023, 
+#   @jochum2021
 ---
 
 [google scholar](https://scholar.google.com/citations?hl=en&user=bR4j2V8AAAAJ)
 
 <https://orcid.org/0000-0003-3777-3843>
+
+Hennecke, Justus, Leonardo Bassi, Cynthia Albracht, Angelos Amyntas, Joana Bergmann, Nico Eisenhauer, Aaron Fox, et al. 2024. “Plant Species Richness and the Root Economics Space Drive Soil Fungal Communities.” *Ecology Letters* 28 (1). <https://doi.org/10.1111/ele.70032>.
+
+Amyntas, Angelos, Nico Eisenhauer, Stefan Scheu, Bernhard Klarner, Krassimira Ilieva-Makulec, Anna-Maria Madaj, Benoit Gauzens, et al. 2024. “Soil Community History Strengthens Belowground Multitrophic Functioning Across Plant Diversity Levels in a Grassland Experiment.” *Nature Communications* 15 (1). <https://doi.org/10.1038/s41467-024-54401-z>.
+
+Sünnemann, Marie, Andrew D. Barnes, Angelos Amyntas, Marcel Ciobanu, Malte Jochum, Alfred Lochner, Anton M. Potapov, et al. 2024. “Sustainable Land Use Strengthens Microbial and Herbivore Controls in Soil Food Webs in Current and Future Climates.” *Global Change Biology* 30 (11). <https://doi.org/10.1111/gcb.17554>.
+
+Li, Yi, Andreas Schuldt, Anne Ebeling, Nico Eisenhauer, Yuanyuan Huang, Georg Albert, Cynthia Albracht, et al. 2024. “Plant Diversity Enhances Ecosystem Multifunctionality via Multitrophic Diversity.” *Nature Ecology & Evolution*, August, 1–11. <https://doi.org/10.1038/s41559-024-02517-2>.
+
+Dyer, Alexander, Remo Ryser, Ulrich Brose, Angelos Amyntas, Nora Bodnar, Thomas Boy, Solveig Franziska Bucher, et al. 2023. “Insect Communities Under Skyglow: Diffuse Night-Time Illuminance Induces Spatio-Temporal Shifts in Movement and Predation.” *Philosophical Transactions of the Royal Society B: Biological Sciences* 378 (1892). <https://doi.org/10.1098/rstb.2022.0359>.
+
+Amyntas, Angelos, Emilio Berti, Benoit Gauzens, Georg Albert, Wentao Yu, Alexandra S. Werner, Nico Eisenhauer, and Ulrich Brose. 2023. “Niche Complementarity Among Plants and Animals Can Alter the Biodiversityecosystem Functioning Relationship.” *Functional Ecology* 37 (10): 2652–65. <https://doi.org/10.1111/1365-2435.14419>.
+
+Terlau, Jördis F., Ulrich Brose, Nico Eisenhauer, Angelos Amyntas, Thomas Boy, Alexander Dyer, Alban Gebler, et al. 2023. “Microhabitat Conditions Remedy Heat Stress Effects on Insect Activity.” *Global Change Biology* 29 (13): 3747–58. <https://doi.org/10.1111/gcb.16712>.
+
+Jochum, Malte, Andrew D. Barnes, Ulrich Brose, Benoit Gauzens, Marie Sünnemann, Angelos Amyntas, and Nico Eisenhauer. 2021. “For Flux’s Sake: General Considerations for Energy-Flux Calculations in Ecological Communities.” *Ecology and Evolution* 11 (19): 12948–69. <https://doi.org/10.1002/ece3.8060>.
 
 ::: {#refs}
 :::
