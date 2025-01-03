@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://amynang.github.io/publications.html</loc>
-    <lastmod>2024-09-14T15:51:30.958Z</lastmod>
+    <lastmod>2025-01-03T18:46:17.038Z</lastmod>
   </url>
   <url>
     <loc>https://amynang.github.io/posts/20240907-roots-stems-leaves/index.html</loc>
@@ -11,6 +11,10 @@
   <url>
     <loc>https://amynang.github.io/cv.html</loc>
     <lastmod>2024-08-07T14:34:09.561Z</lastmod>
+  </url>
+  <url>
+    <loc>https://amynang.github.io/index.html</loc>
+    <lastmod>2024-08-06T21:41:19.081Z</lastmod>
   </url>
   <url>
     <loc>https://amynang.github.io/contact.html</loc>
@@ -26,10 +30,6 @@
   </url>
   <url>
     <loc>https://amynang.github.io/posts.html</loc>
-    <lastmod>2024-08-06T21:41:19.081Z</lastmod>
-  </url>
-  <url>
-    <loc>https://amynang.github.io/index.html</loc>
     <lastmod>2024-08-06T21:41:19.081Z</lastmod>
   </url>
 </urlset>
