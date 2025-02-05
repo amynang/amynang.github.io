@@ -9,11 +9,11 @@ linkcolor: rgb(196,98,16)
 backgroundcolor: rgb(247, 247, 239)
 ---
 
-::: column-page
+:::: column-page
 ::: cent
 # Angelos Amyntas
 :::
-:::
+::::
 
 ![](images/me.png){fig-align="center" width="281"}
 

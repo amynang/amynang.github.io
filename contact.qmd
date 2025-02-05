@@ -9,11 +9,13 @@ backgroundcolor: rgb(247, 247, 239)
 ---
 
 ::: cent
-German Centre for Integrative Biodiversity Research (iDiv)
+Leibniz Institute of Freshwater Ecology and Inland Fisheries (IGB)
 
-Puschstraße 4
+Zur alten Fischerhütte 2
 
-04103 Leipzig
+16775
+
+Stechlin
 
 Germany
 

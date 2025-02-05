@@ -9,10 +9,10 @@ website:
       href: https://github.com/amynang
     - icon: mastodon
       href: https://ecoevo.social/@amyntas
-    - icon: bluesky
+    - icon: bsky
       href: https://bsky.app/profile/amyntas.bsky.social
     - icon: twitter
-      href: https://twitter.com/AmyntasAngelos
+      href: https://bsky.app/profile/amyntas.bsky.social
     search: false
     background: rgb(247, 247, 239)
     right:
