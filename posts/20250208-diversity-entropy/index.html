@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Angelos Amyntas">
+<meta name="dcterms.date" content="2025-02-08">
 
-<title>posts</title>
+<title>Diversity, entropy and the effective number of species</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,27 +22,59 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-listing/list.min.js"></script>
-<script src="site_libs/quarto-listing/quarto-listing.js"></script>
-<script src="site_libs/quarto-html/quarto.js"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -68,35 +102,6 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
-
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-listing .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
-
-    const options = {
-      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
-      
-      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description","listing-categories"],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -128,13 +133,13 @@ window.Quarto = {
 };
 </script>
 
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="../../styles.css">
 </head>
 
-<body class="nav-fixed">
+<body class="nav-fixed fullcontent">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top">
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
             <div id="quarto-search" class="" title="Search"></div>
@@ -144,27 +149,27 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./index.html"> 
+    <a class="nav-link" href="../../index.html"> 
 <span class="menu-text">home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./about.html"> 
+    <a class="nav-link" href="../../about.html"> 
 <span class="menu-text">about me</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./publications.html"> 
+    <a class="nav-link" href="../../publications.html"> 
 <span class="menu-text">publications</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./cv.html"> 
+    <a class="nav-link" href="../../cv.html"> 
 <span class="menu-text">cv</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./contact.html"> 
+    <a class="nav-link" href="../../contact.html"> 
 <span class="menu-text">contact</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./posts.html" aria-current="page"> 
+    <a class="nav-link" href="../../posts.html"> 
 <span class="menu-text">posts</span></a>
   </li>  
 </ul>
@@ -179,155 +184,139 @@ window.Quarto = {
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Diversity, entropy and the effective number of species</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">diversity</div>
+                <div class="quarto-category">Shannon entropy</div>
+                <div class="quarto-category">logarithms</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Angelos Amyntas </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">February 8, 2025</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(3)</span></div><div class="category" data-category="Dirichlet">Dirichlet <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Quarto">Quarto <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Shannon entropy">Shannon entropy <span class="quarto-category-count">(1)</span></div><div class="category" data-category="diversity">diversity <span class="quarto-category-count">(1)</span></div><div class="category" data-category="logarithms">logarithms <span class="quarto-category-count">(1)</span></div><div class="category" data-category="phylogenetic regression">phylogenetic regression <span class="quarto-category-count">(1)</span></div><div class="category" data-category="proportional data">proportional data <span class="quarto-category-count">(1)</span></div></div></div>
+    
 <!-- main -->
-<main class="content" id="quarto-document-content">
-
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">posts</h1>
-</div>
-
-
-
-<div class="quarto-title-meta">
-
-    
-  
-    
-  </div>
-  
-
-
-</header>
+<main class="content quarto-banner-title-block" id="quarto-document-content">
 
 
 
 
 
+<div class="callout callout-style-default callout-note callout-titled" title="note">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This was originally a short detour in something longer I am working on. I decided to turn it into a standalone short explainer I can point to.</p>
+</div>
+</div>
+<p>One of the metrics that we use to quantify the diversity of an ecological community is Shannon’s entropy. In contrast to “richness”, i.e.&nbsp;the number of species that comprise the community, entropy is determined not only by how many species are there but also their relative abundance. It is calculated as</p>
+<p><span class="math display">\[
+H' = -\sum_i p_i log(p_i)
+\]</span></p>
+<p>where <span class="math inline">\(p_i\)</span> is the relative abundance of species <span class="math inline">\(i\)</span><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. So, if we have an “even” community of four species [🦑, 🐟, 🦀, 🐚] equally abundant, its entropy is:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span>((<span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>)<span class="sc">*</span><span class="fu">log</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>))<span class="sc">*</span><span class="dv">4</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.386294</code></pre>
+</div>
+</div>
+<p>There are two ways for entropy to go down. If all 🦑 individuals suddenly vanished<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>, the new entropy would be:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span>((<span class="dv">1</span><span class="sc">/</span><span class="dv">3</span>)<span class="sc">*</span><span class="fu">log</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">3</span>))<span class="sc">*</span><span class="dv">3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.098612</code></pre>
+</div>
+</div>
+<p>The other way for entropy to drop is if the community became less even, changing for example from <span class="math inline">\([.25, .25, .25, .25]\)</span> to <span class="math inline">\([.4, .2, .2, .2]\)</span>. Here’s the new entropy:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span>((.<span class="dv">4</span>)<span class="sc">*</span><span class="fu">log</span>(.<span class="dv">4</span>)) <span class="sc">-</span> ((.<span class="dv">2</span>)<span class="sc">*</span><span class="fu">log</span>(.<span class="dv">2</span>))<span class="sc">*</span><span class="dv">3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.332179</code></pre>
+</div>
+</div>
+<p>The number of species determines an upper limit to diversity; how uneven a community is determines how far below that the actual diversity is. The exponent of entropy is sometimes called the effective number of species (for entropy). What does that mean? If we exponentiate the entropy of the initial four-species even community, we get back 4, the number of species. If we exponentiate the uneven community, we get back 3.79. This way, we match our uneven community to an even community of 3.79 species. An even community of 3.79 species has the same entropy as our uneven community, 1.33. So, weird as it may sound, we use <span class="math inline">\(species\)</span> as a continuous unit of measurement to measure diversity in a way that, in fact, incorporates information about both the number of species and the community’s evenness.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># the entropy of an even 4-species community</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span>((<span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>)<span class="sc">*</span><span class="fu">log</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>))<span class="sc">*</span><span class="dv">4</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.386294</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># the exponent of the entropy of an even 4-species community</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="sc">-</span>((<span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>)<span class="sc">*</span><span class="fu">log</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>))<span class="sc">*</span><span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 4</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># the entropy of an uneven 4-species community with [.4, .2, .2, .2]</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span>((.<span class="dv">4</span>)<span class="sc">*</span><span class="fu">log</span>(.<span class="dv">4</span>)) <span class="sc">-</span> ((.<span class="dv">2</span>)<span class="sc">*</span><span class="fu">log</span>(.<span class="dv">2</span>))<span class="sc">*</span><span class="dv">3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.332179</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># the exponent of the entropy of an uneven 4-species community with [.4, .2, .2, .2]</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="sc">-</span>((.<span class="dv">4</span>)<span class="sc">*</span><span class="fu">log</span>(.<span class="dv">4</span>)) <span class="sc">-</span> ((.<span class="dv">2</span>)<span class="sc">*</span><span class="fu">log</span>(.<span class="dv">2</span>))<span class="sc">*</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3.789291</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># the entropy of an even community of 3.79 species</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span>((<span class="dv">1</span><span class="sc">/</span><span class="fl">3.789291</span>)<span class="sc">*</span><span class="fu">log</span>(<span class="dv">1</span><span class="sc">/</span><span class="fl">3.789291</span>))<span class="sc">*</span><span class="fl">3.789291</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.332179</code></pre>
+</div>
+</div>
+<p>You can see this from the perspective of a generalist consumer that feeds indiscriminately on these four species. In an environment where the four prey species are equally “available”, the consumer’s diet will consist of four species. In an environment where 97% of prey individuals belong to one species, with the other three species taking up 1% each, the effective number of prey species will be 1.18. The effective diversity of the consumer’s diet is slightly above one species.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="sc">-</span>((.<span class="dv">97</span>)<span class="sc">*</span><span class="fu">log</span>(.<span class="dv">97</span>)) <span class="sc">-</span> ((.<span class="dv">01</span>)<span class="sc">*</span><span class="fu">log</span>(.<span class="dv">01</span>))<span class="sc">*</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.182582</code></pre>
+</div>
+</div>
+<p>Working with the effective number of species (for Shannon’s entropy), we can examine changes in diversity across an <em>additive</em> scale of even communities. Working with entropy, the natural logarithm of the effective number of species, we examine these changes in a <em>multiplicative</em> scale. One unit change is <span class="math inline">\(e\)</span> times up or down in diversity.</p>
+<p>Well, this is because we have been calculating entropy using the natural logarithm. However, there is no particular reason to use the natural logarithm. Switching to base 2 would make things a bit more intuitive, <em>I</em> think<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>. When it comes to changes in magnitude, whether it’s time, distance or size, half of something or double of something is more graspable than <span class="math inline">\(e\)</span> times of the thing, right? I would argue that half/double is also more graspable than ten times something or one tenth of the thing<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>. It’s good to make things as graspable as we can. In fact, one <a href="http://www.loujost.com/Statistics%20and%20Physics/Diversity%20and%20Similarity/EffectiveNumberOfSpecies.htm">argument</a> in favor of using the effective number of species instead of raw Shannon entropies when communicating changes in diversity, is that we might misrepresent the magnitude of change. I am not sure this is a real issue, <em>as long as we keep in mind that we are dealing with multiplicative changes</em><a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a><em>.</em> And especially if we work with base 2 logarithms to calculate Shannon entropy, things are fairly straightforward: one unit of change in entropy represents a doubling (or halving) of diversity in terms of the effective number of species.</p>
 
-<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
-<div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="diversity,Shannon entropy,logarithms" data-listing-date-sort="1738969200000" data-listing-file-modified-sort="1739029302484" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="752">
-<div class="thumbnail">
-<p><a href="./posts/20250208-diversity-entropy/index.html" class="no-external"></a></p><a href="./posts/20250208-diversity-entropy/index.html" class="no-external">
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
-</a><p><a href="./posts/20250208-diversity-entropy/index.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/20250208-diversity-entropy/index.html" class="no-external">Diversity, entropy and the effective number of species</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/20250208-diversity-entropy/index.html" class="no-external"></a>
-</div>
-<div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('diversity'); return false;">
-diversity
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('Shannon entropy'); return false;">
-Shannon entropy
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('logarithms'); return false;">
-logarithms
-</div>
-</div>
-<div class="listing-description">
-<a href="./posts/20250208-diversity-entropy/index.html" class="no-external">This was originally a short detour in something longer I am working on. I decided to turn it into a standalone short explainer I can point to.</a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/20250208-diversity-entropy/index.html" class="no-external">
-<div class="listing-date">
-Feb 8, 2025
-</div>
-<div class="listing-author">
-Angelos Amyntas
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="1" data-categories="proportional data,Dirichlet,phylogenetic regression" data-listing-date-sort="1725660000000" data-listing-file-modified-sort="1726329090958" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="28" data-listing-word-count-sort="5464">
-<div class="thumbnail">
-<p><a href="./posts/20240907-roots-stems-leaves/index.html" class="no-external"></a></p><a href="./posts/20240907-roots-stems-leaves/index.html" class="no-external">
-<p class="card-img-top"><img src="posts/20240907-roots-stems-leaves/figs/fig1.png"  class="thumbnail-image card-img"/></p>
-</a><p><a href="./posts/20240907-roots-stems-leaves/index.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/20240907-roots-stems-leaves/index.html" class="no-external">Roots, stems &amp; leaves</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/20240907-roots-stems-leaves/index.html" class="no-external"></a>
-</div>
-<div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('proportional data'); return false;">
-proportional data
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('Dirichlet'); return false;">
-Dirichlet
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('phylogenetic regression'); return false;">
-phylogenetic regression
-</div>
-</div>
-<div class="listing-description">
-<a href="./posts/20240907-roots-stems-leaves/index.html" class="no-external">modelling proportions and trying a phylogenetic regression, using data from 10.1002/ecy.3688</a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/20240907-roots-stems-leaves/index.html" class="no-external">
-<div class="listing-date">
-Sep 7, 2024
-</div>
-<div class="listing-author">
-Angelos Amyntas
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="2" data-categories="Quarto" data-listing-date-sort="1722895200000" data-listing-file-modified-sort="1722980479081" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="1">
-<div class="thumbnail">
-<p><a href="./posts/20240806/index.html" class="no-external"></a></p><a href="./posts/20240806/index.html" class="no-external">
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
-</a><p><a href="./posts/20240806/index.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/20240806/index.html" class="no-external">test</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/20240806/index.html" class="no-external"></a>
-</div>
-<div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Quarto'); return false;">
-Quarto
-</div>
-</div>
-<div class="listing-description">
-<a href="./posts/20240806/index.html" class="no-external">figuring out how to write blog posts in quarto</a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/20240806/index.html" class="no-external">
-<div class="listing-date">
-Aug 6, 2024
-</div>
-<div class="listing-author">
-Angelos Amyntas
-</div>
-</a>
-</div>
-</div>
-</div>
-<div class="listing-no-matching d-none">
-No matching items
-</div>
-</div></main> <!-- /main -->
+
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>Based on the number of individuals or, less commonly, biomass. Either makes sense depending on the context, so it is a good idea to be explicit.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>👽<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>{vegan}’s <code>diversity()</code> has a <em>base</em> argument 😉.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>If you were considering the option of base 10. What are you, an astronomer?<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p>Never mind that you may exponentiate your entropies because you were encouraged to work with effective numbers of species instead and then you find out you have to log them again for the purposes of your analysis.<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
