@@ -23,6 +23,10 @@ backgroundcolor: rgb(247, 247, 239)
 
 <https://orcid.org/0000-0003-3777-3843>
 
+Yi, Huimin, Olga Ferlian, Benoit Gauzens, Roberto Rebollo, Stefan Scheu, Angelos Amyntas, Marcel Ciobanu, Anton Potapov, Jörg-Alfred Salamon, and Nico Eisenhauer. 2025. “Belowground Energy Fluxes Determine Tree Diversity Effects on Above- and Belowground Food Webs.” *Current Biology*, April, S096098222500346X. <https://doi.org/10.1016/j.cub.2025.03.034>.
+
+Amyntas, Angelos, Benoit Gauzens, Marcel Ciobanu, Lara Warnke, Mark Maraun, Jörg‐Alfred Salamon, Mona Merkle, et al. 2025. “Shared Community History Strengthens Plant Diversity Effects on Below‐ground Multitrophic Functioning.” *Journal of Animal Ecology* 94 (4): 555–65. <https://doi.org/10.1111/1365-2656.14241>.
+
 Hennecke, Justus, Leonardo Bassi, Cynthia Albracht, Angelos Amyntas, Joana Bergmann, Nico Eisenhauer, Aaron Fox, et al. 2024. “Plant Species Richness and the Root Economics Space Drive Soil Fungal Communities.” *Ecology Letters* 28 (1). <https://doi.org/10.1111/ele.70032>.
 
 Amyntas, Angelos, Nico Eisenhauer, Stefan Scheu, Bernhard Klarner, Krassimira Ilieva-Makulec, Anna-Maria Madaj, Benoit Gauzens, et al. 2024. “Soil Community History Strengthens Belowground Multitrophic Functioning Across Plant Diversity Levels in a Grassland Experiment.” *Nature Communications* 15 (1). <https://doi.org/10.1038/s41467-024-54401-z>.
