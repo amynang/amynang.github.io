@@ -208,6 +208,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
+<div class="callout callout-style-default callout-caution callout-titled" title="warning">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This is not the finished product. There will be more errors than otherwise.</p>
+</div>
+</div>
 <section id="what-the" class="level2">
 <h2 class="anchored" data-anchor-id="what-the">what the %$@#!?</h2>
 <p>When we measure the density of phytoplankton per volume of water or the body-mass of ground beetle individuals, our observations take specific values (45 cells in the sample volume, 45mg for this beetle). These observations have <em>sampling error</em> (a different sample from the same observational unit would contain more or less than 45 cells) and <em>measurement error</em> (the scale we use to measure beetle mass has precision limits) and this error is often unknown.</p>
@@ -964,7 +977,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp("https:\/\/amynang\.github\.io\/");
+        var filterRegex = new RegExp('/' + window.location.host + '/');
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
