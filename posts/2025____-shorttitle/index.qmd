@@ -1,0 +1,735 @@
+---
+title: "Eyeballing it: working with <span style='background:black;color:black;'>censored</span> data"
+description: "modelling interval-censored proportional data with brms+"
+author: "Angelos Amyntas"
+date: 2025-07-12
+categories: [proportional data, censoring, ordinal regression, brms, Stan]
+format: html
+editor: visual
+mainfont: constantia
+fontcolor: rgb(48, 48, 18)
+linkcolor: rgb(196,98,16)
+backgroundcolor: rgb(247, 247, 239)
+highlight-style: zenburn
+bibliography: references.bib
+---
+
+::: {.callout-caution title="warning"}
+This is not the finished product. There will be more errors than otherwise.
+:::
+
+## what the %\$\@#!?
+
+When we measure the density of phytoplankton per volume of water or the body-mass of ground beetle individuals, our observations take specific values (45 cells in the sample volume, 45mg for this beetle). These observations have *sampling error* (a different sample from the same observational unit would contain more or less than 45 cells) and *measurement error* (the scale we use to measure beetle mass has precision limits) and this error is often unknown.
+
+Now consider the flip side of this: observations that are inherently imprecise because *all we know* is that they fall within a certain range or beyond a limit of measurement. In this case, we know only the *bounds* of measurement error but we do not have a specific value to assign on each observation. This is **censoring**.
+
+If an observation falls below the threshold of what a device can measure, the device will show zero. In practice, this zero stands for "less than the minimum" and is indistinguishable from a *true* zero (when the thing you are measuring is really absent). This is *left* *censoring*. When we get the largest value a device can measure, we have *right censoring*.
+
+*Interval censoring* is perhaps the most intuitive case; we know the true value falls within a specific range – say more than 5 and up to 10 *i.e.* (5, 10\]. Interval censoring can be a feature rather than a bug; in my broad neighbourhood of ecology, the typical example would be protocols designed for vegetation cover surveys, such as the Daubenmire scale (Daubenmire 1959). Under such a measurement scheme, observations are assigned in one of several distinct classes: 0%, (0, 5\]%, (5, 25\]%, (25, 50\]% and so on, of ground covered by vegetation. The exact intervals will vary from case to case. Collecting data in this approximate fashion can be efficient and a standardized scheme ensures consistency among different surveyors.
+
+In this post, I will use as an example case a study (Ebeling et al., 2021) that used a similar scheme to quantify leaf damage from herbivory by assigning each observation (the proportion of damage on an individual leaf) to one of four categories 0%, (0, 5\]%, (5, 25\]%, (25, 100)%. Notice that the scale starts with a precise zero (absence of damage) followed by increasingly large intervals. Even leaves of the same species will vary in size and exact shape; the more of a leaf that has been eaten away, the harder it is to specify the exact proportion of damage.
+
+The question is then, how to best analyze data that have been collected in such a way? We are going to consider some of the available options. Let's dive in!
+
+## the study
+
+Ebeling et al 2021 studied the effect that nutrient addition can have on herbivory[^1] damage to grassland plants. They did so in plots of the [Nutrient Network](https://nutnet.org/) (REF) a globally distributed experiment of nutrient addition effects on grassland plant diversity and productivity. The study is [open access](https://doi.org/10.1111/1365-2745.13801), so you go can dig into it for details. It's a really nice study! Here, I will provide the bare necessities: each location has control plots and treatment plots that have received either Nitrogen or Phosphorus or both. Leaf damage from herbivores was evaluated on one fully expanded leaf from five individuals per species per functional group (that is, grasses, forbs and legumes). As already mentioned, each leaf was assigned to one of four categories: 0%, (0, 5\]%, (5, 25\]% or (25, 100)% damage. The study covers more ground than that but here I will focus on a specific analysis. So the empirical question is, does nutrient addition have an influence on herbivory damage and does that influence vary among functional groups? The practical question which is the topic of this post, is what kind of model do we need to answer that empirical question.
+
+[^1]: and pathogen damage but we will leave this aside.
+
+## *caveat lector*
+
+I am a stats enthusiast – I enjoy thinking about and doing statistics – but I am not a statistician. Occasionally, while reading a paper in my field, I think *hang on, I believe there may be a better way to do this analysis.* Posts like this are the product of that thought process. My main motivation is curiosity and the opportunity to sharpen my own skills. This is largely self-study but if you read along and find something useful, I am glad it helped. If you do spot my errors or something that does't quite make sense, I would appreciate the feedback.
+
+## yolo
+
+Good ol' linear regression is notoriously[^2] robust to having its assumptions violated. Arguably the *chaotic neutral* option here, is to rely on this legendary robustness and keep it simple. Which as it happens, is what the authors of the original study did: they used the midpoint value of each range to represent the range of each observation. They then log(x+1) transformed those values and fitted a model with a Gaussian distribution. [Clutch your pearls if you must; I'm going to spoil this post right here by saying that this model leads to more or less the same conclusions as anything fancier we'll try later on]{style="background:black;color:black;"}.
+
+[^2]: and frustratingly, for weirdos like me,
+
+We begin by (more or less) retracing their steps.
+
+```{r}
+#| eval: false
+library(tidyverse)
+library(brms)     
+library(cmdstanr) 
+library(tidybayes)
+library(modelr)
+
+# data from Ebeling et al. 2021 https://doi.org/10.1111/1365-2745.13801
+# retrieved from https://datadryad.org/dataset/doi:10.5061/dryad.gf1vhhmqs
+data = read_delim("data_LeafDamage_NutNet.csv", delim = ";") %>% 
+  select(site, plot, experimental_treatment, 
+         functional_group, taxon, taxon_replicate.plot,
+         invert_damage.perc) %>% 
+  rename(treat = experimental_treatment,
+         fgroup = functional_group) %>% 
+  filter(fgroup != "WOODY") %>% 
+  mutate(fgroup = factor(fgroup,
+                         levels = c("GRASS","FORB","LEGUME")),
+         # just making sure observations conform to the midpoint rule
+         invert_damage.perc = case_when(invert_damage.perc ==  0 ~ 0,
+                                        invert_damage.perc  <  6 ~ 3,
+                                        invert_damage.perc  < 26 ~ 15,
+                                        invert_damage.perc >= 26 ~ 63),
+         logdam = log(invert_damage.perc + 1))
+```
+
+Our model has two categorical predictors[^3], treatment and functional group, as well as their interaction as main effects. Then intercepts[^4] vary by site, taxon, and taxon within plot. Aside from the changed treatment coding, this model is the Bayesian equivalent to the one reported in Table S5 in Ebeling et al. (2021).
+
+[^3]: The authors coded the treatments different from what I do here and handled the N:P combination as a statistical interaction. For simplicity, I chose to use control, N, P and NP as four levels in one "treatment" predictor. This will make plotting predictions easier without having a real influence on the estimated differences of interest.
+
+[^4]: A more complex model is worth considering here as, in such a distributed experiment, the treatment effect may vary by site. Similarly, the differences between functional groups may vary by site, given that some sites will not share species, so the functional groups can be represented by different taxa. I prefer to leave all that aside and keep the structure of the model similar to that in the paper.
+
+```{r}
+#| eval: false
+S5.1 = brm(
+  data = data,
+  bf(
+    logdam ~ treat + fgroup + treat:fgroup +
+      (1 | site) + 
+      (1 | taxon) + 
+      (1 | site:plot:taxon)
+  ),
+  family = gaussian(),
+  iter = 6000,
+  warmup = 2000,
+  chains = 4, 
+  cores = 4, 
+  seed = 123,
+  backend = "cmdstanr"
+)
+```
+
+Here are the estimates for the average (log-transformed) damage per group and treatment:
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: "Show the code"
+
+p1 = data %>%
+  data_grid(treat = factor(c("Control","N","P","NP"), 
+                           levels = c("Control","N","P","NP")),
+            fgroup = factor(c("GRASS", "FORB", "LEGUME"), 
+                            levels = c("GRASS", "FORB", "LEGUME"))) %>%  
+  add_epred_draws(S5.1, re_formula = NA) %>%
+  ggplot(aes(x = treat, y = .epred, fill = treat)) +
+  stat_halfeye(point_interval = "mean_hdi",
+               .width = c(0.90, 0.95)) +
+  scale_fill_manual(values = c("#efd08e","#afbedc","#a33c20", "#702963")) +
+  ylab("log(damage + 1)") +
+  xlab("nutrient addition treatment") +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  facet_grid(. ~ fgroup)
+
+p2 = data %>%
+  data_grid(treat = factor(c("Control","N","P","NP"), 
+                           levels = c("Control","N","P","NP")),
+            fgroup = factor(c("GRASS", "FORB", "LEGUME"), 
+                            levels = c("GRASS", "FORB", "LEGUME"))) %>%  
+  add_epred_draws(S5.1, re_formula = NA) %>%
+  compare_levels(.epred, by = treat,
+                 comparison = control) %>%
+  ggplot(aes(x = .epred, y = treat)) +
+  stat_halfeye(point_interval = "mean_hdi",
+               .width = c(0.90, 0.95)) +
+  geom_vline(xintercept = 0, linetype = "longdash",
+             color = "darkred") +
+  ylab("contrast") +
+  xlab("difference") +
+  facet_wrap(~fgroup) +
+  theme_minimal()
+```
+
+![Figure 1: Posterior estimates by group and treatment. Mean estimates are bound by a 90% and a 95% HPD interval.](images/fig1-06.png){fig-align="center"}
+
+It looks like legumes tend to be preferred by (invertebrate) herbivores but there is also more uncertainty for their average level of damage. And here are the estimates for the average differences of the three treatments to the control:
+
+![Figure 2: Posterior estimates for the difference between treatments and control by group.](images/fig2.png){fig-align="center"}
+
+We see clear evidence of increased herbivory in both treatments with Nitrogen addition (N and NP) for grasses and forbs. Treatment plots with Phosphorus addition also show increased herbivory in grasses and forbs relative to controls but that difference is weaker.
+
+But let's do a posterior predictive check, to see how well our model reproduces the distribution of the data:
+
+```{r}
+#| eval: false
+pp_check(S5.1, ndraws = 100)
+```
+
+![Figure 3: Density overlay posterior predictive check. The dark blue bold line shows the distribution of the data. The light blue thin lines are 100 predictive distributions.](images/pp1.png){fig-align="center"}
+
+Ouch. The four spikes are the log-transformed midpoint values that our observations can take. They look like densities because *density* *overlay* is the default option in `pp_check()` but we just have four distinct values; a histogram would be more appropriate for these data. On the other hand, the density overlay *is* an appropriate choice for the kind of model we fitted. The real discrepancy is between the model and the data. Anyway, this is a good-enough first diagnostic. If the light blue lines *were* properly overlaid on the dark blue line, we would be reassured. Unsurprisingly, our model cannot handle that. We are going to see whether we can do better.
+
+By the way, a reasonable modification here would be to acknowledge that we are dealing with proportions and use a (zero inflated) Beta distribution. But this will not do any good before we move away from reducing our interval data to midpoint values.
+
+## ordinal regression
+
+We are dealing with semi-quantitative proportional data that are intervals rather than precise values. However, before we try introducing the interval censoring explicitly into our model, I want to move in a different direction.
+
+I will first lean into the semi-quantitativeness of things and treat the data as ordinal. We have four categories that represent *no*, *little*, *some* or *extensive damage*. I did not invest a lot of time coming up with these names; they are not important. What is important is that every level represents more damage than the previous one. A cumulative probit model, which is what we are trying next, that an ordinal response with n levels is partitioning a latent continuous variable using n - 1 thresholds. These thresholds are like intercepts in our model and their location along the latent scale is dependent on our predictors.
+
+Luckily for me and you, there is an excellent [introduction](https://solomonkurz.netlify.app/blog/2021-12-29-notes-on-the-bayesian-cumulative-probit/)[^5] to cumulative probit models out there that is both comprehensive *and* accessible (h/t to Solomon Kurz). This means I can refer you to that for a deeper understanding of what these models do and how they do it. Here we are just going to use such a model. ~~This is an intermediate stop (a detour really) to where this post is going.~~
+
+[^5]: don't open that in firefox or the math won't show properly...
+
+For a cumulative model, {brms} accepts data in two possible types: either as integers (representing ordinal levels) or as ordered factors. I will go with the second option. Keep in mind that if ~~you name your factor levels~~ they will need to be explicitly ordered correctly or they will be ordered alphabetically:
+
+```{r}
+#| eval: false
+dataord = data %>% 
+  mutate(# for the ordinal regression
+         damord = case_when(invert_damage.perc  ==  0 ~ "1",
+                               invert_damage.perc  <   6 ~ "2",
+                               invert_damage.perc  <  26 ~ "3",
+                               invert_damage.perc >=  26 ~ "4") %>% 
+           as.ordered()
+         )
+```
+
+Two thing are different here. We have swapped the Gaussian distribution for the cumulative probit. We have also introduced a new relationship to be estimated, `disc ~ fgroup`.
+
+```{r}
+#| eval: false
+S5.1_ord = brm(
+  data = dataord,
+  bf(
+    damord ~ treat + fgroup + treat:fgroup +
+      (1 | site) + 
+      (1 | taxon) + 
+      (1 | site:plot:taxon),
+    disc ~ fgroup
+  ),
+  family = cumulative("probit"),
+  iter = 6000,
+  warmup = 2000,
+  control = list(adapt_delta = .95),
+  chains = 4, 
+  cores = 4, 
+  seed = 42,
+  backend = "cmdstanr"
+)
+```
+
+Let's start with the posterior predictive check:
+
+![Figure 4: Density overlay posterior predictive check. The dark blue bold line shows the distribution of the data. The light blue thin lines are 100 predictive distributions.](images/pp2.png){fig-align="center"}
+
+Again, this is not the most appropriate posterior predictive check we could do for this type of data but it is directly comparable to the previous one. You can see that the estimated "distribution" follows the spikes of the data.
+
+This model is also a good example where scrutinizing individual regression coefficients to make inference is not very helpful; everything is on the latent scale. We want to understand the model estimates in terms of the ordinal levels we have used for our response.
+
+```{r}
+#| eval: false
+ Family: cumulative 
+  Links: mu = probit; disc = log 
+Formula: damord ~ treat + fgroup + treat:fgroup + (1 | site) + (1 | taxon) + (1 | site:plot:taxon) 
+         disc ~ fgroup
+   Data: dataord (Number of observations: 10491) 
+  Draws: 4 chains, each with iter = 6000; warmup = 2000; thin = 1;
+         total post-warmup draws = 16000
+
+Multilevel Hyperparameters:
+~site (Number of levels: 27) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     7.68      3.26     3.36    15.99 1.00     1743     2261
+
+~site:plot:taxon (Number of levels: 2047) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     4.25      1.69     1.97     8.57 1.00     1600     2231
+
+~taxon (Number of levels: 153) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     6.65      2.67     3.04    13.52 1.00     1588     2130
+
+Regression Coefficients:
+                     Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept[1]             3.25      1.97     0.02     7.80 1.00     2363     3265
+Intercept[2]            14.95      5.89     6.79    29.71 1.00     1605     2216
+Intercept[3]            25.23      9.86    11.70    49.98 1.00     1578     2174
+disc_Intercept          -2.04      0.37    -2.81    -1.33 1.00     1575     2162
+treatN                   2.31      1.15     0.76     5.14 1.00     2112     2464
+treatNP                  1.55      0.92     0.24     3.84 1.00     2928     2509
+treatP                   0.87      0.78    -0.41     2.75 1.00     4596     3582
+fgroupFORB               0.94      1.53    -1.86     4.27 1.00     3186     4068
+fgroupLEGUME             6.92      3.86     1.46    16.49 1.00     2218     2685
+treatN:fgroupFORB        0.26      0.94    -1.58     2.26 1.00     7560     6008
+treatNP:fgroupFORB       1.93      1.20     0.20     4.87 1.00     3592     4306
+treatP:fgroupFORB        0.51      0.97    -1.29     2.64 1.00     7362     6170
+treatN:fgroupLEGUME     -3.86      2.54   -10.14    -0.20 1.00     3041     2756
+treatNP:fgroupLEGUME    -2.42      2.22    -7.67     1.20 1.00     4501     3793
+treatP:fgroupLEGUME     -1.38      2.01    -5.94     2.19 1.00     6487     4223
+disc_fgroupFORB         -0.09      0.03    -0.14    -0.03 1.00    17974    12628
+disc_fgroupLEGUME       -0.27      0.05    -0.38    -0.16 1.00    18444    12974
+
+Draws were sampled using sample(hmc). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+
+One way we can plot model estimates in the ordinal scale is the following. The y-axis is the relative probability of the four different levels. For example, looking at grasses across treatments, we see that the probability of what we called severe damage (level 4) is zero. No damage (level 1) has the highest probability followed by little damage (2). Conversely, legumes are the group with the highest probability of levels 3 and 4 among the three functional groups.
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: "Show the code"
+
+p3 = dataord %>%
+  data_grid(treat = factor(c("Control","N","P","NP"), 
+                           levels = c("Control","N","P","NP")),
+            fgroup = factor(c("GRASS", "FORB", "LEGUME"), 
+                            levels = c("GRASS", "FORB", "LEGUME"))) %>%  
+  add_epred_draws(S5.1_ord, re_formula = NA) %>%
+  ggplot(aes(x = .category, y = .epred)) +
+  stat_halfeye(point_interval = "mean_hdi",
+               .width = c(0.90, 0.95)) +
+  ylab("probability") +
+  xlab("damage level") +
+  theme_bw() +
+  theme(legend.position = "none") +
+  facet_grid(vars(fgroup), vars(treat))
+```
+
+![Figure 5: Posterior estimates for the relative probability of each damage level by treatment and group.](images/fig3.png){fig-align="center"}
+
+This way of looking at estimates is not very conducive to making comparisons. To do that, we can estimate the average level of damage for each group and treatment, treating our levels as integers, weighting them by their relative probabilities and calculating a weighted average. An average level of 1.5 would indicate damage between *no* and *little*. We do so per draw from the posterior. The we can plot those estimates:
+
+```{r}
+#| eval: false
+p4 = dataord %>%
+  data_grid(treat = factor(c("Control","N","P","NP"), 
+                           levels = c("Control","N","P","NP")),
+            fgroup = factor(c("GRASS", "FORB", "LEGUME"), 
+                            levels = c("GRASS", "FORB", "LEGUME"))) %>%  
+  add_epred_draws(S5.1_ord, re_formula = NA) %>%
+  group_by(treat, fgroup, .draw) %>%
+            # calculate weighted average per draw 
+  summarise(damord = weighted.mean(as.numeric(.category), .epred)) %>%
+  ggplot(aes(x = treat, y = damord, fill = treat)) +
+  stat_halfeye(point_interval = "mean_hdi",
+               .width = c(0.90, 0.95)) +
+  scale_fill_manual(values = c("#efd08e","#afbedc","#a33c20", "#702963")) +
+  ylab("average damage level") +
+  xlab("nutrient addition treatment") +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  facet_grid(. ~ fgroup)
+```
+
+![Figure 6: Posterior estimates by group and treatment for the cumulative probit model.](images/fig4.png){fig-align="center"}
+
+And similarly we can plot the estimates for average differences:
+
+![Figure 7: Posterior estimates for the difference between treatments and control by group for the cumulative probit model.](images/fig5-01.png){fig-align="center"}
+
+Even though the two models are very different in terms of their specification, the conclusions we would draw from the estimates of this model are qualitatively similar to those from the first one. In a couple of cases, the 95% credible intervals for the estimated differences are now straddling zero when in the first model they did not, but the broad picture is the same.
+
+## zero inflated censored Beta regression
+
+*Buckle up; things are about to escalate quickly.*
+
+We are finally going to introduce censoring explicitly into our model. Let's reconsider the data. We are dealing with observations of proportional leaf damage by herbivores, which have been collected in a way that produces censored observations. Continuous proportions bound in the open unit interval (0,1) are easily modeled with a Beta distribution. These data however include several – in fact the majority – of cases with no evidence of damage; they are in the \[0,1) interval. A mixture model, *zero inflated*[^6] Beta regression is the way to go here. We are modeling the probability of zero with a logistic regression *and* we are modeling the average proportion for the non-zero cases with a Beta distribution. This is supported in {brms} by specifying `family = zero_inflated_beta`.
+
+[^6]: *augmented* if we want to be pedantic
+
+Next comes the censoring. For the censored observations *i.e.* all non-zero cases, we need to specify the lower and upper limit of the respective interval. Notice that I have set the lower limit of the first interval slightly above zero (0.01) and the upper limit of the last interval slightly below 1 (0.99). We also need to specify the type of censoring, in this case *interval.*
+
+```{r}
+#| eval: false
+datacens = data %>% 
+  mutate(# the lower limits of intervals
+         damagelow = case_when(invert_damage.perc  ==  0 ~ 0,
+                               invert_damage.perc   <  6 ~ .01,
+                               invert_damage.perc   < 26 ~ .06,
+                               invert_damage.perc  >= 26 ~ .26),
+         # the upper limits of intervals
+         damagehigh = case_when(invert_damage.perc  ==  0 ~ 0,
+                                invert_damage.perc   <  6 ~ .05,
+                                invert_damage.perc   < 26 ~ .25,
+                                invert_damage.perc  >= 26 ~ .99),
+         # the type of intervals
+         censor = case_when(invert_damage.perc  ==  0 ~ "none",
+                            invert_damage.perc   <  6 ~ "interval",
+                            invert_damage.perc   < 26 ~ "interval",
+                            invert_damage.perc  >= 26 ~ "interval")) 
+```
+
+This is what the {brms} formula for such a model looks like:
+
+```{r}
+#| eval: false
+formula = bf(
+  damagelow | cens(censor, damagehigh) ~ treat + fgroup + treat:fgroup +
+      (1 | site) + 
+      (1 | taxon) + 
+      (1 | site:plot:taxon),
+  zi ~ treat + fgroup + treat:fgroup +
+      (1 | site) + 
+      (1 | taxon) + 
+      (1 | site:plot:taxon)
+)
+```
+
+Lower limits are passed to the model in the place of the dependent variable. They are followed by `|` and then the `cens()` function that has two terms – the type of censoring and the upper limit for interval censored cases. The other formula is the zero inflation part.
+
+The full model would look like this:
+
+```{r}
+#| eval: false
+S5.1_cens = brm(
+  data = datacens,
+  bf(
+     damagelow | cens(censor, damagehigh) ~ treat + fgroup + treat:fgroup +
+         (1 | site) + 
+         (1 | taxon) + 
+         (1 | site:plot:taxon),
+     zi ~ treat + fgroup + treat:fgroup +
+         (1 | site) + 
+         (1 | taxon) + 
+         (1 | site:plot:taxon)
+     ),
+     family = zero_inflated_beta(),
+     iter = 6000,
+     warmup = 2000,
+     chains = 4, 
+     cores = 4, 
+     seed = 123,
+     backend = "cmdstanr"
+)
+```
+
+We are actually... not going to fit this model! I have tried that and, after the \>8 hours it took to finish sampling, it turned out its performance was abysmal. Each chain was doing its own thing (high Rhats) and I could count the Bulk Effective Samples in my fingers. Tinkering with the model (non-flat priors, longer warmup) did not help. Now admittedly, a more seasoned Stan user might have accomplished something better but this looks like a very hard model to fit.
+
+According to the [Stan manual](https://mc-stan.org/docs/stan-users-guide/truncation-censoring.html#censored.section), there are two ways to model censored data. One of them *"is to treat the censored data as missing data that is constrained to fall in the censored range of values".* I find this is a very intuitive approach, as it maps right onto the description of censored data I gave at the introduction. It is *not* however, the method currently used by {brms}; instead it is using the second method which *"is integrating out censored values".* I do not pretend to understand the second method. I can imagine that *not* having to impute the censored data can have sampling efficiency benefits under some circumstances but it does not seem to work here...
+
+While digging around in the {brms} github repository, I found a [feature request](https://github.com/paul-buerkner/brms/issues/1657#issue), submitted by Hans Van Calster, for {brms} to provide support for the first method, the *data augmentation* approach, that imputes the censored values. He also provided Stan code to show what this would look like, following {brms} conventions for writing Stan code.
+
+One nice feature of {brms} is that we can use the `stancode()` function to get the Stan code generated by {brms} for any given model.
+
+```{r}
+#| eval: false
+stancode(formula, data = datacens, family = zero_inflated_beta())
+```
+
+We can then *modify* this code and use it to fit a model directly with Cmdstan. Finally, we can pass the fitted object back into an empty `brm` object. The benefit of doing this is that any diagnostics, post-processing calculations or plotting we do is within territory familiar to {brms} users.
+
+In the code I am showing below, everything except the bits that relate to censoring is as it was generated by {brms}. The censoring bits come from Van Calster's example. I have highlighted those using `////////` borders. I *think* I've put everything in its right place.
+
+``` stan
+// generated with {brms} 2.22.8 **and modified**
+functions {
+  real zero_inflated_beta_lpdf(real y, real mu, real phi, real zi) {
+    row_vector[2] shape = [mu * phi, (1 - mu) * phi];
+    if (y == 0) {
+      return bernoulli_lpmf(1 | zi);
+    } else {
+      return bernoulli_lpmf(0 | zi) +
+             beta_lpdf(y | shape[1], shape[2]);
+    }
+  }
+}
+data {
+  int<lower=1> N;  // total number of observations
+  vector[N] Y;  // response variable
+  
+///////////////////////////////////////////////////////////////////////////////////////
+
+  // censoring indicator: 0 = event, 1 = right, -1 = left, 2 = interval censored
+  array[N] int<lower=-1,upper=2> cens;
+  // right censor points for interval censoring
+  vector[N] rcens;
+  
+///////////////////////////////////////////////////////////////////////////////////////
+
+  int<lower=1> K;  // number of population-level effects
+  matrix[N, K] X;  // population-level design matrix
+  int<lower=1> Kc;  // number of population-level effects after centering
+  int<lower=1> K_zi;  // number of population-level effects
+  matrix[N, K_zi] X_zi;  // population-level design matrix
+  int<lower=1> Kc_zi;  // number of population-level effects after centering
+  // data for group-level effects of ID 1
+  int<lower=1> N_1;  // number of grouping levels
+  int<lower=1> M_1;  // number of coefficients per level
+  array[N] int<lower=1> J_1;  // grouping indicator per observation
+  // group-level predictor values
+  vector[N] Z_1_1;
+  // data for group-level effects of ID 2
+  int<lower=1> N_2;  // number of grouping levels
+  int<lower=1> M_2;  // number of coefficients per level
+  array[N] int<lower=1> J_2;  // grouping indicator per observation
+  // group-level predictor values
+  vector[N] Z_2_1;
+  // data for group-level effects of ID 3
+  int<lower=1> N_3;  // number of grouping levels
+  int<lower=1> M_3;  // number of coefficients per level
+  array[N] int<lower=1> J_3;  // grouping indicator per observation
+  // group-level predictor values
+  vector[N] Z_3_1;
+  // data for group-level effects of ID 4
+  int<lower=1> N_4;  // number of grouping levels
+  int<lower=1> M_4;  // number of coefficients per level
+  array[N] int<lower=1> J_4;  // grouping indicator per observation
+  // group-level predictor values
+  vector[N] Z_4_zi_1;
+  // data for group-level effects of ID 5
+  int<lower=1> N_5;  // number of grouping levels
+  int<lower=1> M_5;  // number of coefficients per level
+  array[N] int<lower=1> J_5;  // grouping indicator per observation
+  // group-level predictor values
+  vector[N] Z_5_zi_1;
+  // data for group-level effects of ID 6
+  int<lower=1> N_6;  // number of grouping levels
+  int<lower=1> M_6;  // number of coefficients per level
+  array[N] int<lower=1> J_6;  // grouping indicator per observation
+  // group-level predictor values
+  vector[N] Z_6_zi_1;
+  int prior_only;  // should the likelihood be ignored?
+}
+transformed data {
+  matrix[N, Kc] Xc;  // centered version of X without an intercept
+  vector[Kc] means_X;  // column means of X before centering
+  matrix[N, Kc_zi] Xc_zi;  // centered version of X_zi without an intercept
+  vector[Kc_zi] means_X_zi;  // column means of X_zi before centering
+  for (i in 2:K) {
+    means_X[i - 1] = mean(X[, i]);
+    Xc[, i - 1] = X[, i] - means_X[i - 1];
+  }
+  for (i in 2:K_zi) {
+    means_X_zi[i - 1] = mean(X_zi[, i]);
+    Xc_zi[, i - 1] = X_zi[, i] - means_X_zi[i - 1];
+  }
+  
+///////////////////////////////////////////////////////////////////////////////////////
+
+    // censoring indices
+  int Nevent = 0;
+  int Nrcens = 0;
+  int Nlcens = 0;
+  int Nicens = 0;
+  array[N] int Jevent;
+  array[N] int Jrcens;
+  array[N] int Jlcens;
+  array[N] int Jicens;
+  for (n in 1:N) {
+    if (cens[n] == 0) {
+      Nevent += 1;
+      Jevent[Nevent] = n;
+    } else if (cens[n] == 1) {
+      Nrcens += 1;
+      Jrcens[Nrcens] = n;
+    } else if (cens[n] == -1) {
+      Nlcens += 1;
+      Jlcens[Nlcens] = n;
+    } else if (cens[n] == 2) {
+      Nicens += 1;
+      Jicens[Nicens] = n;
+    }
+  }
+///////////////////////////////////////////////////////////////////////////////////////  
+}
+parameters {
+  vector[Kc] b;  // regression coefficients
+  real Intercept;  // temporary intercept for centered predictors
+  real<lower=0> phi;  // precision parameter
+  vector[Kc_zi] b_zi;  // regression coefficients
+  real Intercept_zi;  // temporary intercept for centered predictors
+  vector<lower=0>[M_1] sd_1;  // group-level standard deviations
+  array[M_1] vector[N_1] z_1;  // standardized group-level effects
+  vector<lower=0>[M_2] sd_2;  // group-level standard deviations
+  array[M_2] vector[N_2] z_2;  // standardized group-level effects
+  vector<lower=0>[M_3] sd_3;  // group-level standard deviations
+  array[M_3] vector[N_3] z_3;  // standardized group-level effects
+  vector<lower=0>[M_4] sd_4;  // group-level standard deviations
+  array[M_4] vector[N_4] z_4;  // standardized group-level effects
+  vector<lower=0>[M_5] sd_5;  // group-level standard deviations
+  array[M_5] vector[N_5] z_5;  // standardized group-level effects
+  vector<lower=0>[M_6] sd_6;  // group-level standard deviations
+  array[M_6] vector[N_6] z_6;  // standardized group-level effects
+  
+///////////////////////////////////////////////////////////////////////////////////////
+
+    // latent imputed values for censored observations
+  vector<lower=Y[Jrcens[1:Nrcens]], upper=1>[Nrcens] Yright;
+  vector<lower=0, upper=Y[Jlcens[1:Nlcens]]>[Nlcens] Yleft;
+  vector<lower=Y[Jicens[1:Nicens]], upper=rcens[Jicens[1:Nicens]]>[Nicens] Yint;
+  
+///////////////////////////////////////////////////////////////////////////////////////  
+}
+transformed parameters {
+  vector[N_1] r_1_1;  // actual group-level effects
+  vector[N_2] r_2_1;  // actual group-level effects
+  vector[N_3] r_3_1;  // actual group-level effects
+  vector[N_4] r_4_zi_1;  // actual group-level effects
+  vector[N_5] r_5_zi_1;  // actual group-level effects
+  vector[N_6] r_6_zi_1;  // actual group-level effects
+  real lprior = 0;  // prior contributions to the log posterior
+  r_1_1 = (sd_1[1] * (z_1[1]));
+  r_2_1 = (sd_2[1] * (z_2[1]));
+  r_3_1 = (sd_3[1] * (z_3[1]));
+  r_4_zi_1 = (sd_4[1] * (z_4[1]));
+  r_5_zi_1 = (sd_5[1] * (z_5[1]));
+  r_6_zi_1 = (sd_6[1] * (z_6[1]));
+  lprior += student_t_lpdf(Intercept | 3, 0, 2.5);
+  lprior += gamma_lpdf(phi | 0.01, 0.01);
+  lprior += logistic_lpdf(Intercept_zi | 0, 1);
+  lprior += student_t_lpdf(sd_1 | 3, 0, 2.5)
+    - 1 * student_t_lccdf(0 | 3, 0, 2.5);
+  lprior += student_t_lpdf(sd_2 | 3, 0, 2.5)
+    - 1 * student_t_lccdf(0 | 3, 0, 2.5);
+  lprior += student_t_lpdf(sd_3 | 3, 0, 2.5)
+    - 1 * student_t_lccdf(0 | 3, 0, 2.5);
+  lprior += student_t_lpdf(sd_4 | 3, 0, 2.5)
+    - 1 * student_t_lccdf(0 | 3, 0, 2.5);
+  lprior += student_t_lpdf(sd_5 | 3, 0, 2.5)
+    - 1 * student_t_lccdf(0 | 3, 0, 2.5);
+  lprior += student_t_lpdf(sd_6 | 3, 0, 2.5)
+    - 1 * student_t_lccdf(0 | 3, 0, 2.5);
+}
+model {
+  // likelihood including constants
+  if (!prior_only) {
+    // initialize linear predictor term
+    vector[N] mu = rep_vector(0.0, N);
+    // initialize linear predictor term
+    vector[N] zi = rep_vector(0.0, N);
+    mu += Intercept + Xc * b;
+    zi += Intercept_zi + Xc_zi * b_zi;
+    for (n in 1:N) {
+      // add more terms to the linear predictor
+      mu[n] += r_1_1[J_1[n]] * Z_1_1[n] + r_2_1[J_2[n]] * Z_2_1[n] + r_3_1[J_3[n]] * Z_3_1[n];
+    }
+    for (n in 1:N) {
+      // add more terms to the linear predictor
+      zi[n] += r_4_zi_1[J_4[n]] * Z_4_zi_1[n] + r_5_zi_1[J_5[n]] * Z_5_zi_1[n] + r_6_zi_1[J_6[n]] * Z_6_zi_1[n];
+    }
+    mu = inv_logit(mu);
+    zi = inv_logit(zi);
+    
+///////////////////////////////////////////////////////////////////////////////////////
+
+    // Uncensored data
+    for (i in 1:Nevent) {
+      int n = Jevent[i];
+      target += zero_inflated_beta_lpdf(Y[n] | mu[n], phi, zi[n]);
+    }
+    // Right-censored
+    for (i in 1:Nrcens) {
+      int n = Jrcens[i];
+      target += zero_inflated_beta_lpdf(Yright[i] | mu[n], phi, zi[n]);
+    }
+    // Left-censored
+    for (i in 1:Nlcens) {
+      int n = Jlcens[i];
+      target += zero_inflated_beta_lpdf(Yleft[i] | mu[n], phi, zi[n]);
+    }
+    // Interval-censored
+    for (i in 1: Nicens) {
+      int n = Jicens[i];
+      target += zero_inflated_beta_lpdf(Yint[i] | mu[n], phi, zi[n]);
+    }
+  }
+///////////////////////////////////////////////////////////////////////////////////////  
+
+  // priors including constants
+  target += lprior;
+  target += std_normal_lpdf(z_1[1]);
+  target += std_normal_lpdf(z_2[1]);
+  target += std_normal_lpdf(z_3[1]);
+  target += std_normal_lpdf(z_4[1]);
+  target += std_normal_lpdf(z_5[1]);
+  target += std_normal_lpdf(z_6[1]);
+}
+generated quantities {
+  // actual population-level intercept
+  real b_Intercept = Intercept - dot_product(means_X, b);
+  // actual population-level intercept
+  real b_zi_Intercept = Intercept_zi - dot_product(means_X_zi, b_zi);
+}
+```
+
+hh
+
+```{r}
+#| eval: false
+sdata = brms::make_standata(formula, family = zero_inflated_beta(), data = datacens)
+
+model = cmdstan_model("mcens.stan")
+
+stanfit = model$sample(
+  data = sdata, 
+  chains = 4,  
+  iter_warmup = 2000,  
+  iter_sampling = 4000, 
+  seed = 123, 
+  parallel_chains = 4
+)
+
+# All 4 chains finished successfully.
+# Mean chain execution time: 2501.8 seconds.
+# Total execution time: 2514.2 seconds.
+
+S5.1_cens = brm(formula, family = zero_inflated_beta(), data = datacens, 
+          empty = TRUE)
+S5.1_cens$fit = read_csv_as_stanfit(stanfit$output_files(), model = model)
+S5.1_cens = rename_pars(S5.1_cens)
+```
+
+ggg
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: "Show the code"
+p6 = datacens %>%
+  data_grid(treat = factor(c("Control","N","P","NP"), 
+                           levels = c("Control","N","P","NP")),
+            fgroup = factor(c("GRASS", "FORB", "LEGUME"), 
+                            levels = c("GRASS", "FORB", "LEGUME"))) %>%  
+  add_epred_draws(S5.1_cens, re_formula = NA) %>%
+  ggplot(aes(x = treat, y = .epred, fill = treat)) +
+  stat_halfeye(point_interval = "mean_hdi",
+               .width = c(0.90, 0.95)) +
+  scale_fill_manual(values = c("#efd08e","#afbedc","#a33c20", "#702963")) +
+  ylab("damage proportion") +
+  xlab("nutrient addition treatment") +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  facet_grid(. ~ fgroup)
+
+p7 = datacens %>%
+  data_grid(treat = factor(c("Control","N","P","NP"), 
+                           levels = c("Control","N","P","NP")),
+            fgroup = factor(c("GRASS", "FORB", "LEGUME"), 
+                            levels = c("GRASS", "FORB", "LEGUME"))) %>% 
+  add_epred_draws(S5.1_cens, re_formula = NA) %>%
+  compare_levels(.epred, by = treat,
+                 comparison = control) %>%
+  ggplot(aes(x = .epred, y = treat)) +
+  stat_halfeye(point_interval = "mean_hdi",
+               .width = c(0.90, 0.95, .99)) +
+  geom_vline(xintercept = 0, linetype = "longdash",
+             color = "darkred") +
+  ylab("contrast") +
+  xlab("difference") +
+  facet_wrap(~fgroup) +
+  theme_minimal()
+```
+
+![Figure 8: Posterior estimates by group and treatment for the zero inflated censored Beta model.](images/fig6.png){fig-align="center"}
+
+hhh
+
+![Figure 9: Posterior estimates for the difference between treatments and control by group for the cumulative probit model.](images/fig7.png){fig-align="center"}
+
+Unfortunately I am not sure how to evaluate this model. Using `pp_check()` does produce a plot but as it ignores all censored values (there is a warning) it is not informative. I have dealt with cases where it was necessary to produce the density overlay plot manually [before](https://amynang.github.io/posts/20240907-roots-stems-leaves/#baby-steps) but here I am not even sure about what such a plot should look like.
+
+## easy does it<a href="https://www.merriam-webster.com/dictionary/easy%20does%20it" target="_blank">?</a>
+
+[A common experience among methods–~~nerds~~oriented people, is that a crude model, which does not quite capture the data generating process, can often yield estimates and lead to conclusions similar to a more sophisticated model that is *in principle* more well-suited to the task. So why bother?]{style="background:black;color:black;"} Was all this a bit masturbatory? [I think "often" is the crux here; if the crude model gives reliable estimates 99 times out of a 100, without a more appropriate model to compare it to, you don't know whether your case is one among the 99 or the *odd one out*. It's not a binary distinction; some modeling options will be more appropriate than others, some are]{style="background:black;color:black;"} maybe [equally legitimate ways to tackle a problem. But, even though increasing sophistication tends to have diminishing returns, you don't know the cost of convenience in advance. And if you have taken the trouble of going the extra mile, then you have no reason to fall back to a simpler method..]{style="background:black;color:black;"}.
+
+## references
+
+Ebeling, Anne, Alex T. Strauss, Peter B. Adler, Carlos A. Arnillas, Isabel C. Barrio, Lori A. Biederman, Elizabeth T. Borer, et al. 2021. “Nutrient Enrichment Increases Invertebrate Herbivory and Pathogen Damage in Grasslands.” Journal of Ecology, October, 1365-2745.13801. https://doi.org/10.1111/1365-2745.13801.
