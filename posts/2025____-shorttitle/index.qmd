@@ -2,7 +2,7 @@
 title: "Eyeballing it: working with <span style='background:black;color:black;'>censored</span> data"
 description: "modelling interval-censored proportional data with brms+"
 author: "Angelos Amyntas"
-date: 2025-07-12
+date: 2025-07-13
 categories: [proportional data, censoring, ordinal regression, brms, Stan]
 format: html
 editor: visual
@@ -15,7 +15,7 @@ bibliography: references.bib
 ---
 
 ::: {.callout-caution title="warning"}
-This is not the finished product. There will be more errors than otherwise.
+This is not the finished product. There are probably more errors and nonsense than usual.
 :::
 
 ## what the %\$\@#!?
@@ -26,25 +26,25 @@ Now consider the flip side of this: observations that are inherently imprecise b
 
 If an observation falls below the threshold of what a device can measure, the device will show zero. In practice, this zero stands for "less than the minimum" and is indistinguishable from a *true* zero (when the thing you are measuring is really absent). This is *left* *censoring*. When we get the largest value a device can measure, we have *right censoring*.
 
-*Interval censoring* is perhaps the most intuitive case; we know the true value falls within a specific range – say more than 5 and up to 10 *i.e.* (5, 10\]. Interval censoring can be a feature rather than a bug; in my broad neighbourhood of ecology, the typical example would be protocols designed for vegetation cover surveys, such as the Daubenmire scale (Daubenmire 1959). Under such a measurement scheme, observations are assigned in one of several distinct classes: 0%, (0, 5\]%, (5, 25\]%, (25, 50\]% and so on, of ground covered by vegetation. The exact intervals will vary from case to case. Collecting data in this approximate fashion can be efficient and a standardized scheme ensures consistency among different surveyors.
+*Interval censoring* is perhaps the most intuitive case; we know the true value falls within a specific range—say more than 5 and up to 10 *i.e.* (5, 10\]. Interval censoring can be a feature rather than a bug; in my broad neighbourhood in ecology, the typical example would be protocols designed for vegetation cover surveys, such as the Daubenmire scale [@Daubenmire1959]. Under such a measurement scheme, observations are assigned in one of several distinct classes: 0%, (0, 5\]%, (5, 25\]%, (25, 50\]% and so on, of ground covered by vegetation. The exact intervals will vary from case to case. Collecting data in this approximate fashion can be efficient and a standardized scheme ensures consistency among different surveyors.
 
-In this post, I will use as an example case a study (Ebeling et al., 2021) that used a similar scheme to quantify leaf damage from herbivory by assigning each observation (the proportion of damage on an individual leaf) to one of four categories 0%, (0, 5\]%, (5, 25\]%, (25, 100)%. Notice that the scale starts with a precise zero (absence of damage) followed by increasingly large intervals. Even leaves of the same species will vary in size and exact shape; the more of a leaf that has been eaten away, the harder it is to specify the exact proportion of damage.
+In this post, I will use as an example case a study [@ebeling2021] that used a similar scheme to quantify leaf damage from herbivory by assigning each observation (the proportion of damage on an individual leaf) to one of four categories 0%, (0, 5\]%, (5, 25\]%, (25, 100)%. Notice that the scale starts with a precise zero (absence of damage) followed by increasingly large intervals. Even leaves of the same species will vary in size and exact shape; the more of a leaf that has been eaten away, the harder it is to specify the exact proportion of damage.
 
 The question is then, how to best analyze data that have been collected in such a way? We are going to consider some of the available options. Let's dive in!
 
 ## the study
 
-Ebeling et al 2021 studied the effect that nutrient addition can have on herbivory[^1] damage to grassland plants. They did so in plots of the [Nutrient Network](https://nutnet.org/) (REF) a globally distributed experiment of nutrient addition effects on grassland plant diversity and productivity. The study is [open access](https://doi.org/10.1111/1365-2745.13801), so you go can dig into it for details. It's a really nice study! Here, I will provide the bare necessities: each location has control plots and treatment plots that have received either Nitrogen or Phosphorus or both. Leaf damage from herbivores was evaluated on one fully expanded leaf from five individuals per species per functional group (that is, grasses, forbs and legumes). As already mentioned, each leaf was assigned to one of four categories: 0%, (0, 5\]%, (5, 25\]% or (25, 100)% damage. The study covers more ground than that but here I will focus on a specific analysis. So the empirical question is, does nutrient addition have an influence on herbivory damage and does that influence vary among functional groups? The practical question which is the topic of this post, is what kind of model do we need to answer that empirical question.
+Ebeling et al 2021 studied the effect that nutrient addition can have on herbivory[^1] damage to grassland plants. They did so in plots of the [Nutrient Network](https://nutnet.org/) (REF) a globally distributed experiment of nutrient addition effects on grassland plant diversity and productivity. The study is [open access](https://doi.org/10.1111/1365-2745.13801), so you go can dig into it for details. It's a really nice study! Here, I will provide the bare necessities: each location has control plots and treatment plots that have received either Nitrogen or Phosphorus or both. Leaf damage from herbivores was evaluated on one fully expanded leaf from five individuals per species per functional group (that is, grasses, forbs and legumes). As already mentioned, each leaf was assigned to one of four categories: 0%, (0, 5\]%, (5, 25\]% or (25, 100)% damage. The study covers more ground than that but here I will focus on one specific analysis. So the empirical question is, does nutrient addition have an influence on herbivory damage and does that influence vary among functional groups? The practical question which is the topic of this post, is what kind of model do we need to answer that empirical question.
 
 [^1]: and pathogen damage but we will leave this aside.
 
 ## *caveat lector*
 
-I am a stats enthusiast – I enjoy thinking about and doing statistics – but I am not a statistician. Occasionally, while reading a paper in my field, I think *hang on, I believe there may be a better way to do this analysis.* Posts like this are the product of that thought process. My main motivation is curiosity and the opportunity to sharpen my own skills. This is largely self-study but if you read along and find something useful, I am glad it helped. If you do spot my errors or something that does't quite make sense, I would appreciate the feedback.
+I am a stats enthusiast—I enjoy thinking about and doing statistics—but I am not a statistician. Occasionally, while reading a paper in my field, I think *hang on, I believe there may be a better way to do this analysis.* Posts like this are the product of that thought process. My main motivation is curiosity and the opportunity to sharpen my own skills. This is largely self-study but if you read along and find something useful, I am glad it helped. If you do spot my errors or something that doesn't quite make sense, I would appreciate the feedback.
 
 ## yolo
 
-Good ol' linear regression is notoriously[^2] robust to having its assumptions violated. Arguably the *chaotic neutral* option here, is to rely on this legendary robustness and keep it simple. Which as it happens, is what the authors of the original study did: they used the midpoint value of each range to represent the range of each observation. They then log(x+1) transformed those values and fitted a model with a Gaussian distribution. [Clutch your pearls if you must; I'm going to spoil this post right here by saying that this model leads to more or less the same conclusions as anything fancier we'll try later on]{style="background:black;color:black;"}.
+Good ol' linear regression is notoriously[^2] robust to having its assumptions violated. Arguably the *chaotic neutral* option here, is to rely on this legendary robustness and keep it simple. Which, as it happens, is what the authors of the original study did: they used the midpoint value of each range to represent the range of each observation. They then log(x+1) transformed those values and fitted a model with a Gaussian distribution. [Clutch your pearls if you must; I'm going to spoil this post right here by saying that this model leads to more or less the same conclusions as anything fancier we'll try later on]{style="background:black;color:black;"}.
 
 [^2]: and frustratingly, for weirdos like me,
 
@@ -162,7 +162,9 @@ pp_check(S5.1, ndraws = 100)
 
 ![Figure 3: Density overlay posterior predictive check. The dark blue bold line shows the distribution of the data. The light blue thin lines are 100 predictive distributions.](images/pp1.png){fig-align="center"}
 
-Ouch. The four spikes are the log-transformed midpoint values that our observations can take. They look like densities because *density* *overlay* is the default option in `pp_check()` but we just have four distinct values; a histogram would be more appropriate for these data. On the other hand, the density overlay *is* an appropriate choice for the kind of model we fitted. The real discrepancy is between the model and the data. Anyway, this is a good-enough first diagnostic. If the light blue lines *were* properly overlaid on the dark blue line, we would be reassured. Unsurprisingly, our model cannot handle that. We are going to see whether we can do better.
+Ouch[^5]. The four spikes are the log-transformed midpoint values that our observations can take. They look like densities because *density* *overlay* is the default option in `pp_check()` but we just have four distinct values; a histogram would be more appropriate for these data. On the other hand, a density overlay is a perfectly valid choice for the kind of model we fitted. The real discrepancy is between the model and the data. Anyway, this is a good-enough first diagnostic. If the light blue lines *were* properly overlaid on the dark blue line, we would be reassured. Unsurprisingly, our model cannot handle that. We are going to see whether we can do better.
+
+[^5]: Pearl-clutching *intensifies*.
 
 By the way, a reasonable modification here would be to acknowledge that we are dealing with proportions and use a (zero inflated) Beta distribution. But this will not do any good before we move away from reducing our interval data to midpoint values.
 
@@ -170,39 +172,39 @@ By the way, a reasonable modification here would be to acknowledge that we are d
 
 We are dealing with semi-quantitative proportional data that are intervals rather than precise values. However, before we try introducing the interval censoring explicitly into our model, I want to move in a different direction.
 
-I will first lean into the semi-quantitativeness of things and treat the data as ordinal. We have four categories that represent *no*, *little*, *some* or *extensive damage*. I did not invest a lot of time coming up with these names; they are not important. What is important is that every level represents more damage than the previous one. A cumulative probit model, which is what we are trying next, that an ordinal response with n levels is partitioning a latent continuous variable using n - 1 thresholds. These thresholds are like intercepts in our model and their location along the latent scale is dependent on our predictors.
+I will first lean into the semi-quantitativeness of things and treat the data as ordinal. We have four categories that represent *no*, *little*, *some* or *extensive damage*. I did not invest a lot of time coming up with these names; they are not important. What is important is that every level represents more damage than the previous one. A cumulative probit model [@bürkner2019], which is what we are trying next, assumes that an ordinal response with *k* levels is partitioning a latent (unobserved) continuous variable. The model uses *k−1* threshold parameters to partition that latent variable into *k* ordered categories—in our case, *three* thresholds for our *four* leaf damage levels. The cumulative distribution function (CDF) of the standard normal distribution is then used to compute the probability that the latent variable falls below each threshold, which corresponds to the cumulative probability of being in a given ordinal category or lower. The *k* thresholds are like intercepts in our model and their location along the latent scale is dependent on our predictors. *The fact that I have written this paragraph does not mean that I find any of this intuitive. Repeated exposure helps.*
 
-Luckily for me and you, there is an excellent [introduction](https://solomonkurz.netlify.app/blog/2021-12-29-notes-on-the-bayesian-cumulative-probit/)[^5] to cumulative probit models out there that is both comprehensive *and* accessible (h/t to Solomon Kurz). This means I can refer you to that for a deeper understanding of what these models do and how they do it. Here we are just going to use such a model. ~~This is an intermediate stop (a detour really) to where this post is going.~~
+Luckily for me and you, there is an excellent [introduction](https://solomonkurz.netlify.app/blog/2021-12-29-notes-on-the-bayesian-cumulative-probit/)[^6] to cumulative probit models out there that is both comprehensive *and* accessible (h/t to [Solomon Kurz](https://solomonkurz.netlify.app/)). This means I can refer you to that for a deeper understanding of what these models do and how they do it. Here we are just going to use such a model.
 
-[^5]: don't open that in firefox or the math won't show properly...
+[^6]: don't open that in firefox or the math won't show properly...
 
-For a cumulative model, {brms} accepts data in two possible types: either as integers (representing ordinal levels) or as ordered factors. I will go with the second option. Keep in mind that if ~~you name your factor levels~~ they will need to be explicitly ordered correctly or they will be ordered alphabetically:
+For a cumulative model, {brms} accepts response data in two possible types: either as integers (representing ordinal levels) or as an ordered factor. Since later on we are going to handle our levels as if they *were* integers (numeric even!), I will go with the first option[^7].
+
+[^7]: Keep in mind that if you opt for a factor it will need to be explicitly ordered correctly or it will be ordered alphabetically.
 
 ```{r}
 #| eval: false
 dataord = data %>% 
   mutate(# for the ordinal regression
-         damord = case_when(invert_damage.perc  ==  0 ~ "1",
-                               invert_damage.perc  <   6 ~ "2",
-                               invert_damage.perc  <  26 ~ "3",
-                               invert_damage.perc >=  26 ~ "4") %>% 
-           as.ordered()
+         damord = case_when(invert_damage.perc  == 0 ~ 1L,
+                            invert_damage.perc   < 6 ~ 2L,
+                            invert_damage.perc  < 26 ~ 3L,
+                            invert_damage.perc >= 26 ~ 4L) 
          )
 ```
 
-Two thing are different here. We have swapped the Gaussian distribution for the cumulative probit. We have also introduced a new relationship to be estimated, `disc ~ fgroup`.
+Two things are different here. We have swapped the Gaussian distribution for the cumulative probit. We have also introduced a new relationship to be estimated, `disc ~ fgroup`. `disc` (for discrimination) is a distributional parameter. Normally, to model other distributional parameters—besides the mean—in {brms} we'd simply separate the *mean* model from the *other parameter* model with a comma. Here though, disc needs special handling because we need to not only remove the intercept but also switch off cell mean coding, with `cmc=F`, *only* for `disc`. Which is why we pass it into the model in a separate `lf()`. The rationale for this is is explained by @bürkner2019 (section *Unequal variances*). The important thing for us is that relating `disc` to `fgroup` means that we are also modeling the variance of the latent variable, allowing it to differ among groups. In other words, we let the variance in herbivory damage differ among grasses, forbs and legumes.
 
 ```{r}
 #| eval: false
 S5.1_ord = brm(
   data = dataord,
-  bf(
+    bf(
     damord ~ treat + fgroup + treat:fgroup +
       (1 | site) + 
       (1 | taxon) + 
-      (1 | site:plot:taxon),
-    disc ~ fgroup
-  ),
+      (1 | site:plot:taxon)) +
+    lf(disc ~ 0 + fgroup, cmc = F),
   family = cumulative("probit"),
   iter = 6000,
   warmup = 2000,
@@ -216,18 +218,22 @@ S5.1_ord = brm(
 
 Let's start with the posterior predictive check:
 
-![Figure 4: Density overlay posterior predictive check. The dark blue bold line shows the distribution of the data. The light blue thin lines are 100 predictive distributions.](images/pp2.png){fig-align="center"}
+![Figure 4: Density overlay posterior predictive check. The dark blue bold line shows the distribution of the data. The light blue thin lines are 100 predictive distributions.](images/pp2-01.png){fig-align="center"}
 
-Again, this is not the most appropriate posterior predictive check we could do for this type of data but it is directly comparable to the previous one. You can see that the estimated "distribution" follows the spikes of the data.
+Again, this is not the most appropriate posterior predictive check we could do for this type of data[^8] but it is directly comparable to the previous one. You can see that the estimated "distribution" follows the spikes of the data.
+
+[^8]: try instead `pp_check(S5.1_ord, type = "hist", ndraws = 8)`
 
 This model is also a good example where scrutinizing individual regression coefficients to make inference is not very helpful; everything is on the latent scale. We want to understand the model estimates in terms of the ordinal levels we have used for our response.
 
 ```{r}
 #| eval: false
+#| code-fold: true
+#| code-summary: "Show me anyway"
  Family: cumulative 
   Links: mu = probit; disc = log 
 Formula: damord ~ treat + fgroup + treat:fgroup + (1 | site) + (1 | taxon) + (1 | site:plot:taxon) 
-         disc ~ fgroup
+         disc ~ 0 + fgroup
    Data: dataord (Number of observations: 10491) 
   Draws: 4 chains, each with iter = 6000; warmup = 2000; thin = 1;
          total post-warmup draws = 16000
@@ -235,35 +241,34 @@ Formula: damord ~ treat + fgroup + treat:fgroup + (1 | site) + (1 | taxon) + (1 
 Multilevel Hyperparameters:
 ~site (Number of levels: 27) 
               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-sd(Intercept)     7.68      3.26     3.36    15.99 1.00     1743     2261
+sd(Intercept)     1.00      0.17     0.73     1.37 1.00     5743     9739
 
 ~site:plot:taxon (Number of levels: 2047) 
               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-sd(Intercept)     4.25      1.69     1.97     8.57 1.00     1600     2231
+sd(Intercept)     0.52      0.02     0.47     0.57 1.00     6066    10089
 
 ~taxon (Number of levels: 153) 
               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-sd(Intercept)     6.65      2.67     3.04    13.52 1.00     1588     2130
+sd(Intercept)     0.82      0.06     0.71     0.96 1.00     5740     9885
 
 Regression Coefficients:
                      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-Intercept[1]             3.25      1.97     0.02     7.80 1.00     2363     3265
-Intercept[2]            14.95      5.89     6.79    29.71 1.00     1605     2216
-Intercept[3]            25.23      9.86    11.70    49.98 1.00     1578     2174
-disc_Intercept          -2.04      0.37    -2.81    -1.33 1.00     1575     2162
-treatN                   2.31      1.15     0.76     5.14 1.00     2112     2464
-treatNP                  1.55      0.92     0.24     3.84 1.00     2928     2509
-treatP                   0.87      0.78    -0.41     2.75 1.00     4596     3582
-fgroupFORB               0.94      1.53    -1.86     4.27 1.00     3186     4068
-fgroupLEGUME             6.92      3.86     1.46    16.49 1.00     2218     2685
-treatN:fgroupFORB        0.26      0.94    -1.58     2.26 1.00     7560     6008
-treatNP:fgroupFORB       1.93      1.20     0.20     4.87 1.00     3592     4306
-treatP:fgroupFORB        0.51      0.97    -1.29     2.64 1.00     7362     6170
-treatN:fgroupLEGUME     -3.86      2.54   -10.14    -0.20 1.00     3041     2756
-treatNP:fgroupLEGUME    -2.42      2.22    -7.67     1.20 1.00     4501     3793
-treatP:fgroupLEGUME     -1.38      2.01    -5.94     2.19 1.00     6487     4223
-disc_fgroupFORB         -0.09      0.03    -0.14    -0.03 1.00    17974    12628
-disc_fgroupLEGUME       -0.27      0.05    -0.38    -0.16 1.00    18444    12974
+Intercept[1]             0.56      0.23     0.10     1.02 1.00     4042     6809
+Intercept[2]             1.99      0.23     1.52     2.44 1.00     4114     6817
+Intercept[3]             3.24      0.24     2.76     3.71 1.00     4284     7173
+treatN                   0.28      0.08     0.13     0.43 1.00    10721    12681
+treatNP                  0.19      0.08     0.03     0.34 1.00    10673    12119
+treatP                   0.11      0.08    -0.05     0.26 1.00    11417    13157
+fgroupFORB               0.11      0.17    -0.22     0.44 1.00     5435     8458
+fgroupLEGUME             0.85      0.32     0.23     1.47 1.00     7937    10638
+treatN:fgroupFORB        0.03      0.11    -0.17     0.24 1.00    10755    12253
+treatNP:fgroupFORB       0.24      0.11     0.03     0.45 1.00    10985    12362
+treatP:fgroupFORB        0.06      0.11    -0.15     0.27 1.00    11697    12046
+treatN:fgroupLEGUME     -0.47      0.23    -0.92    -0.03 1.00    15824    13784
+treatNP:fgroupLEGUME    -0.29      0.23    -0.74     0.15 1.00    15884    12544
+treatP:fgroupLEGUME     -0.17      0.22    -0.61     0.26 1.00    15672    13757
+disc_fgroupFORB         -0.10      0.03    -0.15    -0.04 1.00    14807    13558
+disc_fgroupLEGUME       -0.27      0.05    -0.38    -0.17 1.00    18522    13670
 
 Draws were sampled using sample(hmc). For each parameter, Bulk_ESS
 and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -293,12 +298,14 @@ p3 = dataord %>%
   facet_grid(vars(fgroup), vars(treat))
 ```
 
-![Figure 5: Posterior estimates for the relative probability of each damage level by treatment and group.](images/fig3.png){fig-align="center"}
+![Figure 5: Posterior estimates for the relative probability of each damage level by treatment and group.](images/fig3-01.png){fig-align="center"}
 
-This way of looking at estimates is not very conducive to making comparisons. To do that, we can estimate the average level of damage for each group and treatment, treating our levels as integers, weighting them by their relative probabilities and calculating a weighted average. An average level of 1.5 would indicate damage between *no* and *little*. We do so per draw from the posterior. The we can plot those estimates:
+This way of looking at estimates is not very conducive to making comparisons. To do that, we can estimate the *average level of damage* for each group and treatment, treating our levels as integers, weighting them by their relative probabilities and calculating a weighted average. An average level of 1.5 would indicate damage between *no* and *little*. We do so per draw from the posterior. Then we can plot those estimates:
 
 ```{r}
 #| eval: false
+#| code-fold: true
+#| code-summary: "Show the code"
 p4 = dataord %>%
   data_grid(treat = factor(c("Control","N","P","NP"), 
                            levels = c("Control","N","P","NP")),
@@ -317,13 +324,34 @@ p4 = dataord %>%
   theme_minimal() +
   theme(legend.position = "none") +
   facet_grid(. ~ fgroup)
+
+p5 = dataord %>%
+  data_grid(treat = factor(c("Control","N","P","NP"), 
+                           levels = c("Control","N","P","NP")),
+            fgroup = factor(c("GRASS", "FORB", "LEGUME"), 
+                            levels = c("GRASS", "FORB", "LEGUME"))) %>% 
+  add_epred_draws(S5.1_ord, re_formula = NA) %>%
+  group_by(treat, fgroup, .draw) %>%
+  summarise(damord = weighted.mean(as.numeric(.category), .epred)) %>%
+  compare_levels(damord, by = treat,
+                 comparison = control) %>%
+  rename(diff_in_level = damord) %>%
+  ggplot(aes(x = diff_in_level, y = treat)) +
+  stat_halfeye(point_interval = "mean_hdi",
+               .width = c(0.90, 0.95, .99)) +
+  geom_vline(xintercept = 0, linetype = "longdash",
+             color = "darkred") +
+  ylab("contrast") +
+  xlab("difference") +
+  facet_wrap(~fgroup) +
+  theme_minimal()
 ```
 
-![Figure 6: Posterior estimates by group and treatment for the cumulative probit model.](images/fig4.png){fig-align="center"}
+![Figure 6: Posterior estimates by group and treatment for the cumulative probit model.](images/fig4-01.png){fig-align="center"}
 
 And similarly we can plot the estimates for average differences:
 
-![Figure 7: Posterior estimates for the difference between treatments and control by group for the cumulative probit model.](images/fig5-01.png){fig-align="center"}
+![Figure 7: Posterior estimates for the difference between treatments and control by group for the cumulative probit model.](images/fig5.png){fig-align="center"}
 
 Even though the two models are very different in terms of their specification, the conclusions we would draw from the estimates of this model are qualitatively similar to those from the first one. In a couple of cases, the 95% credible intervals for the estimated differences are now straddling zero when in the first model they did not, but the broad picture is the same.
 
@@ -331,9 +359,9 @@ Even though the two models are very different in terms of their specification, t
 
 *Buckle up; things are about to escalate quickly.*
 
-We are finally going to introduce censoring explicitly into our model. Let's reconsider the data. We are dealing with observations of proportional leaf damage by herbivores, which have been collected in a way that produces censored observations. Continuous proportions bound in the open unit interval (0,1) are easily modeled with a Beta distribution. These data however include several – in fact the majority – of cases with no evidence of damage; they are in the \[0,1) interval. A mixture model, *zero inflated*[^6] Beta regression is the way to go here. We are modeling the probability of zero with a logistic regression *and* we are modeling the average proportion for the non-zero cases with a Beta distribution. This is supported in {brms} by specifying `family = zero_inflated_beta`.
+We are finally going to introduce censoring explicitly into our model. Let's reconsider the data. We are dealing with observations of proportional leaf damage by herbivores, which have been collected in a way that produces censored observations. Continuous proportions bound in the open unit interval (0,1) are easily modeled with a Beta distribution. These data however include several—in fact the majority—of cases with no evidence of damage; they are in the \[0,1) interval. A mixture model, *zero inflated*[^9] Beta regression is the way to go here. We are modeling the probability of zero with a logistic regression *and* we are modeling the average proportion for the non-zero cases with a Beta distribution. This is supported in {brms} by specifying `family = zero_inflated_beta`.
 
-[^6]: *augmented* if we want to be pedantic
+[^9]: *augmented* if we want to be pedantic
 
 Next comes the censoring. For the censored observations *i.e.* all non-zero cases, we need to specify the lower and upper limit of the respective interval. Notice that I have set the lower limit of the first interval slightly above zero (0.01) and the upper limit of the last interval slightly below 1 (0.99). We also need to specify the type of censoring, in this case *interval.*
 
@@ -650,7 +678,7 @@ generated quantities {
 }
 ```
 
-hh
+Then we can save this as a .stan file and compile it with `cmdstan_model()`.
 
 ```{r}
 #| eval: false
@@ -671,13 +699,17 @@ stanfit = model$sample(
 # Mean chain execution time: 2501.8 seconds.
 # Total execution time: 2514.2 seconds.
 
-S5.1_cens = brm(formula, family = zero_inflated_beta(), data = datacens, 
-          empty = TRUE)
-S5.1_cens$fit = read_csv_as_stanfit(stanfit$output_files(), model = model)
+S5.1_cens = brm(formula, 
+                family = zero_inflated_beta(), 
+                data = datacens, 
+                empty = TRUE)
+
+S5.1_cens$fit = read_csv_as_stanfit(stanfit$output_files(), 
+                                    model = model)
 S5.1_cens = rename_pars(S5.1_cens)
 ```
 
-ggg
+Having fed the model output back into {brms}, we can then use the same procedure as before to handle posterior draws and plot estimates:
 
 ```{r}
 #| eval: false
@@ -720,7 +752,7 @@ p7 = datacens %>%
 
 ![Figure 8: Posterior estimates by group and treatment for the zero inflated censored Beta model.](images/fig6.png){fig-align="center"}
 
-hhh
+Same for contrasts:
 
 ![Figure 9: Posterior estimates for the difference between treatments and control by group for the cumulative probit model.](images/fig7.png){fig-align="center"}
 
@@ -728,8 +760,4 @@ Unfortunately I am not sure how to evaluate this model. Using `pp_check()` does 
 
 ## easy does it<a href="https://www.merriam-webster.com/dictionary/easy%20does%20it" target="_blank">?</a>
 
-[A common experience among methods–~~nerds~~oriented people, is that a crude model, which does not quite capture the data generating process, can often yield estimates and lead to conclusions similar to a more sophisticated model that is *in principle* more well-suited to the task. So why bother?]{style="background:black;color:black;"} Was all this a bit masturbatory? [I think "often" is the crux here; if the crude model gives reliable estimates 99 times out of a 100, without a more appropriate model to compare it to, you don't know whether your case is one among the 99 or the *odd one out*. It's not a binary distinction; some modeling options will be more appropriate than others, some are]{style="background:black;color:black;"} maybe [equally legitimate ways to tackle a problem. But, even though increasing sophistication tends to have diminishing returns, you don't know the cost of convenience in advance. And if you have taken the trouble of going the extra mile, then you have no reason to fall back to a simpler method..]{style="background:black;color:black;"}.
-
-## references
-
-Ebeling, Anne, Alex T. Strauss, Peter B. Adler, Carlos A. Arnillas, Isabel C. Barrio, Lori A. Biederman, Elizabeth T. Borer, et al. 2021. “Nutrient Enrichment Increases Invertebrate Herbivory and Pathogen Damage in Grasslands.” Journal of Ecology, October, 1365-2745.13801. https://doi.org/10.1111/1365-2745.13801.
+[A common experience among methods–~~pedants~~oriented people, is that a crude model, which does not quite capture the data generating process, can often yield estimates and lead to conclusions similar to a more sophisticated model that is *in principle* more well-suited to the task. Using the latter is not just a matter of being aware of the available options; it often involves more fuss. So why bother?]{style="background:black;color:black;"} Was all this a bit masturbatory? [I think "often" is the crux here; if the crude model gives reliable estimates 99 times out of a 100, without a more appropriate model to compare it to, you don't know whether your case is one among the 99 or the *odd one out*. It's not a binary distinction; some modeling options will be more appropriate than others, some are]{style="background:black;color:black;"} maybe [equally legitimate ways to tackle a problem. But, even though increasing sophistication tends to have diminishing returns, you don't know the cost of convenience in advance. And if you have taken the trouble of going the extra mile, then you have no reason to fall back to a simpler method..]{style="background:black;color:black;"}.
