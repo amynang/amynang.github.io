@@ -1,5 +1,7 @@
 ---
 title: "Eyeballing it: working with <span style='background:black;color:black;'>censored</span> data"
+draft: true
+draft-mode: unlinked
 description: "modelling interval-censored proportional data with brms+"
 author: "Angelos Amyntas"
 date: 2025-07-13
