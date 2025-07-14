@@ -8,7 +8,7 @@
 
 <meta name="author" content="Angelos Amyntas">
 <meta name="dcterms.date" content="2025-07-14">
-<meta name="description" content="*or similar. Don’t write that please.">
+<meta name="description" content="*or similar. Stop writing that please. Thank you.">
 
 <title>What’s fishy about Poisson* distributed errors</title>
 <style>
@@ -70,7 +70,6 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<meta name="quarto:status" content="draft">
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -108,7 +107,7 @@ window.Quarto = {
 <body class="nav-fixed fullcontent quarto-light">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top quarto-banner"><div id="quarto-draft-alert" class="alert alert-warning"><i class="bi bi-pencil-square"></i>Draft</div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
@@ -158,7 +157,7 @@ window.Quarto = {
       <h1 class="title">What’s fishy about Poisson* distributed errors</h1>
                   <div>
         <div class="description">
-          *or similar. Don’t write that please.
+          *or similar. Stop writing that please. Thank you.
         </div>
       </div>
                           <div class="quarto-categories">
@@ -201,7 +200,7 @@ window.Quarto = {
 
 
 
-<p>I have a pet-peeve and what better place to air my petty frustrations than a blog post no-one will ever read. <em>But</em>, if you do read this and disagree with me or you think it an instance of Muphry’s law<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>, do get in touch.</p>
+<p>I have a pet-peeve and what better place to air my petty frustrations than a blog post no one will ever read. <em>But</em>, if you do read this and disagree with me or you see an instance of Muphry’s law<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>, do get in touch. I am opinionated but my understanding of these things is not set in stone.</p>
 <section id="the-issue" class="level2">
 <h2 class="anchored" data-anchor-id="the-issue">the issue</h2>
 <p>When reading the <em>Methods</em> section of a study, I sometimes encounter the following phrase:</p>
@@ -241,7 +240,7 @@ y_i  \sim Beta(\mu_i\cdot\phi, (1 - \mu_i)\cdot\phi) \\
 \]</span> <span class="math display">\[
 logit(\mu_i) = \alpha + \beta \cdot x_i \\
 \]</span></p>
-<p>In the case of GLMs, it is not really useful to talk about an error distribution.</p>
+<p>In the case of GLMs, it is not really useful to talk about an error distribution<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>.</p>
 <p>There are two possible interpretations of the phrase “<em>Poisson distributed errors”.</em> The most straightforward one is that the authors actually mean that they assume the errors to be Poisson distributed, which does not make a lot of sense. It implies an additive error term, similar to that in the very first equation we started from but drawn <em>instead</em> from a Poisson distribution. A more <em>between-the-lines</em> interpretation is that the phrase is shorthand for”we assume the errors to be <em>those of a</em> Poisson distributed <em>variable</em>”. It is a creative and generous interpretation.</p>
 <p>But I think it is futile to ponder what the authors <em>really mean</em> when they write such a phrase. There is no active thought process involved here; this is just boilerplate. For a lot of people, this is <em>the</em> most boring section of a paper to write. They just write whatever one <em>typically</em> writes there, <em>mutatis mutandis,</em> and move to the juicy stuff. So, as we collectively graduated from good old Ordinary Least Squares linear regression—with a normal distribution for the errors or the dependent variable, as you like it—to GLMs, we took the “normally distributed errors” phrase and <em>mutated</em> it by just swapping out the distribution. That doesn’t quite do the job unfortunately. Yes, when we read <em>that,</em> we understand what you did with your model. <em>But you’re saying something different from what you actually did.</em></p>
 </section>
@@ -258,6 +257,7 @@ logit(\mu_i) = \alpha + \beta \cdot x_i \\
 
 <ol>
 <li id="fn1"><p><a href="https://en.wikipedia.org/wiki/Muphry's_law">https://en.wikipedia.org/wiki/Muphry’s_law</a><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>More tentatively, I think that, as you move from OLS to Maximum Likelihood or a Bayesian framework, the error-centric view does not work even for normally distributed variables.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

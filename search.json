@@ -84,6 +84,41 @@
     "text": "I recently defended my PhD thesis. In February 2025 I will join Anne McLeod’s Computational Ecology group in IGB Berlin as a postdoc.\nThe last four and a half years, I did research in the context of the Jena Experiment, a longterm grassland biodiversity and ecosystem functioning field experiment, located outside of Jena in Thuringia, Germany. In that phase of the experiment, we were interested in understanding why the positive effect of plant diversity on ecosystem functions — such as productivity — apparently strengthens over time. My project focused on the belowground component of the ecosystem. We examined the effects of plant diversity on functions performed by the multi-trophic community of soil fauna, in old and new communities. This work combined a field experiment, a mesocosm experiment and a bit of modelling.\nMy experiences and readings during this time have shifted my attention towards diversity and functioning relationships at larger spatial scales and under changing environmental conditions. So, to the links that represent trophic relationships between different populations in a community, I am now adding the links that represent interconnected communities in a landscape. Networks everywhere.\n\n\n\nIt’s all connected.\n\n\nI am also increasingly enthusiastic about Bayesian statistics and Agent Based Modelling. For the first, after joining Richard McElreath’s course a couple of years ago, I am teaching myself Stan (although for my work, my needs are usually covered by {brms}). For the second, I am slowly working my way through Paul Smaldino’s Modeling social behavior: Mathematical and agent-based models of social dynamics and cultural evolution, solving the exercises in NetLogo and sometimes trying to do the same using Agents.jl. Why would an ecologist choose a social science textbook to learn ABMs? I like the way he thinks and writes about modelling.\nWhen I am not sciencing, I read novels, listen to noisy music, watch old films or wander about in nature. In order of decreasing frequency."
   },
   {
+    "objectID": "posts/20250714-poisson-errors-fishy/index.html",
+    "href": "posts/20250714-poisson-errors-fishy/index.html",
+    "title": "What’s fishy about Poisson* distributed errors",
+    "section": "",
+    "text": "I have a pet-peeve and what better place to air my petty frustrations than a blog post no one will ever read. But, if you do read this and disagree with me or you see an instance of Muphry’s law1, do get in touch. I am opinionated but my understanding of these things is not set in stone."
+  },
+  {
+    "objectID": "posts/20250714-poisson-errors-fishy/index.html#the-issue",
+    "href": "posts/20250714-poisson-errors-fishy/index.html#the-issue",
+    "title": "What’s fishy about Poisson* distributed errors",
+    "section": "the issue",
+    "text": "the issue\nWhen reading the Methods section of a study, I sometimes encounter the following phrase:\n“We modeled this relationship using a GLM, specifying Poisson distributed errors”.\nThat is the gist; the exact phrasing varies. Also, Poisson here is a placeholder, because really the phrase is problematic for any distribution except the Normal. This is a victimless crime because, even though the phrasing’s off, it does not mean anything for the quality of the analysis itself. But if you do notice it—I do—it works like a speed bump, breaking the reading flow.\nWhere does this phrase come from?"
+  },
+  {
+    "objectID": "posts/20250714-poisson-errors-fishy/index.html#the-source",
+    "href": "posts/20250714-poisson-errors-fishy/index.html#the-source",
+    "title": "What’s fishy about Poisson* distributed errors",
+    "section": "the source",
+    "text": "the source\nThe culprit is of course simple linear regression and more specifically its Ordinary Least Squares flavour.\nOne way to write a simple linear regression model is:\n\\[\ny_i = \\alpha + \\beta \\cdot x_i + \\epsilon_i \\\\\n\\] \\[\n\\epsilon_i  \\sim N(0,\\sigma^2)\n\\]\nThis formulation emphasizes the assumed normality of errors.\nA different way to write the same relationship is:\n\\[\ny_i  \\sim N(\\mu_i,\\sigma^2) \\\\\n\\] \\[\n\\mu_i = \\alpha + \\beta \\cdot x_i\n\\]\nThis formulation emphasizes the (conditional) distribution of the dependent variable. It assumes that the dependent variable itself, conditional on the predictor, is normally distributed. Where did the error go? Its presence in this formulation is implicit; a consequence of modeling the dependent as a random variable, rather than attributing variability to an explicit error term. In the case of a linear model, the choice between the two formulations is purely a philosophical matter.\nThe limitation of the first, error-centric formulation is that it does not work for any distribution except one, albeit the one we use most of the time.\nThe second formulation generalizes to any distribution you can think of. Here it is for Poisson: \\[\ny_i  \\sim Poisson(\\mu_i) \\\\\n\\] \\[\n\\mu_i = e^{\\alpha + \\beta \\cdot x_i} \\\\\n\\] \\[\nor \\\\\n\\] \\[\nlog(\\mu_i) = \\alpha + \\beta \\cdot x_i\n\\]\nHere it is again, for Beta: \\[\ny_i  \\sim Beta(\\mu_i\\cdot\\phi, (1 - \\mu_i)\\cdot\\phi) \\\\\n\\] \\[\nlogit(\\mu_i) = \\alpha + \\beta \\cdot x_i \\\\\n\\]\nIn the case of GLMs, it is not really useful to talk about an error distribution2.\nThere are two possible interpretations of the phrase “Poisson distributed errors”. The most straightforward one is that the authors actually mean that they assume the errors to be Poisson distributed, which does not make a lot of sense. It implies an additive error term, similar to that in the very first equation we started from but drawn instead from a Poisson distribution. A more between-the-lines interpretation is that the phrase is shorthand for”we assume the errors to be those of a Poisson distributed variable”. It is a creative and generous interpretation.\nBut I think it is futile to ponder what the authors really mean when they write such a phrase. There is no active thought process involved here; this is just boilerplate. For a lot of people, this is the most boring section of a paper to write. They just write whatever one typically writes there, mutatis mutandis, and move to the juicy stuff. So, as we collectively graduated from good old Ordinary Least Squares linear regression—with a normal distribution for the errors or the dependent variable, as you like it—to GLMs, we took the “normally distributed errors” phrase and mutated it by just swapping out the distribution. That doesn’t quite do the job unfortunately. Yes, when we read that, we understand what you did with your model. But you’re saying something different from what you actually did."
+  },
+  {
+    "objectID": "posts/20250714-poisson-errors-fishy/index.html#the-solution",
+    "href": "posts/20250714-poisson-errors-fishy/index.html#the-solution",
+    "title": "What’s fishy about Poisson* distributed errors",
+    "section": "the solution",
+    "text": "the solution\nIf one just writes “…used a GLM assuming the dependent variable to be Poisson distributed” or simply “…used a GLM with a Poisson distribution” we again understand the exact same thing about the model.\nOnly this time, there is nothing there for us pedants to turn up our nose at."
+  },
+  {
+    "objectID": "posts/20250714-poisson-errors-fishy/index.html#footnotes",
+    "href": "posts/20250714-poisson-errors-fishy/index.html#footnotes",
+    "title": "What’s fishy about Poisson* distributed errors",
+    "section": "Footnotes",
+    "text": "Footnotes\n\n\nhttps://en.wikipedia.org/wiki/Muphry’s_law↩︎\nMore tentatively, I think that, as you move from OLS to Maximum Likelihood or a Bayesian framework, the error-centric view does not work even for normally distributed variables.↩︎"
+  },
+  {
     "objectID": "posts/20250208-diversity-entropy/index.html",
     "href": "posts/20250208-diversity-entropy/index.html",
     "title": "Diversity, entropy and the effective number of species",
@@ -102,6 +137,6 @@
     "href": "posts.html",
     "title": "posts",
     "section": "",
-    "text": "Diversity, entropy and the effective number of species\n\n\n\ndiversity\n\nShannon entropy\n\nlogarithms\n\n\n\n\n\n\n\n\n\nFeb 8, 2025\n\n\nAngelos Amyntas\n\n\n\n\n\n\n\n\n\n\n\n\nRoots, stems & leaves\n\n\n\nproportional data\n\nDirichlet\n\nphylogenetic regression\n\nbrms\n\n\n\nmodelling proportions and trying a phylogenetic regression, using data from 10.1002/ecy.3688\n\n\n\n\n\nSep 7, 2024\n\n\nAngelos Amyntas\n\n\n\n\n\nNo matching items"
+    "text": "What’s fishy about Poisson* distributed errors\n\n\n\nGLMs\n\nerrors\n\nwritting\n\n\n\n*or similar. Stop writing that please. Thank you.\n\n\n\n\n\nJul 14, 2025\n\n\nAngelos Amyntas\n\n\n\n\n\n\n\n\n\n\n\n\nDiversity, entropy and the effective number of species\n\n\n\ndiversity\n\nShannon entropy\n\nlogarithms\n\n\n\n\n\n\n\n\n\nFeb 8, 2025\n\n\nAngelos Amyntas\n\n\n\n\n\n\n\n\n\n\n\n\nRoots, stems & leaves\n\n\n\nproportional data\n\nDirichlet\n\nphylogenetic regression\n\nbrms\n\n\n\nmodelling proportions and trying a phylogenetic regression, using data from 10.1002/ecy.3688\n\n\n\n\n\nSep 7, 2024\n\n\nAngelos Amyntas\n\n\n\n\n\nNo matching items"
   }
 ]
