@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Angelos Amyntas">
-<meta name="dcterms.date" content="2025-07-12">
+<meta name="dcterms.date" content="2025-07-13">
 <meta name="description" content="modelling interval-censored proportional data with brms+">
 
 <title>Eyeballing it: working with censored data</title>
@@ -58,7 +58,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
@@ -105,6 +125,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<meta name="quarto:status" content="draft">
 
 
 <link rel="stylesheet" href="../../styles.css">
@@ -113,7 +134,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <body class="nav-fixed fullcontent quarto-light">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+  <header id="quarto-header" class="headroom fixed-top quarto-banner"><div id="quarto-draft-alert" class="alert alert-warning"><i class="bi bi-pencil-square"></i>Draft</div>
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
@@ -189,7 +210,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">July 12, 2025</p>
+        <p class="date">July 13, 2025</p>
       </div>
     </div>
     
@@ -218,7 +239,7 @@ warning
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>This is not the finished product. There will be more errors than otherwise.</p>
+<p>This is not the finished product. There are probably more errors and nonsense than usual.</p>
 </div>
 </div>
 <section id="what-the" class="level2">
@@ -226,21 +247,21 @@ warning
 <p>When we measure the density of phytoplankton per volume of water or the body-mass of ground beetle individuals, our observations take specific values (45 cells in the sample volume, 45mg for this beetle). These observations have <em>sampling error</em> (a different sample from the same observational unit would contain more or less than 45 cells) and <em>measurement error</em> (the scale we use to measure beetle mass has precision limits) and this error is often unknown.</p>
 <p>Now consider the flip side of this: observations that are inherently imprecise because <em>all we know</em> is that they fall within a certain range or beyond a limit of measurement. In this case, we know only the <em>bounds</em> of measurement error but we do not have a specific value to assign on each observation. This is <strong>censoring</strong>.</p>
 <p>If an observation falls below the threshold of what a device can measure, the device will show zero. In practice, this zero stands for “less than the minimum” and is indistinguishable from a <em>true</em> zero (when the thing you are measuring is really absent). This is <em>left</em> <em>censoring</em>. When we get the largest value a device can measure, we have <em>right censoring</em>.</p>
-<p><em>Interval censoring</em> is perhaps the most intuitive case; we know the true value falls within a specific range – say more than 5 and up to 10 <em>i.e.</em> (5, 10]. Interval censoring can be a feature rather than a bug; in my broad neighbourhood of ecology, the typical example would be protocols designed for vegetation cover surveys, such as the Daubenmire scale (Daubenmire 1959). Under such a measurement scheme, observations are assigned in one of several distinct classes: 0%, (0, 5]%, (5, 25]%, (25, 50]% and so on, of ground covered by vegetation. The exact intervals will vary from case to case. Collecting data in this approximate fashion can be efficient and a standardized scheme ensures consistency among different surveyors.</p>
-<p>In this post, I will use as an example case a study (Ebeling et al., 2021) that used a similar scheme to quantify leaf damage from herbivory by assigning each observation (the proportion of damage on an individual leaf) to one of four categories 0%, (0, 5]%, (5, 25]%, (25, 100)%. Notice that the scale starts with a precise zero (absence of damage) followed by increasingly large intervals. Even leaves of the same species will vary in size and exact shape; the more of a leaf that has been eaten away, the harder it is to specify the exact proportion of damage.</p>
+<p><em>Interval censoring</em> is perhaps the most intuitive case; we know the true value falls within a specific range—say more than 5 and up to 10 <em>i.e.</em> (5, 10]. Interval censoring can be a feature rather than a bug; in my broad neighbourhood in ecology, the typical example would be protocols designed for vegetation cover surveys, such as the Daubenmire scale <span class="citation" data-cites="Daubenmire1959">(<a href="#ref-Daubenmire1959" role="doc-biblioref">Daubenmire 1959</a>)</span>. Under such a measurement scheme, observations are assigned in one of several distinct classes: 0%, (0, 5]%, (5, 25]%, (25, 50]% and so on, of ground covered by vegetation. The exact intervals will vary from case to case. Collecting data in this approximate fashion can be efficient and a standardized scheme ensures consistency among different surveyors.</p>
+<p>In this post, I will use as an example case a study <span class="citation" data-cites="ebeling2021">(<a href="#ref-ebeling2021" role="doc-biblioref">Ebeling et al. 2021</a>)</span> that used a similar scheme to quantify leaf damage from herbivory by assigning each observation (the proportion of damage on an individual leaf) to one of four categories 0%, (0, 5]%, (5, 25]%, (25, 100)%. Notice that the scale starts with a precise zero (absence of damage) followed by increasingly large intervals. Even leaves of the same species will vary in size and exact shape; the more of a leaf that has been eaten away, the harder it is to specify the exact proportion of damage.</p>
 <p>The question is then, how to best analyze data that have been collected in such a way? We are going to consider some of the available options. Let’s dive in!</p>
 </section>
 <section id="the-study" class="level2">
 <h2 class="anchored" data-anchor-id="the-study">the study</h2>
-<p>Ebeling et al 2021 studied the effect that nutrient addition can have on herbivory<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> damage to grassland plants. They did so in plots of the <a href="https://nutnet.org/">Nutrient Network</a> (REF) a globally distributed experiment of nutrient addition effects on grassland plant diversity and productivity. The study is <a href="https://doi.org/10.1111/1365-2745.13801">open access</a>, so you go can dig into it for details. It’s a really nice study! Here, I will provide the bare necessities: each location has control plots and treatment plots that have received either Nitrogen or Phosphorus or both. Leaf damage from herbivores was evaluated on one fully expanded leaf from five individuals per species per functional group (that is, grasses, forbs and legumes). As already mentioned, each leaf was assigned to one of four categories: 0%, (0, 5]%, (5, 25]% or (25, 100)% damage. The study covers more ground than that but here I will focus on a specific analysis. So the empirical question is, does nutrient addition have an influence on herbivory damage and does that influence vary among functional groups? The practical question which is the topic of this post, is what kind of model do we need to answer that empirical question.</p>
+<p>Ebeling et al 2021 studied the effect that nutrient addition can have on herbivory<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> damage to grassland plants. They did so in plots of the <a href="https://nutnet.org/">Nutrient Network</a> (REF) a globally distributed experiment of nutrient addition effects on grassland plant diversity and productivity. The study is <a href="https://doi.org/10.1111/1365-2745.13801">open access</a>, so you go can dig into it for details. It’s a really nice study! Here, I will provide the bare necessities: each location has control plots and treatment plots that have received either Nitrogen or Phosphorus or both. Leaf damage from herbivores was evaluated on one fully expanded leaf from five individuals per species per functional group (that is, grasses, forbs and legumes). As already mentioned, each leaf was assigned to one of four categories: 0%, (0, 5]%, (5, 25]% or (25, 100)% damage. The study covers more ground than that but here I will focus on one specific analysis. So the empirical question is, does nutrient addition have an influence on herbivory damage and does that influence vary among functional groups? The practical question which is the topic of this post, is what kind of model do we need to answer that empirical question.</p>
 </section>
 <section id="caveat-lector" class="level2">
 <h2 class="anchored" data-anchor-id="caveat-lector"><em>caveat lector</em></h2>
-<p>I am a stats enthusiast – I enjoy thinking about and doing statistics – but I am not a statistician. Occasionally, while reading a paper in my field, I think <em>hang on, I believe there may be a better way to do this analysis.</em> Posts like this are the product of that thought process. My main motivation is curiosity and the opportunity to sharpen my own skills. This is largely self-study but if you read along and find something useful, I am glad it helped. If you do spot my errors or something that does’t quite make sense, I would appreciate the feedback.</p>
+<p>I am a stats enthusiast—I enjoy thinking about and doing statistics—but I am not a statistician. Occasionally, while reading a paper in my field, I think <em>hang on, I believe there may be a better way to do this analysis.</em> Posts like this are the product of that thought process. My main motivation is curiosity and the opportunity to sharpen my own skills. This is largely self-study but if you read along and find something useful, I am glad it helped. If you do spot my errors or something that doesn’t quite make sense, I would appreciate the feedback.</p>
 </section>
 <section id="yolo" class="level2">
 <h2 class="anchored" data-anchor-id="yolo">yolo</h2>
-<p>Good ol’ linear regression is notoriously<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> robust to having its assumptions violated. Arguably the <em>chaotic neutral</em> option here, is to rely on this legendary robustness and keep it simple. Which as it happens, is what the authors of the original study did: they used the midpoint value of each range to represent the range of each observation. They then log(x+1) transformed those values and fitted a model with a Gaussian distribution. <span style="background:black;color:black;">Clutch your pearls if you must; I’m going to spoil this post right here by saying that this model leads to more or less the same conclusions as anything fancier we’ll try later on</span>.</p>
+<p>Good ol’ linear regression is notoriously<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> robust to having its assumptions violated. Arguably the <em>chaotic neutral</em> option here, is to rely on this legendary robustness and keep it simple. Which, as it happens, is what the authors of the original study did: they used the midpoint value of each range to represent the range of each observation. They then log(x+1) transformed those values and fitted a model with a Gaussian distribution. <span style="background:black;color:black;">Clutch your pearls if you must; I’m going to spoil this post right here by saying that this model leads to more or less the same conclusions as anything fancier we’ll try later on</span>.</p>
 <p>We begin by (more or less) retracing their steps.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
@@ -349,60 +370,60 @@ warning
 <figcaption>Figure 3: Density overlay posterior predictive check. The dark blue bold line shows the distribution of the data. The light blue thin lines are 100 predictive distributions.</figcaption>
 </figure>
 </div>
-<p>Ouch. The four spikes are the log-transformed midpoint values that our observations can take. They look like densities because <em>density</em> <em>overlay</em> is the default option in <code>pp_check()</code> but we just have four distinct values; a histogram would be more appropriate for these data. On the other hand, the density overlay <em>is</em> an appropriate choice for the kind of model we fitted. The real discrepancy is between the model and the data. Anyway, this is a good-enough first diagnostic. If the light blue lines <em>were</em> properly overlaid on the dark blue line, we would be reassured. Unsurprisingly, our model cannot handle that. We are going to see whether we can do better.</p>
+<p>Ouch<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>. The four spikes are the log-transformed midpoint values that our observations can take. They look like densities because <em>density</em> <em>overlay</em> is the default option in <code>pp_check()</code> but we just have four distinct values; a histogram would be more appropriate for these data. On the other hand, a density overlay is a perfectly valid choice for the kind of model we fitted. The real discrepancy is between the model and the data. Anyway, this is a good-enough first diagnostic. If the light blue lines <em>were</em> properly overlaid on the dark blue line, we would be reassured. Unsurprisingly, our model cannot handle that. We are going to see whether we can do better.</p>
 <p>By the way, a reasonable modification here would be to acknowledge that we are dealing with proportions and use a (zero inflated) Beta distribution. But this will not do any good before we move away from reducing our interval data to midpoint values.</p>
 </section>
 <section id="ordinal-regression" class="level2">
 <h2 class="anchored" data-anchor-id="ordinal-regression">ordinal regression</h2>
 <p>We are dealing with semi-quantitative proportional data that are intervals rather than precise values. However, before we try introducing the interval censoring explicitly into our model, I want to move in a different direction.</p>
-<p>I will first lean into the semi-quantitativeness of things and treat the data as ordinal. We have four categories that represent <em>no</em>, <em>little</em>, <em>some</em> or <em>extensive damage</em>. I did not invest a lot of time coming up with these names; they are not important. What is important is that every level represents more damage than the previous one. A cumulative probit model, which is what we are trying next, that an ordinal response with n levels is partitioning a latent continuous variable using n - 1 thresholds. These thresholds are like intercepts in our model and their location along the latent scale is dependent on our predictors.</p>
-<p>Luckily for me and you, there is an excellent <a href="https://solomonkurz.netlify.app/blog/2021-12-29-notes-on-the-bayesian-cumulative-probit/">introduction</a><a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a> to cumulative probit models out there that is both comprehensive <em>and</em> accessible (h/t to Solomon Kurz). This means I can refer you to that for a deeper understanding of what these models do and how they do it. Here we are just going to use such a model. <del>This is an intermediate stop (a detour really) to where this post is going.</del></p>
-<p>For a cumulative model, {brms} accepts data in two possible types: either as integers (representing ordinal levels) or as ordered factors. I will go with the second option. Keep in mind that if <del>you name your factor levels</del> they will need to be explicitly ordered correctly or they will be ordered alphabetically:</p>
+<p>I will first lean into the semi-quantitativeness of things and treat the data as ordinal. We have four categories that represent <em>no</em>, <em>little</em>, <em>some</em> or <em>extensive damage</em>. I did not invest a lot of time coming up with these names; they are not important. What is important is that every level represents more damage than the previous one. A cumulative probit model <span class="citation" data-cites="bürkner2019">(<a href="#ref-bürkner2019" role="doc-biblioref">Bürkner and Vuorre 2019</a>)</span>, which is what we are trying next, assumes that an ordinal response with <em>k</em> levels is partitioning a latent (unobserved) continuous variable. The model uses <em>k−1</em> threshold parameters to partition that latent variable into <em>k</em> ordered categories—in our case, <em>three</em> thresholds for our <em>four</em> leaf damage levels. The cumulative distribution function (CDF) of the standard normal distribution is then used to compute the probability that the latent variable falls below each threshold, which corresponds to the cumulative probability of being in a given ordinal category or lower. The <em>k</em> thresholds are like intercepts in our model and their location along the latent scale is dependent on our predictors. <em>The fact that I have written this paragraph does not mean that I find any of this intuitive. Repeated exposure helps.</em></p>
+<p>Luckily for me and you, there is an excellent <a href="https://solomonkurz.netlify.app/blog/2021-12-29-notes-on-the-bayesian-cumulative-probit/">introduction</a><a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a> to cumulative probit models out there that is both comprehensive <em>and</em> accessible (h/t to <a href="https://solomonkurz.netlify.app/">Solomon Kurz</a>). This means I can refer you to that for a deeper understanding of what these models do and how they do it. Here we are just going to use such a model.</p>
+<p>For a cumulative model, {brms} accepts response data in two possible types: either as integers (representing ordinal levels) or as an ordered factor. Since later on we are going to handle our levels as if they <em>were</em> integers (numeric even!), I will go with the first option<a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>dataord <span class="ot">=</span> data <span class="sc">%&gt;%</span> </span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="co"># for the ordinal regression</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">damord =</span> <span class="fu">case_when</span>(invert_damage.perc  <span class="sc">==</span>  <span class="dv">0</span> <span class="sc">~</span> <span class="st">"1"</span>,</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>                               invert_damage.perc  <span class="sc">&lt;</span>   <span class="dv">6</span> <span class="sc">~</span> <span class="st">"2"</span>,</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>                               invert_damage.perc  <span class="sc">&lt;</span>  <span class="dv">26</span> <span class="sc">~</span> <span class="st">"3"</span>,</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>                               invert_damage.perc <span class="sc">&gt;=</span>  <span class="dv">26</span> <span class="sc">~</span> <span class="st">"4"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>           <span class="fu">as.ordered</span>()</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>         )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">damord =</span> <span class="fu">case_when</span>(invert_damage.perc  <span class="sc">==</span> <span class="dv">0</span> <span class="sc">~</span> <span class="dv">1</span>L,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>                            invert_damage.perc   <span class="sc">&lt;</span> <span class="dv">6</span> <span class="sc">~</span> <span class="dv">2</span>L,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>                            invert_damage.perc  <span class="sc">&lt;</span> <span class="dv">26</span> <span class="sc">~</span> <span class="dv">3</span>L,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>                            invert_damage.perc <span class="sc">&gt;=</span> <span class="dv">26</span> <span class="sc">~</span> <span class="dv">4</span>L) </span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>         )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Two thing are different here. We have swapped the Gaussian distribution for the cumulative probit. We have also introduced a new relationship to be estimated, <code>disc ~ fgroup</code>.</p>
+<p>Two things are different here. We have swapped the Gaussian distribution for the cumulative probit. We have also introduced a new relationship to be estimated, <code>disc ~ fgroup</code>. <code>disc</code> (for discrimination) is a distributional parameter. Normally, to model other distributional parameters—besides the mean—in {brms} we’d simply separate the <em>mean</em> model from the <em>other parameter</em> model with a comma. Here though, disc needs special handling because we need to not only remove the intercept but also switch off cell mean coding, with <code>cmc=F</code>, <em>only</em> for <code>disc</code>. Which is why we pass it into the model in a separate <code>lf()</code>. The rationale for this is is explained by <span class="citation" data-cites="bürkner2019">Bürkner and Vuorre (<a href="#ref-bürkner2019" role="doc-biblioref">2019</a>)</span> (section <em>Unequal variances</em>). The important thing for us is that relating <code>disc</code> to <code>fgroup</code> means that we are also modeling the variance of the latent variable, allowing it to differ among groups. In other words, we let the variance in herbivory damage differ among grasses, forbs and legumes.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>S5<span class="fl">.1</span>_ord <span class="ot">=</span> <span class="fu">brm</span>(</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dataord,</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bf</span>(</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">bf</span>(</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    damord <span class="sc">~</span> treat <span class="sc">+</span> fgroup <span class="sc">+</span> treat<span class="sc">:</span>fgroup <span class="sc">+</span></span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>      (<span class="dv">1</span> <span class="sc">|</span> site) <span class="sc">+</span> </span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>      (<span class="dv">1</span> <span class="sc">|</span> taxon) <span class="sc">+</span> </span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>      (<span class="dv">1</span> <span class="sc">|</span> site<span class="sc">:</span>plot<span class="sc">:</span>taxon),</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    disc <span class="sc">~</span> fgroup</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="fu">cumulative</span>(<span class="st">"probit"</span>),</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">iter =</span> <span class="dv">6000</span>,</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">warmup =</span> <span class="dv">2000</span>,</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">control =</span> <span class="fu">list</span>(<span class="at">adapt_delta =</span> .<span class="dv">95</span>),</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">chains =</span> <span class="dv">4</span>, </span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">cores =</span> <span class="dv">4</span>, </span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">seed =</span> <span class="dv">42</span>,</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"cmdstanr"</span></span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>      (<span class="dv">1</span> <span class="sc">|</span> site<span class="sc">:</span>plot<span class="sc">:</span>taxon)) <span class="sc">+</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">lf</span>(disc <span class="sc">~</span> <span class="dv">0</span> <span class="sc">+</span> fgroup, <span class="at">cmc =</span> F),</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="fu">cumulative</span>(<span class="st">"probit"</span>),</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">iter =</span> <span class="dv">6000</span>,</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">warmup =</span> <span class="dv">2000</span>,</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">control =</span> <span class="fu">list</span>(<span class="at">adapt_delta =</span> .<span class="dv">95</span>),</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">chains =</span> <span class="dv">4</span>, </span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">cores =</span> <span class="dv">4</span>, </span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">seed =</span> <span class="dv">42</span>,</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"cmdstanr"</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Let’s start with the posterior predictive check:</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="images/pp2.png" class="img-fluid figure-img"></p>
+<p><img src="images/pp2-01.png" class="img-fluid figure-img"></p>
 <figcaption>Figure 4: Density overlay posterior predictive check. The dark blue bold line shows the distribution of the data. The light blue thin lines are 100 predictive distributions.</figcaption>
 </figure>
 </div>
-<p>Again, this is not the most appropriate posterior predictive check we could do for this type of data but it is directly comparable to the previous one. You can see that the estimated “distribution” follows the spikes of the data.</p>
+<p>Again, this is not the most appropriate posterior predictive check we could do for this type of data<a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a> but it is directly comparable to the previous one. You can see that the estimated “distribution” follows the spikes of the data.</p>
 <p>This model is also a good example where scrutinizing individual regression coefficients to make inference is not very helpful; everything is on the latent scale. We want to understand the model estimates in terms of the ordinal levels we have used for our response.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Show me anyway</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a> Family<span class="sc">:</span> cumulative </span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  Links<span class="sc">:</span> mu <span class="ot">=</span> probit; disc <span class="ot">=</span> log </span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>Formula<span class="sc">:</span> damord <span class="sc">~</span> treat <span class="sc">+</span> fgroup <span class="sc">+</span> treat<span class="sc">:</span>fgroup <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> site) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> taxon) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> site<span class="sc">:</span>plot<span class="sc">:</span>taxon) </span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>         disc <span class="sc">~</span> fgroup</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>         disc <span class="sc">~</span> <span class="dv">0</span> <span class="sc">+</span> fgroup</span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>   Data<span class="sc">:</span> <span class="fu">dataord</span> (Number of observations<span class="sc">:</span> <span class="dv">10491</span>) </span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  Draws<span class="sc">:</span> <span class="dv">4</span> chains, each with iter <span class="ot">=</span> <span class="dv">6000</span>; warmup <span class="ot">=</span> <span class="dv">2000</span>; thin <span class="ot">=</span> <span class="dv">1</span>;</span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>         total post<span class="sc">-</span>warmup draws <span class="ot">=</span> <span class="dv">16000</span></span>
@@ -410,39 +431,39 @@ warning
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>Multilevel Hyperparameters<span class="sc">:</span></span>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="er">~</span><span class="fu">site</span> (Number of levels<span class="sc">:</span> <span class="dv">27</span>) </span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>              Estimate Est.Error l<span class="dv">-95</span><span class="sc">% CI u-95%</span> CI Rhat Bulk_ESS Tail_ESS</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(Intercept)     <span class="fl">7.68</span>      <span class="fl">3.26</span>     <span class="fl">3.36</span>    <span class="fl">15.99</span> <span class="fl">1.00</span>     <span class="dv">1743</span>     <span class="dv">2261</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(Intercept)     <span class="fl">1.00</span>      <span class="fl">0.17</span>     <span class="fl">0.73</span>     <span class="fl">1.37</span> <span class="fl">1.00</span>     <span class="dv">5743</span>     <span class="dv">9739</span></span>
 <span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="sc">~</span>site<span class="sc">:</span>plot<span class="sc">:</span><span class="fu">taxon</span> (Number of levels<span class="sc">:</span> <span class="dv">2047</span>) </span>
 <span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>              Estimate Est.Error l<span class="dv">-95</span><span class="sc">% CI u-95%</span> CI Rhat Bulk_ESS Tail_ESS</span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(Intercept)     <span class="fl">4.25</span>      <span class="fl">1.69</span>     <span class="fl">1.97</span>     <span class="fl">8.57</span> <span class="fl">1.00</span>     <span class="dv">1600</span>     <span class="dv">2231</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(Intercept)     <span class="fl">0.52</span>      <span class="fl">0.02</span>     <span class="fl">0.47</span>     <span class="fl">0.57</span> <span class="fl">1.00</span>     <span class="dv">6066</span>    <span class="dv">10089</span></span>
 <span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="sc">~</span><span class="fu">taxon</span> (Number of levels<span class="sc">:</span> <span class="dv">153</span>) </span>
 <span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>              Estimate Est.Error l<span class="dv">-95</span><span class="sc">% CI u-95%</span> CI Rhat Bulk_ESS Tail_ESS</span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(Intercept)     <span class="fl">6.65</span>      <span class="fl">2.67</span>     <span class="fl">3.04</span>    <span class="fl">13.52</span> <span class="fl">1.00</span>     <span class="dv">1588</span>     <span class="dv">2130</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(Intercept)     <span class="fl">0.82</span>      <span class="fl">0.06</span>     <span class="fl">0.71</span>     <span class="fl">0.96</span> <span class="fl">1.00</span>     <span class="dv">5740</span>     <span class="dv">9885</span></span>
 <span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>Regression Coefficients<span class="sc">:</span></span>
 <span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>                     Estimate Est.Error l<span class="dv">-95</span><span class="sc">% CI u-95%</span> CI Rhat Bulk_ESS Tail_ESS</span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>Intercept[<span class="dv">1</span>]             <span class="fl">3.25</span>      <span class="fl">1.97</span>     <span class="fl">0.02</span>     <span class="fl">7.80</span> <span class="fl">1.00</span>     <span class="dv">2363</span>     <span class="dv">3265</span></span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>Intercept[<span class="dv">2</span>]            <span class="fl">14.95</span>      <span class="fl">5.89</span>     <span class="fl">6.79</span>    <span class="fl">29.71</span> <span class="fl">1.00</span>     <span class="dv">1605</span>     <span class="dv">2216</span></span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>Intercept[<span class="dv">3</span>]            <span class="fl">25.23</span>      <span class="fl">9.86</span>    <span class="fl">11.70</span>    <span class="fl">49.98</span> <span class="fl">1.00</span>     <span class="dv">1578</span>     <span class="dv">2174</span></span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>disc_Intercept          <span class="sc">-</span><span class="fl">2.04</span>      <span class="fl">0.37</span>    <span class="sc">-</span><span class="fl">2.81</span>    <span class="sc">-</span><span class="fl">1.33</span> <span class="fl">1.00</span>     <span class="dv">1575</span>     <span class="dv">2162</span></span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>treatN                   <span class="fl">2.31</span>      <span class="fl">1.15</span>     <span class="fl">0.76</span>     <span class="fl">5.14</span> <span class="fl">1.00</span>     <span class="dv">2112</span>     <span class="dv">2464</span></span>
-<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>treatNP                  <span class="fl">1.55</span>      <span class="fl">0.92</span>     <span class="fl">0.24</span>     <span class="fl">3.84</span> <span class="fl">1.00</span>     <span class="dv">2928</span>     <span class="dv">2509</span></span>
-<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>treatP                   <span class="fl">0.87</span>      <span class="fl">0.78</span>    <span class="sc">-</span><span class="fl">0.41</span>     <span class="fl">2.75</span> <span class="fl">1.00</span>     <span class="dv">4596</span>     <span class="dv">3582</span></span>
-<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>fgroupFORB               <span class="fl">0.94</span>      <span class="fl">1.53</span>    <span class="sc">-</span><span class="fl">1.86</span>     <span class="fl">4.27</span> <span class="fl">1.00</span>     <span class="dv">3186</span>     <span class="dv">4068</span></span>
-<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>fgroupLEGUME             <span class="fl">6.92</span>      <span class="fl">3.86</span>     <span class="fl">1.46</span>    <span class="fl">16.49</span> <span class="fl">1.00</span>     <span class="dv">2218</span>     <span class="dv">2685</span></span>
-<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>treatN<span class="sc">:</span>fgroupFORB        <span class="fl">0.26</span>      <span class="fl">0.94</span>    <span class="sc">-</span><span class="fl">1.58</span>     <span class="fl">2.26</span> <span class="fl">1.00</span>     <span class="dv">7560</span>     <span class="dv">6008</span></span>
-<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>treatNP<span class="sc">:</span>fgroupFORB       <span class="fl">1.93</span>      <span class="fl">1.20</span>     <span class="fl">0.20</span>     <span class="fl">4.87</span> <span class="fl">1.00</span>     <span class="dv">3592</span>     <span class="dv">4306</span></span>
-<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>treatP<span class="sc">:</span>fgroupFORB        <span class="fl">0.51</span>      <span class="fl">0.97</span>    <span class="sc">-</span><span class="fl">1.29</span>     <span class="fl">2.64</span> <span class="fl">1.00</span>     <span class="dv">7362</span>     <span class="dv">6170</span></span>
-<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>treatN<span class="sc">:</span>fgroupLEGUME     <span class="sc">-</span><span class="fl">3.86</span>      <span class="fl">2.54</span>   <span class="sc">-</span><span class="fl">10.14</span>    <span class="sc">-</span><span class="fl">0.20</span> <span class="fl">1.00</span>     <span class="dv">3041</span>     <span class="dv">2756</span></span>
-<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>treatNP<span class="sc">:</span>fgroupLEGUME    <span class="sc">-</span><span class="fl">2.42</span>      <span class="fl">2.22</span>    <span class="sc">-</span><span class="fl">7.67</span>     <span class="fl">1.20</span> <span class="fl">1.00</span>     <span class="dv">4501</span>     <span class="dv">3793</span></span>
-<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>treatP<span class="sc">:</span>fgroupLEGUME     <span class="sc">-</span><span class="fl">1.38</span>      <span class="fl">2.01</span>    <span class="sc">-</span><span class="fl">5.94</span>     <span class="fl">2.19</span> <span class="fl">1.00</span>     <span class="dv">6487</span>     <span class="dv">4223</span></span>
-<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>disc_fgroupFORB         <span class="sc">-</span><span class="fl">0.09</span>      <span class="fl">0.03</span>    <span class="sc">-</span><span class="fl">0.14</span>    <span class="sc">-</span><span class="fl">0.03</span> <span class="fl">1.00</span>    <span class="dv">17974</span>    <span class="dv">12628</span></span>
-<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>disc_fgroupLEGUME       <span class="sc">-</span><span class="fl">0.27</span>      <span class="fl">0.05</span>    <span class="sc">-</span><span class="fl">0.38</span>    <span class="sc">-</span><span class="fl">0.16</span> <span class="fl">1.00</span>    <span class="dv">18444</span>    <span class="dv">12974</span></span>
-<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>Draws were sampled using <span class="fu">sample</span>(hmc). For each parameter, Bulk_ESS</span>
-<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>and Tail_ESS are effective sample size measures, and Rhat is the potential</span>
-<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>scale reduction factor on split <span class="fu">chains</span> (at convergence, <span class="at">Rhat =</span> <span class="dv">1</span>).</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>Intercept[<span class="dv">1</span>]             <span class="fl">0.56</span>      <span class="fl">0.23</span>     <span class="fl">0.10</span>     <span class="fl">1.02</span> <span class="fl">1.00</span>     <span class="dv">4042</span>     <span class="dv">6809</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>Intercept[<span class="dv">2</span>]             <span class="fl">1.99</span>      <span class="fl">0.23</span>     <span class="fl">1.52</span>     <span class="fl">2.44</span> <span class="fl">1.00</span>     <span class="dv">4114</span>     <span class="dv">6817</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>Intercept[<span class="dv">3</span>]             <span class="fl">3.24</span>      <span class="fl">0.24</span>     <span class="fl">2.76</span>     <span class="fl">3.71</span> <span class="fl">1.00</span>     <span class="dv">4284</span>     <span class="dv">7173</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>treatN                   <span class="fl">0.28</span>      <span class="fl">0.08</span>     <span class="fl">0.13</span>     <span class="fl">0.43</span> <span class="fl">1.00</span>    <span class="dv">10721</span>    <span class="dv">12681</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>treatNP                  <span class="fl">0.19</span>      <span class="fl">0.08</span>     <span class="fl">0.03</span>     <span class="fl">0.34</span> <span class="fl">1.00</span>    <span class="dv">10673</span>    <span class="dv">12119</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>treatP                   <span class="fl">0.11</span>      <span class="fl">0.08</span>    <span class="sc">-</span><span class="fl">0.05</span>     <span class="fl">0.26</span> <span class="fl">1.00</span>    <span class="dv">11417</span>    <span class="dv">13157</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>fgroupFORB               <span class="fl">0.11</span>      <span class="fl">0.17</span>    <span class="sc">-</span><span class="fl">0.22</span>     <span class="fl">0.44</span> <span class="fl">1.00</span>     <span class="dv">5435</span>     <span class="dv">8458</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>fgroupLEGUME             <span class="fl">0.85</span>      <span class="fl">0.32</span>     <span class="fl">0.23</span>     <span class="fl">1.47</span> <span class="fl">1.00</span>     <span class="dv">7937</span>    <span class="dv">10638</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>treatN<span class="sc">:</span>fgroupFORB        <span class="fl">0.03</span>      <span class="fl">0.11</span>    <span class="sc">-</span><span class="fl">0.17</span>     <span class="fl">0.24</span> <span class="fl">1.00</span>    <span class="dv">10755</span>    <span class="dv">12253</span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>treatNP<span class="sc">:</span>fgroupFORB       <span class="fl">0.24</span>      <span class="fl">0.11</span>     <span class="fl">0.03</span>     <span class="fl">0.45</span> <span class="fl">1.00</span>    <span class="dv">10985</span>    <span class="dv">12362</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>treatP<span class="sc">:</span>fgroupFORB        <span class="fl">0.06</span>      <span class="fl">0.11</span>    <span class="sc">-</span><span class="fl">0.15</span>     <span class="fl">0.27</span> <span class="fl">1.00</span>    <span class="dv">11697</span>    <span class="dv">12046</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>treatN<span class="sc">:</span>fgroupLEGUME     <span class="sc">-</span><span class="fl">0.47</span>      <span class="fl">0.23</span>    <span class="sc">-</span><span class="fl">0.92</span>    <span class="sc">-</span><span class="fl">0.03</span> <span class="fl">1.00</span>    <span class="dv">15824</span>    <span class="dv">13784</span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>treatNP<span class="sc">:</span>fgroupLEGUME    <span class="sc">-</span><span class="fl">0.29</span>      <span class="fl">0.23</span>    <span class="sc">-</span><span class="fl">0.74</span>     <span class="fl">0.15</span> <span class="fl">1.00</span>    <span class="dv">15884</span>    <span class="dv">12544</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>treatP<span class="sc">:</span>fgroupLEGUME     <span class="sc">-</span><span class="fl">0.17</span>      <span class="fl">0.22</span>    <span class="sc">-</span><span class="fl">0.61</span>     <span class="fl">0.26</span> <span class="fl">1.00</span>    <span class="dv">15672</span>    <span class="dv">13757</span></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>disc_fgroupFORB         <span class="sc">-</span><span class="fl">0.10</span>      <span class="fl">0.03</span>    <span class="sc">-</span><span class="fl">0.15</span>    <span class="sc">-</span><span class="fl">0.04</span> <span class="fl">1.00</span>    <span class="dv">14807</span>    <span class="dv">13558</span></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>disc_fgroupLEGUME       <span class="sc">-</span><span class="fl">0.27</span>      <span class="fl">0.05</span>    <span class="sc">-</span><span class="fl">0.38</span>    <span class="sc">-</span><span class="fl">0.17</span> <span class="fl">1.00</span>    <span class="dv">18522</span>    <span class="dv">13670</span></span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>Draws were sampled using <span class="fu">sample</span>(hmc). For each parameter, Bulk_ESS</span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>and Tail_ESS are effective sample size measures, and Rhat is the potential</span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>scale reduction factor on split <span class="fu">chains</span> (at convergence, <span class="at">Rhat =</span> <span class="dv">1</span>).</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 <p>One way we can plot model estimates in the ordinal scale is the following. The y-axis is the relative probability of the four different levels. For example, looking at grasses across treatments, we see that the probability of what we called severe damage (level 4) is zero. No damage (level 1) has the highest probability followed by little damage (2). Conversely, legumes are the group with the highest probability of levels 3 and 4 among the three functional groups.</p>
 <div class="cell">
@@ -466,12 +487,14 @@ warning
 </div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="images/fig3.png" class="img-fluid figure-img"></p>
+<p><img src="images/fig3-01.png" class="img-fluid figure-img"></p>
 <figcaption>Figure 5: Posterior estimates for the relative probability of each damage level by treatment and group.</figcaption>
 </figure>
 </div>
-<p>This way of looking at estimates is not very conducive to making comparisons. To do that, we can estimate the average level of damage for each group and treatment, treating our levels as integers, weighting them by their relative probabilities and calculating a weighted average. An average level of 1.5 would indicate damage between <em>no</em> and <em>little</em>. We do so per draw from the posterior. The we can plot those estimates:</p>
+<p>This way of looking at estimates is not very conducive to making comparisons. To do that, we can estimate the <em>average level of damage</em> for each group and treatment, treating our levels as integers, weighting them by their relative probabilities and calculating a weighted average. An average level of 1.5 would indicate damage between <em>no</em> and <em>little</em>. We do so per draw from the posterior. Then we can plot those estimates:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>p4 <span class="ot">=</span> dataord <span class="sc">%&gt;%</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_grid</span>(<span class="at">treat =</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">"Control"</span>,<span class="st">"N"</span>,<span class="st">"P"</span>,<span class="st">"NP"</span>), </span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Control"</span>,<span class="st">"N"</span>,<span class="st">"P"</span>,<span class="st">"NP"</span>)),</span>
@@ -489,18 +512,40 @@ warning
 <span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"nutrient addition treatment"</span>) <span class="sc">+</span></span>
 <span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
 <span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_grid</span>(. <span class="sc">~</span> fgroup)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_grid</span>(. <span class="sc">~</span> fgroup)</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>p5 <span class="ot">=</span> dataord <span class="sc">%&gt;%</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_grid</span>(<span class="at">treat =</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">"Control"</span>,<span class="st">"N"</span>,<span class="st">"P"</span>,<span class="st">"NP"</span>), </span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>                           <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Control"</span>,<span class="st">"N"</span>,<span class="st">"P"</span>,<span class="st">"NP"</span>)),</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>            <span class="at">fgroup =</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">"GRASS"</span>, <span class="st">"FORB"</span>, <span class="st">"LEGUME"</span>), </span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>                            <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"GRASS"</span>, <span class="st">"FORB"</span>, <span class="st">"LEGUME"</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_epred_draws</span>(S5<span class="fl">.1</span>_ord, <span class="at">re_formula =</span> <span class="cn">NA</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(treat, fgroup, .draw) <span class="sc">%&gt;%</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">damord =</span> <span class="fu">weighted.mean</span>(<span class="fu">as.numeric</span>(.category), .epred)) <span class="sc">%&gt;%</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">compare_levels</span>(damord, <span class="at">by =</span> treat,</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>                 <span class="at">comparison =</span> control) <span class="sc">%&gt;%</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">diff_in_level =</span> damord) <span class="sc">%&gt;%</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> diff_in_level, <span class="at">y =</span> treat)) <span class="sc">+</span></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_halfeye</span>(<span class="at">point_interval =</span> <span class="st">"mean_hdi"</span>,</span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>               <span class="at">.width =</span> <span class="fu">c</span>(<span class="fl">0.90</span>, <span class="fl">0.95</span>, .<span class="dv">99</span>)) <span class="sc">+</span></span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"longdash"</span>,</span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>             <span class="at">color =</span> <span class="st">"darkred"</span>) <span class="sc">+</span></span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"contrast"</span>) <span class="sc">+</span></span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"difference"</span>) <span class="sc">+</span></span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>fgroup) <span class="sc">+</span></span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="images/fig4.png" class="img-fluid figure-img"></p>
+<p><img src="images/fig4-01.png" class="img-fluid figure-img"></p>
 <figcaption>Figure 6: Posterior estimates by group and treatment for the cumulative probit model.</figcaption>
 </figure>
 </div>
 <p>And similarly we can plot the estimates for average differences:</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="images/fig5-01.png" class="img-fluid figure-img"></p>
+<p><img src="images/fig5.png" class="img-fluid figure-img"></p>
 <figcaption>Figure 7: Posterior estimates for the difference between treatments and control by group for the cumulative probit model.</figcaption>
 </figure>
 </div>
@@ -509,7 +554,7 @@ warning
 <section id="zero-inflated-censored-beta-regression" class="level2">
 <h2 class="anchored" data-anchor-id="zero-inflated-censored-beta-regression">zero inflated censored Beta regression</h2>
 <p><em>Buckle up; things are about to escalate quickly.</em></p>
-<p>We are finally going to introduce censoring explicitly into our model. Let’s reconsider the data. We are dealing with observations of proportional leaf damage by herbivores, which have been collected in a way that produces censored observations. Continuous proportions bound in the open unit interval (0,1) are easily modeled with a Beta distribution. These data however include several – in fact the majority – of cases with no evidence of damage; they are in the [0,1) interval. A mixture model, <em>zero inflated</em><a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a> Beta regression is the way to go here. We are modeling the probability of zero with a logistic regression <em>and</em> we are modeling the average proportion for the non-zero cases with a Beta distribution. This is supported in {brms} by specifying <code>family = zero_inflated_beta</code>.</p>
+<p>We are finally going to introduce censoring explicitly into our model. Let’s reconsider the data. We are dealing with observations of proportional leaf damage by herbivores, which have been collected in a way that produces censored observations. Continuous proportions bound in the open unit interval (0,1) are easily modeled with a Beta distribution. These data however include several—in fact the majority—of cases with no evidence of damage; they are in the [0,1) interval. A mixture model, <em>zero inflated</em><a href="#fn9" class="footnote-ref" id="fnref9" role="doc-noteref"><sup>9</sup></a> Beta regression is the way to go here. We are modeling the probability of zero with a logistic regression <em>and</em> we are modeling the average proportion for the non-zero cases with a Beta distribution. This is supported in {brms} by specifying <code>family = zero_inflated_beta</code>.</p>
 <p>Next comes the censoring. For the censored observations <em>i.e.</em> all non-zero cases, we need to specify the lower and upper limit of the respective interval. Notice that I have set the lower limit of the first interval slightly above zero (0.01) and the upper limit of the last interval slightly below 1 (0.99). We also need to specify the type of censoring, in this case <em>interval.</em></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>datacens <span class="ot">=</span> data <span class="sc">%&gt;%</span> </span>
@@ -804,7 +849,7 @@ warning
 <span id="cb14-227"><a href="#cb14-227" aria-hidden="true" tabindex="-1"></a>  <span class="co">// actual population-level intercept</span></span>
 <span id="cb14-228"><a href="#cb14-228" aria-hidden="true" tabindex="-1"></a>  <span class="dt">real</span> b_zi_Intercept = Intercept_zi - dot_product(means_X_zi, b_zi);</span>
 <span id="cb14-229"><a href="#cb14-229" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>hh</p>
+<p>Then we can save this as a .stan file and compile it with <code>cmdstan_model()</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>sdata <span class="ot">=</span> brms<span class="sc">::</span><span class="fu">make_standata</span>(formula, <span class="at">family =</span> <span class="fu">zero_inflated_beta</span>(), <span class="at">data =</span> datacens)</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -823,12 +868,16 @@ warning
 <span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Mean chain execution time: 2501.8 seconds.</span></span>
 <span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Total execution time: 2514.2 seconds.</span></span>
 <span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>S5<span class="fl">.1</span>_cens <span class="ot">=</span> <span class="fu">brm</span>(formula, <span class="at">family =</span> <span class="fu">zero_inflated_beta</span>(), <span class="at">data =</span> datacens, </span>
-<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>          <span class="at">empty =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>S5<span class="fl">.1</span>_cens<span class="sc">$</span>fit <span class="ot">=</span> <span class="fu">read_csv_as_stanfit</span>(stanfit<span class="sc">$</span><span class="fu">output_files</span>(), <span class="at">model =</span> model)</span>
-<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>S5<span class="fl">.1</span>_cens <span class="ot">=</span> <span class="fu">rename_pars</span>(S5<span class="fl">.1</span>_cens)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>S5<span class="fl">.1</span>_cens <span class="ot">=</span> <span class="fu">brm</span>(formula, </span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>                <span class="at">family =</span> <span class="fu">zero_inflated_beta</span>(), </span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>                <span class="at">data =</span> datacens, </span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>                <span class="at">empty =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>S5<span class="fl">.1</span>_cens<span class="sc">$</span>fit <span class="ot">=</span> <span class="fu">read_csv_as_stanfit</span>(stanfit<span class="sc">$</span><span class="fu">output_files</span>(), </span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">model =</span> model)</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>S5<span class="fl">.1</span>_cens <span class="ot">=</span> <span class="fu">rename_pars</span>(S5<span class="fl">.1</span>_cens)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>ggg</p>
+<p>Having fed the model output back into {brms}, we can then use the same procedure as before to handle posterior draws and plot estimates:</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
@@ -873,7 +922,7 @@ warning
 <figcaption>Figure 8: Posterior estimates by group and treatment for the zero inflated censored Beta model.</figcaption>
 </figure>
 </div>
-<p>hhh</p>
+<p>Same for contrasts:</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="images/fig7.png" class="img-fluid figure-img"></p>
@@ -884,25 +933,35 @@ warning
 </section>
 <section id="easy-does-it" class="level2">
 <h2 class="anchored" data-anchor-id="easy-does-it">easy does it<a href="https://www.merriam-webster.com/dictionary/easy%20does%20it" target="_blank">?</a></h2>
-<p><span style="background:black;color:black;">A common experience among methods–<del>nerds</del>oriented people, is that a crude model, which does not quite capture the data generating process, can often yield estimates and lead to conclusions similar to a more sophisticated model that is <em>in principle</em> more well-suited to the task. So why bother?</span> Was all this a bit masturbatory? <span style="background:black;color:black;">I think “often” is the crux here; if the crude model gives reliable estimates 99 times out of a 100, without a more appropriate model to compare it to, you don’t know whether your case is one among the 99 or the <em>odd one out</em>. It’s not a binary distinction; some modeling options will be more appropriate than others, some are</span> maybe <span style="background:black;color:black;">equally legitimate ways to tackle a problem. But, even though increasing sophistication tends to have diminishing returns, you don’t know the cost of convenience in advance. And if you have taken the trouble of going the extra mile, then you have no reason to fall back to a simpler method..</span>.</p>
-</section>
-<section id="references" class="level2">
-<h2 class="anchored" data-anchor-id="references">references</h2>
-<p>Ebeling, Anne, Alex T. Strauss, Peter B. Adler, Carlos A. Arnillas, Isabel C. Barrio, Lori A. Biederman, Elizabeth T. Borer, et al.&nbsp;2021. “Nutrient Enrichment Increases Invertebrate Herbivory and Pathogen Damage in Grasslands.” Journal of Ecology, October, 1365-2745.13801. https://doi.org/10.1111/1365-2745.13801.</p>
+<p><span style="background:black;color:black;">A common experience among methods–<del>pedants</del>oriented people, is that a crude model, which does not quite capture the data generating process, can often yield estimates and lead to conclusions similar to a more sophisticated model that is <em>in principle</em> more well-suited to the task. Using the latter is not just a matter of being aware of the available options; it often involves more fuss. So why bother?</span> Was all this a bit masturbatory? <span style="background:black;color:black;">I think “often” is the crux here; if the crude model gives reliable estimates 99 times out of a 100, without a more appropriate model to compare it to, you don’t know whether your case is one among the 99 or the <em>odd one out</em>. It’s not a binary distinction; some modeling options will be more appropriate than others, some are</span> maybe <span style="background:black;color:black;">equally legitimate ways to tackle a problem. But, even though increasing sophistication tends to have diminishing returns, you don’t know the cost of convenience in advance. And if you have taken the trouble of going the extra mile, then you have no reason to fall back to a simpler method..</span>.</p>
+
 
 
 </section>
 
 
-<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-bürkner2019" class="csl-entry" role="listitem">
+Bürkner, Paul-Christian, and Matti Vuorre. 2019. <span>“Ordinal Regression Models in Psychology: A Tutorial.”</span> <em>Advances in Methods and Practices in Psychological Science</em> 2 (1): 77–101. <a href="https://doi.org/10.1177/2515245918823199">https://doi.org/10.1177/2515245918823199</a>.
+</div>
+<div id="ref-Daubenmire1959" class="csl-entry" role="listitem">
+Daubenmire, R. F. 1959. <span>“A Canopy-Coverage Method of Vegetational Analysis.”</span> <em>Northwest Science</em> 33: 43–64.
+</div>
+<div id="ref-ebeling2021" class="csl-entry" role="listitem">
+Ebeling, Anne, Alex T. Strauss, Peter B. Adler, Carlos A. Arnillas, Isabel C. Barrio, Lori A. Biederman, Elizabeth T. Borer, et al. 2021. <span>“Nutrient Enrichment Increases Invertebrate Herbivory and Pathogen Damage in Grasslands.”</span> <em>Journal of Ecology</em>, October, 1365–2745.13801. <a href="https://doi.org/10.1111/1365-2745.13801">https://doi.org/10.1111/1365-2745.13801</a>.
+</div>
+</div></section><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
 
 <ol>
 <li id="fn1"><p>and pathogen damage but we will leave this aside.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn2"><p>and frustratingly, for weirdos like me,<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn3"><p>The authors coded the treatments different from what I do here and handled the N:P combination as a statistical interaction. For simplicity, I chose to use control, N, P and NP as four levels in one “treatment” predictor. This will make plotting predictions easier without having a real influence on the estimated differences of interest.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn4"><p>A more complex model is worth considering here as, in such a distributed experiment, the treatment effect may vary by site. Similarly, the differences between functional groups may vary by site, given that some sites will not share species, so the functional groups can be represented by different taxa. I prefer to leave all that aside and keep the structure of the model similar to that in the paper.<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn5"><p>don’t open that in firefox or the math won’t show properly…<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn6"><p><em>augmented</em> if we want to be pedantic<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p>Pearl-clutching <em>intensifies</em>.<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6"><p>don’t open that in firefox or the math won’t show properly…<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn7"><p>Keep in mind that if you opt for a factor it will need to be explicitly ordered correctly or it will be ordered alphabetically.<a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn8"><p>try instead <code>pp_check(S5.1_ord, type = "hist", ndraws = 8)</code><a href="#fnref8" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn9"><p><em>augmented</em> if we want to be pedantic<a href="#fnref9" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -977,7 +1036,7 @@ warning
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/amynang\.github\.io\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
