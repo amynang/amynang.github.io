@@ -1,0 +1,84 @@
+---
+title: "What's fishy about Poisson* distributed errors"
+draft: true
+draft-mode: unlinked
+description: "*or similar. Don't write that please."
+author: "Angelos Amyntas"
+date: 2025-07-14
+categories: [GLMs, errors, writting]
+format: html
+editor: visual
+mainfont: constantia
+fontcolor: rgb(48, 48, 18)
+linkcolor: rgb(196,98,16)
+backgroundcolor: rgb(247, 247, 239)
+highlight-style: zenburn
+---
+
+I have a pet-peeve and what better place to air my petty frustrations than a blog post no-one will ever read. *But*, if you do read this and disagree with me or you think it an instance of Muphry's law[^1], do get in touch.
+
+[^1]: [https://en.wikipedia.org/wiki/Muphry's_law](https://en.wikipedia.org/wiki/Muphry's_law)
+
+## the issue
+
+When reading the *Methods* section of a study, I sometimes encounter the following phrase:
+
+*"We modeled this relationship using a GLM, specifying **Poisson distributed errors**"**.***
+
+That is the gist; the exact phrasing varies. Also, Poisson here is a placeholder, because really the phrase is problematic for *any distribution* *except the Normal*. This is a victimless crime because, even though the phrasing's off, it does not mean anything for the quality of the analysis itself. But if you do notice it—I do—it works like a speed bump, breaking the reading flow.
+
+Where does this phrase come from?
+
+## the source
+
+The culprit is of course simple linear regression and more specifically its Ordinary Least Squares flavour.
+
+One way to write a simple linear regression model is:
+
+$$
+y_i = \alpha + \beta \cdot x_i + \epsilon_i \\ 
+$$ $$
+\epsilon_i  \sim N(0,\sigma^2)
+$$
+
+This formulation emphasizes the assumed *normality of errors*.
+
+A different way to write the same relationship is:
+
+$$
+y_i  \sim N(\mu_i,\sigma^2) \\
+$$ $$
+\mu_i = \alpha + \beta \cdot x_i
+$$
+
+This formulation emphasizes the (conditional) distribution of the dependent variable. It assumes that the dependent variable itself, conditional on the predictor, is normally distributed. Where did the error go? Its presence in this formulation is implicit; a consequence of modeling the dependent as a random variable, rather than attributing variability to an explicit error term. In the case of a linear model, the choice between the two formulations is purely a philosophical matter.
+
+The limitation of the first, error-centric formulation is that it *does not work for any distribution except one,* albeit the one we use most of the time.
+
+The second formulation generalizes to *any* distribution you can think of. Here it is for Poisson: $$
+y_i  \sim Poisson(\mu_i) \\
+$$ $$
+\mu_i = e^{\alpha + \beta \cdot x_i} \\
+$$ $$
+or \\
+$$ $$
+log(\mu_i) = \alpha + \beta \cdot x_i
+$$
+
+Here it is again, for Beta: $$
+y_i  \sim Beta(\mu_i\cdot\phi, (1 - \mu_i)\cdot\phi) \\
+$$ $$
+logit(\mu_i) = \alpha + \beta \cdot x_i \\
+$$
+
+In the case of GLMs, it is not really useful to talk about an error distribution.
+
+There are two possible interpretations of the phrase "*Poisson distributed errors".* The most straightforward one is that the authors actually mean that they assume the errors to be Poisson distributed, which does not make a lot of sense. It implies an additive error term, similar to that in the very first equation we started from but drawn *instead* from a Poisson distribution. A more *between-the-lines* interpretation is that the phrase is shorthand for "we assume the errors to be *those of a* Poisson distributed *variable*". It is a creative and generous interpretation.
+
+But I think it is futile to ponder what the authors *really mean* when they write such a phrase. There is no active thought process involved here; this is just boilerplate. For a lot of people, this is *the* most boring section of a paper to write. They just write whatever one *typically* writes there, *mutatis mutandis,* and move to the juicy stuff. So, as we collectively graduated from good old Ordinary Least Squares linear regression—with a normal distribution for the errors or the dependent variable, as you like it—to GLMs, we took the "normally distributed errors" phrase and *mutated* it by just swapping out the distribution. That doesn't quite do the job unfortunately. Yes, when we read *that,* we understand what you did with your model. *But you're saying something different from what you actually did.*
+
+## the solution
+
+If one just writes "...used a GLM assuming the dependent variable to be Poisson distributed" or simply "...used a GLM with a Poisson distribution" we again understand the exact same thing about the model.
+
+Only this time, there is nothing there for us pedants to turn up our nose at.
