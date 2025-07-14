@@ -1,8 +1,6 @@
 ---
 title: "What's fishy about Poisson* distributed errors"
-draft: true
-draft-mode: unlinked
-description: "*or similar. Don't write that please."
+description: "*or similar. Stop writing that please. Thank you."
 author: "Angelos Amyntas"
 date: 2025-07-14
 categories: [GLMs, errors, writting]
@@ -15,7 +13,7 @@ backgroundcolor: rgb(247, 247, 239)
 highlight-style: zenburn
 ---
 
-I have a pet-peeve and what better place to air my petty frustrations than a blog post no-one will ever read. *But*, if you do read this and disagree with me or you think it an instance of Muphry's law[^1], do get in touch.
+I have a pet-peeve and what better place to air my petty frustrations than a blog post no one will ever read. *But*, if you do read this and disagree with me or you see an instance of Muphry's law[^1], do get in touch. I am opinionated but my understanding of these things is not set in stone.
 
 [^1]: [https://en.wikipedia.org/wiki/Muphry's_law](https://en.wikipedia.org/wiki/Muphry's_law)
 
@@ -71,7 +69,9 @@ $$ $$
 logit(\mu_i) = \alpha + \beta \cdot x_i \\
 $$
 
-In the case of GLMs, it is not really useful to talk about an error distribution.
+In the case of GLMs, it is not really useful to talk about an error distribution[^2].
+
+[^2]: More tentatively, I think that, as you move from OLS to Maximum Likelihood or a Bayesian framework, the error-centric view does not work even for normally distributed variables.
 
 There are two possible interpretations of the phrase "*Poisson distributed errors".* The most straightforward one is that the authors actually mean that they assume the errors to be Poisson distributed, which does not make a lot of sense. It implies an additive error term, similar to that in the very first equation we started from but drawn *instead* from a Poisson distribution. A more *between-the-lines* interpretation is that the phrase is shorthand for "we assume the errors to be *those of a* Poisson distributed *variable*". It is a creative and generous interpretation.
 
