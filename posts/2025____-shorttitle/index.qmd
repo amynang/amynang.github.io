@@ -6,7 +6,11 @@ description: "modelling interval-censored proportional data with brms+"
 author: "Angelos Amyntas"
 date: 2025-07-13
 categories: [proportional data, censoring, ordinal regression, brms, Stan]
-format: html
+toc: true
+toc-title: "jump to"
+format:
+  html:
+    css: styles.css
 editor: visual
 mainfont: constantia
 fontcolor: rgb(48, 48, 18)
@@ -36,7 +40,7 @@ The question is then, how to best analyze data that have been collected in such 
 
 ## the study
 
-Ebeling et al 2021 studied the effect that nutrient addition can have on herbivory[^1] damage to grassland plants. They did so in plots of the [Nutrient Network](https://nutnet.org/) (REF) a globally distributed experiment of nutrient addition effects on grassland plant diversity and productivity. The study is [open access](https://doi.org/10.1111/1365-2745.13801), so you go can dig into it for details. It's a really nice study! Here, I will provide the bare necessities: each location has control plots and treatment plots that have received either Nitrogen or Phosphorus or both. Leaf damage from herbivores was evaluated on one fully expanded leaf from five individuals per species per functional group (that is, grasses, forbs and legumes). As already mentioned, each leaf was assigned to one of four categories: 0%, (0, 5\]%, (5, 25\]% or (25, 100)% damage. The study covers more ground than that but here I will focus on one specific analysis. So the empirical question is, does nutrient addition have an influence on herbivory damage and does that influence vary among functional groups? The practical question which is the topic of this post, is what kind of model do we need to answer that empirical question.
+Ebeling et al 2021 studied the effect that nutrient addition can have on herbivory[^1] damage to grassland plants. They did so in plots of the [Nutrient Network](https://nutnet.org/) (REF) a globally distributed experiment of nutrient addition effects on grassland plant diversity and productivity. The study is [open access](https://doi.org/10.1111/1365-2745.13801), so you go can dig into it for details. It's a really nice study! Here, I will provide the bare necessities: each location has control plots and treatment plots that have received either Nitrogen or Phosphorus or both. Leaf damage from herbivores was evaluated on one fully expanded leaf from five individuals per species per functional group (that is, grasses, forbs and legumes). As already mentioned, each leaf was assigned to one of four categories: 0%, (0, 5\]%, (5, 25\]% or (25, 100)% damage. The study actually covers more ground than that but, for our purposes, we will focus on one specific analysis. So the empirical question is, does nutrient addition have an influence on herbivory damage and does that influence vary among functional groups? The practical question which is the topic of this post, is what kind of model do we need to answer that empirical question.
 
 [^1]: and pathogen damage but we will leave this aside.
 
@@ -46,7 +50,7 @@ I am a stats enthusiast—I enjoy thinking about and doing statistics—but I am
 
 ## yolo
 
-Good ol' linear regression is notoriously[^2] robust to having its assumptions violated. Arguably the *chaotic neutral* option here, is to rely on this legendary robustness and keep it simple. Which, as it happens, is what the authors of the original study did: they used the midpoint value of each range to represent the range of each observation. They then log(x+1) transformed those values and fitted a model with a Gaussian distribution. [Clutch your pearls if you must; I'm going to spoil this post right here by saying that this model leads to more or less the same conclusions as anything fancier we'll try later on]{style="background:black;color:black;"}.
+Good ol' linear regression is notoriously[^2] robust to having its assumptions violated. Arguably the *chaotic neutral* option here, is to rely on this legendary robustness and keep it simple. Which, as it happens, is what the authors of the original study did: they used the midpoint value of each range to represent the range of each observation. They then log(x+1) transformed those values and fitted a model with a Gaussian distribution. [Clutch your pearls if you must; I'm going to spoil this right here by saying that this model leads to more or less the same conclusions as anything fancier we'll try later on]{style="background:black;color:black;"}.
 
 [^2]: and frustratingly, for weirdos like me,
 
@@ -79,7 +83,7 @@ data = read_delim("data_LeafDamage_NutNet.csv", delim = ";") %>%
          logdam = log(invert_damage.perc + 1))
 ```
 
-Our model has two categorical predictors[^3], treatment and functional group, as well as their interaction as main effects. Then intercepts[^4] vary by site, taxon, and taxon within plot. Aside from the changed treatment coding, this model is the Bayesian equivalent to the one reported in Table S5 in Ebeling et al. (2021).
+Our model has two categorical predictors[^3], treatment and functional group, as well as their interaction, as main effects. Then intercepts[^4] vary by site, taxon, and taxon within plot. Aside from the changed treatment coding, this model is the Bayesian equivalent to the one reported in Table S5 in Ebeling et al. (2021).
 
 [^3]: The authors coded the treatments different from what I do here and handled the N:P combination as a statistical interaction. For simplicity, I chose to use control, N, P and NP as four levels in one "treatment" predictor. This will make plotting predictions easier without having a real influence on the estimated differences of interest.
 
@@ -164,9 +168,18 @@ pp_check(S5.1, ndraws = 100)
 
 ![Figure 3: Density overlay posterior predictive check. The dark blue bold line shows the distribution of the data. The light blue thin lines are 100 predictive distributions.](images/pp1.png){fig-align="center"}
 
-Ouch[^5]. The four spikes are the log-transformed midpoint values that our observations can take. They look like densities because *density* *overlay* is the default option in `pp_check()` but we just have four distinct values; a histogram would be more appropriate for these data. On the other hand, a density overlay is a perfectly valid choice for the kind of model we fitted. The real discrepancy is between the model and the data. Anyway, this is a good-enough first diagnostic. If the light blue lines *were* properly overlaid on the dark blue line, we would be reassured. Unsurprisingly, our model cannot handle that. We are going to see whether we can do better.
+Ouch[^5]. The four spikes are the log-transformed midpoint values that our observations can take. They look like densities because *density* *overlay* is the default option in `pp_check()` but we just have four distinct values; a histogram would be more appropriate for these data.
 
 [^5]: Pearl-clutching *intensifies*.
+
+```{r}
+#| eval: false
+pp_check(S5.1, ndraws = 5, type = "hist")
+```
+
+![Figure 4: A different posterior predictive check. The dark blue bars show the data. Each light blue histogram is one draw from the posterior, indicating the distribution of the data as predicted by the model.](images/pp1.1.png){fig-align="center"}
+
+On the other hand, a density overlay is a perfectly valid choice for the kind of model we fitted. The real discrepancy here is between the model and the data. Anyway, this is a good-enough first diagnostic. If the light blue lines *were* properly overlaid on the dark blue line, we would be reassured. Unsurprisingly, our model cannot handle that. We are going to see whether we can do better.
 
 By the way, a reasonable modification here would be to acknowledge that we are dealing with proportions and use a (zero inflated) Beta distribution. But this will not do any good before we move away from reducing our interval data to midpoint values.
 
@@ -174,9 +187,9 @@ By the way, a reasonable modification here would be to acknowledge that we are d
 
 We are dealing with semi-quantitative proportional data that are intervals rather than precise values. However, before we try introducing the interval censoring explicitly into our model, I want to move in a different direction.
 
-I will first lean into the semi-quantitativeness of things and treat the data as ordinal. We have four categories that represent *no*, *little*, *some* or *extensive damage*. I did not invest a lot of time coming up with these names; they are not important. What is important is that every level represents more damage than the previous one. A cumulative probit model [@bürkner2019], which is what we are trying next, assumes that an ordinal response with *k* levels is partitioning a latent (unobserved) continuous variable. The model uses *k−1* threshold parameters to partition that latent variable into *k* ordered categories—in our case, *three* thresholds for our *four* leaf damage levels. The cumulative distribution function (CDF) of the standard normal distribution is then used to compute the probability that the latent variable falls below each threshold, which corresponds to the cumulative probability of being in a given ordinal category or lower. The *k* thresholds are like intercepts in our model and their location along the latent scale is dependent on our predictors. *The fact that I have written this paragraph does not mean that I find any of this intuitive. Repeated exposure helps.*
+I will first lean into the semi-quantitativeness of things and treat the data as ordinal. We have four categories that represent *no*, *little*, *some* or *extensive damage*. I did not invest a lot of time coming up with these names; they are not important. What is important is that every level represents more damage than the previous one. A cumulative probit model [@bürkner2019], which is what we are trying next, assumes that an ordinal response with *k* levels is partitioning a latent (unobserved) continuous variable. The model uses *k−1* threshold parameters to partition that latent variable into *k* ordered categories; in our case, *three* thresholds for our *four* leaf damage levels. The cumulative distribution function (CDF) of the standard normal distribution is then used to compute the probability that the latent variable falls below each threshold. This corresponds to the cumulative probability of being in a given ordinal category or lower. The *k* thresholds are like intercepts in our model and their location along the latent scale is dependent on our predictors. *The fact that I have written this paragraph does not mean that I find any of this intuitive. Repeated exposure helps.*
 
-Luckily for me and you, there is an excellent [introduction](https://solomonkurz.netlify.app/blog/2021-12-29-notes-on-the-bayesian-cumulative-probit/)[^6] to cumulative probit models out there that is both comprehensive *and* accessible (h/t to [Solomon Kurz](https://solomonkurz.netlify.app/)). This means I can refer you to that for a deeper understanding of what these models do and how they do it. Here we are just going to use such a model.
+Luckily for me and you, there is an excellent [introduction](https://solomonkurz.netlify.app/blog/2021-12-29-notes-on-the-bayesian-cumulative-probit/)[^6] to cumulative probit models out there, that is both comprehensive *and* accessible (h/t to [Solomon Kurz](https://solomonkurz.netlify.app/)). This means I can refer you to that for a deeper understanding of what these models do and how they accomplish it. Here we are just going to use such a model.
 
 [^6]: don't open that in firefox or the math won't show properly...
 
@@ -195,7 +208,9 @@ dataord = data %>%
          )
 ```
 
-Two things are different here. We have swapped the Gaussian distribution for the cumulative probit. We have also introduced a new relationship to be estimated, `disc ~ fgroup`. `disc` (for discrimination) is a distributional parameter. Normally, to model other distributional parameters—besides the mean—in {brms} we'd simply separate the *mean* model from the *other parameter* model with a comma. Here though, disc needs special handling because we need to not only remove the intercept but also switch off cell mean coding, with `cmc=F`, *only* for `disc`. Which is why we pass it into the model in a separate `lf()`. The rationale for this is is explained by @bürkner2019 (section *Unequal variances*). The important thing for us is that relating `disc` to `fgroup` means that we are also modeling the variance of the latent variable, allowing it to differ among groups. In other words, we let the variance in herbivory damage differ among grasses, forbs and legumes.
+Two things are different here. We have swapped the Gaussian distribution for the cumulative probit. We have also introduced a new relationship to be estimated, `disc ~ 0 + fgroup`. `disc` (for discrimination) is a distributional parameter. It relates to the variance of the latent variable, influencing the steepness of the CDF of the standard normal. Making `disc` dependent on `fgroup` means that we are also modeling the variance of the latent variable, allowing it to differ among groups. In other words, the transitions between damage levels can differ among groups, reflecting variation in the ability to discriminate between damage levels for grass, forb or legume leaves.
+
+Normally, to model other distributional parameters—besides the mean—in {brms} we'd simply separate the *mean* model from the *other parameter* model with a comma. Here though, disc needs special handling because we need to not only remove the intercept but also switch off cell mean coding, with `cmc=F`, *only* for `disc`. Which is why we pass it into the model in a separate `lf()`. The rationale for this is is explained by @bürkner2019 (section *Unequal variances*).
 
 ```{r}
 #| eval: false
@@ -220,11 +235,21 @@ S5.1_ord = brm(
 
 Let's start with the posterior predictive check:
 
-![Figure 4: Density overlay posterior predictive check. The dark blue bold line shows the distribution of the data. The light blue thin lines are 100 predictive distributions.](images/pp2-01.png){fig-align="center"}
+```{r}
+#| eval: false
+pp_check(S5.1_ord, ndraws = 100)
+```
 
-Again, this is not the most appropriate posterior predictive check we could do for this type of data[^8] but it is directly comparable to the previous one. You can see that the estimated "distribution" follows the spikes of the data.
+![Figure 5: Density overlay posterior predictive check. The dark blue bold line shows the distribution of the data. The light blue thin lines are 100 predictive distributions.](images/pp2-01.png){fig-align="center"}
 
-[^8]: try instead `pp_check(S5.1_ord, type = "hist", ndraws = 8)`
+Again, this is not the most appropriate posterior predictive check we could do for this type of data but it is directly comparable to the very first one. You can see that the estimated "distribution" follows the spikes of the data. Here is a more appropriate option:
+
+```{r}
+#| eval: false
+pp_check(S5.1_ord, type = "bars", ndraws = 100)
+```
+
+![Figure 6: Bars are the data, points are means and ranges (too narrow to be visible) are 90%? intervals of the model predictions.](images/pp2.1.png){fig-align="center"}
 
 This model is also a good example where scrutinizing individual regression coefficients to make inference is not very helpful; everything is on the latent scale. We want to understand the model estimates in terms of the ordinal levels we have used for our response.
 
@@ -340,7 +365,7 @@ p5 = dataord %>%
   rename(diff_in_level = damord) %>%
   ggplot(aes(x = diff_in_level, y = treat)) +
   stat_halfeye(point_interval = "mean_hdi",
-               .width = c(0.90, 0.95, .99)) +
+               .width = c(0.90, 0.95)) +
   geom_vline(xintercept = 0, linetype = "longdash",
              color = "darkred") +
   ylab("contrast") +
@@ -355,15 +380,15 @@ And similarly we can plot the estimates for average differences:
 
 ![Figure 7: Posterior estimates for the difference between treatments and control by group for the cumulative probit model.](images/fig5.png){fig-align="center"}
 
-Even though the two models are very different in terms of their specification, the conclusions we would draw from the estimates of this model are qualitatively similar to those from the first one. In a couple of cases, the 95% credible intervals for the estimated differences are now straddling zero when in the first model they did not, but the broad picture is the same.
+Even though the two models are very different in terms of their specification, the conclusions we would draw from the estimates of this model are qualitatively similar to those from the first one. However, based on the posterior predictive checks, this is a model whose estimates can be more confident about.
 
-## zero inflated censored Beta regression
+## zero-inflated censored Beta regression
 
 *Buckle up; things are about to escalate quickly.*
 
-We are finally going to introduce censoring explicitly into our model. Let's reconsider the data. We are dealing with observations of proportional leaf damage by herbivores, which have been collected in a way that produces censored observations. Continuous proportions bound in the open unit interval (0,1) are easily modeled with a Beta distribution. These data however include several—in fact the majority—of cases with no evidence of damage; they are in the \[0,1) interval. A mixture model, *zero inflated*[^9] Beta regression is the way to go here. We are modeling the probability of zero with a logistic regression *and* we are modeling the average proportion for the non-zero cases with a Beta distribution. This is supported in {brms} by specifying `family = zero_inflated_beta`.
+We are finally going to introduce censoring explicitly into our model. Let's reconsider the data. We are dealing with observations of proportional leaf damage by herbivores, which have been collected in a way that produces censored observations. Continuous proportions bound in the open unit interval (0,1) are readily modeled with a Beta distribution. These data however include several—in fact the majority—of cases with no evidence of damage; they are in the \[0,1) interval. A mixture model, *zero inflated*[^8] Beta regression is the way to go here. We are modeling the probability of zero with a logistic regression *and* we are modeling the average proportion for the non-zero cases with a Beta distribution. This is supported in {brms} by specifying `family = zero_inflated_beta`.
 
-[^9]: *augmented* if we want to be pedantic
+[^8]: *augmented* if we want to be pedantic
 
 Next comes the censoring. For the censored observations *i.e.* all non-zero cases, we need to specify the lower and upper limit of the respective interval. Notice that I have set the lower limit of the first interval slightly above zero (0.01) and the upper limit of the last interval slightly below 1 (0.99). We also need to specify the type of censoring, in this case *interval.*
 
@@ -432,6 +457,8 @@ S5.1_cens = brm(
 ```
 
 We are actually... not going to fit this model! I have tried that and, after the \>8 hours it took to finish sampling, it turned out its performance was abysmal. Each chain was doing its own thing (high Rhats) and I could count the Bulk Effective Samples in my fingers. Tinkering with the model (non-flat priors, longer warmup) did not help. Now admittedly, a more seasoned Stan user might have accomplished something better but this looks like a very hard model to fit.
+
+#### poking under the hood
 
 According to the [Stan manual](https://mc-stan.org/docs/stan-users-guide/truncation-censoring.html#censored.section), there are two ways to model censored data. One of them *"is to treat the censored data as missing data that is constrained to fall in the censored range of values".* I find this is a very intuitive approach, as it maps right onto the description of censored data I gave at the introduction. It is *not* however, the method currently used by {brms}; instead it is using the second method which *"is integrating out censored values".* I do not pretend to understand the second method. I can imagine that *not* having to impute the censored data can have sampling efficiency benefits under some circumstances but it does not seem to work here...
 
@@ -758,7 +785,184 @@ Same for contrasts:
 
 ![Figure 9: Posterior estimates for the difference between treatments and control by group for the cumulative probit model.](images/fig7.png){fig-align="center"}
 
-Unfortunately I am not sure how to evaluate this model. Using `pp_check()` does produce a plot but as it ignores all censored values (there is a warning) it is not informative. I have dealt with cases where it was necessary to produce the density overlay plot manually [before](https://amynang.github.io/posts/20240907-roots-stems-leaves/#baby-steps) but here I am not even sure about what such a plot should look like.
+But we still need to do a posterior predictive check to evaluate this model. Using `pp_check()` does produce *a* plot but as it cannot handle the censored values (there is a warning) it is not informative. Originally, I was not even sure what such a plot should look like. Overcoming this obstacle requires thinking about the logic behind these checks and how `pp_check()` works under the hood. Let's start there.
+
+The workhorse behind `pp_check()` is the `posterior_predict()` function which, as the name indicates, generates predictions from the joint posterior distribution. These predictions are produced by combining the uncertainty of all the relevant coefficients of the model, including the distributional parameter(s) (phi in the case of the Beta distribution) as well as the group level ("random") terms. The best way I have seen this described is the following: If we were to collect one more observation (per combination of predictors *e.g.* for legumes in a control plot in a given site *etc*) what would be the value of this observation? These predictions describe the uncertainty for these values and together they follow a distribution that should closely align with the distribution of the data if a model is suitable—if it sufficiently approximates the data generating process.
+
+In our case, we have assumed that the data generating process can be approximated by a mixture of a Bernoulli and a Beta distribution (our zero inflated Beta) conditional on our predictors. So `posterior_predict()` generates predictions from such a model. How do we compare those to our interval censored data? The solution I resorted to was to impose the censoring scheme to the model predictions as well. If we *were* observing data generated from a zero inflated Beta distribution and we used the same scheme as the one used to collect the actual data, they would be recorded using the same intervals. So why not compare the bar plot of the observed data to the censored model predictions!
+
+Here is a function to do just that:
+
+```{r}
+#| eval: false
+ppc = function(fit, data, ndraws = 10) {
+  levels = c("0", 
+             "0.01–0.05", 
+             "0.05–0.26", 
+             "0.26–0.99")
+  
+  observed = case_when(data$invert_damage.perc == 0  ~ "0",
+                       data$invert_damage.perc < 6   ~ "0.01–0.05",
+                       data$invert_damage.perc < 26  ~ "0.05–0.26",
+                       data$invert_damage.perc >= 26 ~ "0.26–0.99")
+  
+  ypred = posterior_predict(fit, ndraws = ndraws)
+  
+  bins = function(x) {
+    case_when(x == 0   ~ "0",
+              x < 0.06 ~ "0.01–0.05",
+              x < 0.26 ~ "0.05–0.26",
+              x >= 0.26 ~ "0.26–0.99")
+  }
+  
+  sim_bins = apply(ypred, 1, function(x) table(factor(bins(x),
+                                                      levels = levels)))
+  sim_df = as.data.frame(t(sim_bins))
+  sim_df$draw = 1:nrow(sim_df)
+  
+  obs_counts = table(factor(observed, 
+                            levels = levels))
+  
+  obs_df = data.frame(Category = names(obs_counts),
+                      Observed = as.numeric(obs_counts))
+  
+  sim_summary = sim_df %>%
+    pivot_longer(cols = -draw, 
+                 names_to = "Category", 
+                 values_to = "Simulated") %>%
+    group_by(Category) %>%
+    summarise(mean = mean(Simulated),
+              lower = quantile(Simulated, 0.025),
+              upper = quantile(Simulated, 0.975))
+  
+  plot_df = left_join(obs_df, sim_summary, by = "Category")
+  
+  ggplot(plot_df, aes(x = Category)) +
+    geom_col(aes(y = Observed), fill = "#a2c0d9", alpha = 0.7) +
+    geom_pointrange(aes(y = mean, ymin = lower, ymax = upper), 
+                    color = "#152736", size = .25, fatten = 2) +
+    labs(y = "Count", x = "Damage category",
+         subtitle = "bars = y, pointrange = yrep mean & 95% CI") +
+    theme_minimal()
+}
+```
+
+blabla
+
+```{r}
+#| eval: false
+ppc(S5.1_cens, datacens, ndraws = 100)
+```
+
+![Figure :](images/pp3.png){fig-align="center"}
+
+Oops! This is not great. It looks like the Bernoulli part of our model is doing just fine, predicting as many zeros as we have in the data. The Beta part of the model however, is either under- or overpredicting the amount of data we have in each interval. My less-than-half-educated hunch here is that, with only three intervals in the (0, 1) range, the model is struggling where to attribute variation. I suspect that this type of model would work better if intervals where variable across observations[^9] or if we had higher resolution i.e. more levels.
+
+[^9]: Not realistic for our type of data because of the standardized measurement scheme but possible for censored data in general.
+
+I want to test that intuition and more specifically the second case; what if the data were collected with a 0, (0, 5\], (5, 10\], (10, 20\], (20, 30\], (30, 50\], (50, 70\], (70, 100) scheme? Would this model perform better with seven intervals instead of just three? We don't have that kind of data. But we have just fitted a zero inflated Beta regression model that can generate predictions in the \[0, 1) interval! So we can create a dataset with the exact same structure as our real data (sites, plots, taxa, treatments etc) and generate a single draw from the predictive distribution of our model. Remember that such predictions are the answer to the question *"what would be the value of a new observation?"*. So we are making a prediction for 10491 such new observations, one for each site:treatment:plot:group:taxon:replicate combination of our data. Then we can impose on this model-generated dataset the original censoring scheme and the high-resolution one, fit the same model on both and compare.
+
+```{r}
+#| eval: false
+newdata = datacens %>% 
+  select(site:taxon_replicate.plot) %>% 
+  add_predicted_draws(S5.1_cens, ndraws = 1,
+                      re_formula = NULL,
+                      seed = 42) %>% 
+  ungroup()
+
+head(newdata, 1:10)
+```
+
+```{r}
+#| eval: false
+
+```
+
+Now we impose the two censoring methods:
+
+```{r}
+#| eval: false
+
+# the original method
+newcens1 = newdata %>% 
+  mutate(# the lower limits of intervals
+         damagelow = case_when(.prediction  ==   0 ~ 0,
+                               .prediction   < .06 ~ .01,
+                               .prediction   < .26 ~ .06,
+                               .prediction  >= .26 ~ .26),
+         # the upper limits of intervals
+         damagehigh = case_when(.prediction  ==   0 ~ 0,
+                                .prediction   < .06 ~ .05,
+                                .prediction   < .26 ~ .25,
+                                .prediction  >= .26 ~ .99),
+         # the type of intervals
+         censor = case_when(.prediction  ==   0 ~ "none",
+                            .prediction   < .06 ~ "interval",
+                            .prediction   < .26 ~ "interval",
+                            .prediction  >= .26 ~ "interval"))   
+
+# the high-resolution method
+newcens2 = newdata %>% 
+  mutate(# the lower limits of intervals
+         damagelow = case_when(.prediction ==   0 ~ 0,
+                               .prediction <= .05 ~ .01,
+                               .prediction <= .10 ~ .05,
+                               .prediction <= .20 ~ .10,
+                               .prediction <= .30 ~ .20,
+                               .prediction <= .50 ~ .30,
+                               .prediction <= .70 ~ .50,
+                               .prediction  > .70 ~ .70,),
+         # the upper limits of intervals
+         damagehigh = case_when(.prediction <= .05 ~ .05,
+                                .prediction <= .10 ~ .10,
+                                .prediction <= .20 ~ .20,
+                                .prediction <= .30 ~ .30,
+                                .prediction <= .50 ~ .50,
+                                .prediction <= .70 ~ .70,
+                                .prediction  > .70 ~ .99,),
+         # the type of intervals
+         censor = case_when(.prediction ==   0 ~ "none",
+                            .prediction <= .05 ~ "interval",
+                            .prediction <= .10 ~ "interval",
+                            .prediction <= .20 ~ "interval",
+                            .prediction <= .30 ~ "interval",
+                            .prediction <= .50 ~ "interval",
+                            .prediction <= .70 ~ "interval",
+                            .prediction  > .70 ~ "interval")) 
+```
+
+Then we fit the model to the two datasets as before.
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: "Show the code"
+sdata1 = brms::make_standata(formula, family = zero_inflated_beta(), data = newcens1)
+sdata2 = brms::make_standata(formula, family = zero_inflated_beta(), data = newcens2)
+
+model <- cmdstan_model("mcens.stan")
+
+stanfit1 <- model$sample(
+  data = sdata1, 
+  chains = 4,  
+  iter_warmup = 2000,  
+  iter_sampling = 4000, 
+  seed = 123, 
+  parallel_chains = 4
+)
+
+stanfit2 <- model$sample(
+  data = sdata2, 
+  chains = 4,  
+  iter_warmup = 2000,  
+  iter_sampling = 4000, 
+  seed = 123, 
+  parallel_chains = 4
+)
+```
+
+TODO: Examine why the censored model performs poorly relative to ordinal, by generating data from the predictive distribution and then: censoring them with the existing scheme, censoring them with a scheme with more resolution e.g. 0, 0-5, 5-10, 10-20, 20-40, 40-100.
 
 ## easy does it<a href="https://www.merriam-webster.com/dictionary/easy%20does%20it" target="_blank">?</a>
 
