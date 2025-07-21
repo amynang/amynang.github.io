@@ -1,14 +1,19 @@
-/* css styles */
+@font-face {
+  font-family: "Constantia";
+  src: url("https://db.onlinewebfonts.com/c/0b9856633d4311a19df074ea509d8390?family=Constantia");
+}
+
 .cent {
   text-align: center
 }
 
 a:hover {
-    color: rgb(196,75,16) !important;
+  color: rgb(196,75,16) !important;
 }
 
 body {
-    hyphens: auto; /* Enable hyphenation */
+  font-family: "Constantia", serif;
+  hyphens: auto; /* Enable hyphenation */
     -webkit-hyphens: auto; /* For Safari */
     -moz-hyphens: auto; /* For Firefox */
     text-align: justify; /* Justify the text */
