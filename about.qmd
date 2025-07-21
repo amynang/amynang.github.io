@@ -4,7 +4,6 @@ format:
   html: 
     css: styles.css
 lang: en-GB
-mainfont: constantia 
 fontcolor: rgb(48, 48, 18)
 linkcolor: rgb(196,98,16)
 backgroundcolor: rgb(247, 247, 239)

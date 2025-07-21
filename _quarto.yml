@@ -3,13 +3,14 @@ project:
 
 website:
   title: ""
+  site-url: https://amynang.github.io/
   navbar:
     tools:
     - icon: github 
       href: https://github.com/amynang
     - icon: mastodon
       href: https://ecoevo.social/@amyntas
-    - icon: bsky
+    - icon: bluesky
       href: https://bsky.app/profile/amyntas.bsky.social
     - icon: twitter
       href: https://bsky.app/profile/amyntas.bsky.social
