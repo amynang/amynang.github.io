@@ -2,8 +2,9 @@
 title: "Explaining to myself selection & complementarity effects"
 description: "...or more precisely, the Loreau & Hector partitioning."
 author: "Angelos Amyntas"
-draft: true
-draft-mode: visible
+#draft: true
+#draft-mode: visible
+image: "/images/puzzle_pieces.jpg"
 date: 2025-08-28
 categories: [complementarity, selection]
 format: html
@@ -16,17 +17,27 @@ highlight-style: zenburn
 bibliography: references.bib
 ---
 
+::: {.callout-caution title="warning"}
+This is a draft. There are probably more errors and nonsense than usual.
+:::
+
 ## motivation
 
-Descriptions of Loreau and Hector's (2001) partitioning of **net biodiversity effects** into **selection** and **complementarity effects**, are usually top-down. They start with the net difference in community-level yield from the expected community yield, based on monoculture performance, and then explain how this breaks down into the two main components, and how each of these components is calculated. It is a partitioning scheme after all, so this *whole-to-parts* perspective makes sense. That does not necessarily make it an easy way in. There is a higher cognitive load involved in unpacking complex concepts, relative to assembling them from simple parts. So I suspect that a bottom-up approach may be less demanding; we get to understand the fundamental quantities and what they represent, and only then do we figure out how they fit together.
+Descriptions of Loreau and Hector's (2001) partitioning of **net biodiversity effects** into **selection** and **complementarity effects**, are usually top-down. They start from the net difference in community-level yield from the expected community yield, based on monoculture performance, and then explain how this breaks down into the two main components, and how each of these components is calculated. It is a partitioning scheme after all, so this *whole-to-parts* perspective makes sense. That does not necessarily make it an easy way in. There is a higher cognitive load involved in unpacking complex concepts, relative to assembling them from simple parts. So I suspect that a bottom-up approach may be less demanding; we get to understand the fundamental quantities and what they represent, and only then do we figure out how they fit together.
 
-So below is my attempt to do just that.
+Let's try that.
+
+## the experiment
+
+The standard design of a biodiversity & ecosystem functioning experiment features monocultures of individual species and the same species grown in mixtures[^1]. The set up of the experiment is substitutive, in the sense that all experimental units start with the same amount of organisms. What this amount is, depends on the type of community examined; number of seeds for grassland communities, saplings for forest ones, cells for unicellular phytoplankton. So if monocultures are set up with 1000 cells per volume of water, four-species mixtures will have 250 cells per species. Also, all experimental units have the same amount of resources—more generally, they grow under the same conditions—which in the case of a field experiment is usually accomplished with a "common garden" design.
+
+[^1]: Not all BEF experiments have monocultures of all the species that comprise the mixtures but that is a requirement of the Loreau & Hector partitioning.
+
+Single and multispecies communities are established, then harvested after a reasonable amount of time. The question is then, first, whether mixtures have a higher yield than monocultures and second, how that relates to individual species performance in mixtures relative to their monoculture.
 
 ## parts to whole
 
-The standard design of a biodiversity & ecosystem functioning experiment features monocultures of individual species and the same species grown in mixtures. The set up of the experiment is substitutive, in the sense that all experimental units start with the same amount of organisms. What this amount is, depends on the type of community examined; number of seeds for grassland communities, saplings for forest ones, cells for unicellular phytoplankton. So if monocultures are set up with 1000 cells per volume of water, four-species mixtures will have 250 cells per species. Also, all experimental units have the same amount of resources—more generally, they grow under the same conditions—which in the case of a field experiment is usually accomplished with a "common garden" design.
-
-Single and multispecies communities are established, then harvested after a reasonable amount of time. The question is then, first, whether mixtures have a higher yield than monocultures and second, how that relates to individual species performance in mixtures relative to their monoculture. In other words, for every species $i$ in every mixture community $j$, we are interested in the yield of the species in the mixture $Y_i^j$ relative to its yield in the monoculture $M_i$. The ratio of the two is called relative yield:
+In other words, for every species $i$ in every mixture community $j$, we are interested in the yield of the species in the mixture $Y_i^j$ relative to its yield in the monoculture $M_i$. The ratio of the two is called relative yield:
 
 $$RY_i^j =\frac{Y_i^j}{M_i}$$
 
