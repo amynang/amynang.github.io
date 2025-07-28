@@ -3,7 +3,7 @@ title: "Explaining to myself selection & complementarity effects"
 description: "...or more precisely, the Loreau & Hector partitioning."
 author: "Angelos Amyntas"
 draft: true
-draft-mode: unlinked
+draft-mode: visible
 date: 2025-08-28
 categories: [complementarity, selection]
 format: html
