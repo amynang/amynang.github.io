@@ -12,7 +12,7 @@ a:hover {
 }
 
 body {
-  font-family: "Constantia", serif;
+  /*font-family: "Constantia", serif; */
   hyphens: auto; /* Enable hyphenation */
     -webkit-hyphens: auto; /* For Safari */
     -moz-hyphens: auto; /* For Firefox */

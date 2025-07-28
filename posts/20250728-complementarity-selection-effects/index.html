@@ -6,8 +6,11 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Angelos Amyntas">
+<meta name="dcterms.date" content="2025-08-28">
+<meta name="description" content="…or more precisely, the Loreau &amp; Hector partitioning.">
 
-<title>posts</title>
+<title>Explaining to myself selection &amp; complementarity effects</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,28 +23,81 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-listing/list.min.js"></script>
-<script src="site_libs/quarto-listing/quarto-listing.js"></script>
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-7e58e3368124f49f6e3733161a9b089d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-16de5f6a7b873117d90fa8917a20a73a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7e58e3368124f49f6e3733161a9b089d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ca57a4f376f1bf75f538be918031b930.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -69,35 +125,7 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
-
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-listing .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
-
-    const options = {
-      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
-      
-      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description","listing-categories"],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
+<meta name="quarto:status" content="draft">
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -129,13 +157,12 @@ window.Quarto = {
 };
 </script>
 
-<link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-fixed fullcontent quarto-light">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top">
+  <header id="quarto-header" class="headroom fixed-top quarto-banner"><div id="quarto-draft-alert" class="alert alert-warning"><i class="bi bi-pencil-square"></i>Draft</div>
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
@@ -144,27 +171,27 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./index.html"> 
+    <a class="nav-link" href="../../index.html"> 
 <span class="menu-text">home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./about.html"> 
+    <a class="nav-link" href="../../about.html"> 
 <span class="menu-text">about me</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./publications.html"> 
+    <a class="nav-link" href="../../publications.html"> 
 <span class="menu-text">publications</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./cv.html"> 
+    <a class="nav-link" href="../../cv.html"> 
 <span class="menu-text">cv</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./contact.html"> 
+    <a class="nav-link" href="../../contact.html"> 
 <span class="menu-text">contact</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./posts.html" aria-current="page"> 
+    <a class="nav-link" href="../../posts.html"> 
 <span class="menu-text">posts</span></a>
   </li>  
 </ul>
@@ -179,146 +206,107 @@ window.Quarto = {
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Explaining to myself selection &amp; complementarity effects</h1>
+                  <div>
+        <div class="description">
+          …or more precisely, the Loreau &amp; Hector partitioning.
+        </div>
+      </div>
+                          <div class="quarto-categories">
+                <div class="quarto-category">complementarity</div>
+                <div class="quarto-category">selection</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Angelos Amyntas </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">August 28, 2025</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(3)</span></div><div class="category" data-category="YnJtcw==">brms <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RGlyaWNobGV0">Dirichlet <span class="quarto-category-count">(1)</span></div><div class="category" data-category="ZGl2ZXJzaXR5">diversity <span class="quarto-category-count">(1)</span></div><div class="category" data-category="ZXJyb3Jz">errors <span class="quarto-category-count">(1)</span></div><div class="category" data-category="R0xNcw==">GLMs <span class="quarto-category-count">(1)</span></div><div class="category" data-category="bG9nYXJpdGhtcw==">logarithms <span class="quarto-category-count">(1)</span></div><div class="category" data-category="cGh5bG9nZW5ldGljJTIwcmVncmVzc2lvbg==">phylogenetic regression <span class="quarto-category-count">(1)</span></div><div class="category" data-category="cHJvcG9ydGlvbmFsJTIwZGF0YQ==">proportional data <span class="quarto-category-count">(1)</span></div><div class="category" data-category="U2hhbm5vbiUyMGVudHJvcHk=">Shannon entropy <span class="quarto-category-count">(1)</span></div><div class="category" data-category="d3JpdHRpbmc=">writting <span class="quarto-category-count">(1)</span></div></div></div>
+    
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content quarto-banner-title-block" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">posts</h1>
+
+
+
+
+<section id="motivation" class="level2">
+<h2 class="anchored" data-anchor-id="motivation">motivation</h2>
+<p>Descriptions of Loreau and Hector’s (2001) partitioning of <strong>net biodiversity effects</strong> into <strong>selection</strong> and <strong>complementarity effects</strong>, are usually top-down. They start with the net difference in community-level yield from the expected community yield, based on monoculture performance, and then explain how this breaks down into the two main components, and how each of these components is calculated. It is a partitioning scheme after all, so this <em>whole-to-parts</em> perspective makes sense. That does not necessarily make it an easy way in. There is a higher cognitive load involved in unpacking complex concepts, relative to assembling them from simple parts. So I suspect that a bottom-up approach may be less demanding; we get to understand the fundamental quantities and what they represent, and only then do we figure out how they fit together.</p>
+<p>So below is my attempt to do just that.</p>
+</section>
+<section id="parts-to-whole" class="level2">
+<h2 class="anchored" data-anchor-id="parts-to-whole">parts to whole</h2>
+<p>The standard design of a biodiversity &amp; ecosystem functioning experiment features monocultures of individual species and the same species grown in mixtures. The set up of the experiment is substitutive, in the sense that all experimental units start with the same amount of organisms. What this amount is, depends on the type of community examined; number of seeds for grassland communities, saplings for forest ones, cells for unicellular phytoplankton. So if monocultures are set up with 1000 cells per volume of water, four-species mixtures will have 250 cells per species. Also, all experimental units have the same amount of resources—more generally, they grow under the same conditions—which in the case of a field experiment is usually accomplished with a “common garden” design.</p>
+<p>Single and multispecies communities are established, then harvested after a reasonable amount of time. The question is then, first, whether mixtures have a higher yield than monocultures and second, how that relates to individual species performance in mixtures relative to their monoculture. In other words, for every species <span class="math inline">\(i\)</span> in every mixture community <span class="math inline">\(j\)</span>, we are interested in the yield of the species in the mixture <span class="math inline">\(Y_i^j\)</span> relative to its yield in the monoculture <span class="math inline">\(M_i\)</span>. The ratio of the two is called relative yield:</p>
+<p><span class="math display">\[RY_i^j =\frac{Y_i^j}{M_i}\]</span></p>
+<p>Now recall that, due to the substitutive design of the experiment, in a mixture of N species, species <span class="math inline">\(i\)</span> will start with 1/N of its monoculture amount. Therefore, 1/N is also the null expectation for the species’ relative yield, that is <em>relative to its monoculture yield not to the mixture’s total yield</em>. So if the species’ yield when cultured alone is 40 biomass units, its expected yield when it is cultured with three other species <em>and therefore starts with a quarter of its monoculture starting amount</em>, would be <span class="math inline">\(\frac{1}{4} \cdot40\)</span> biomass units.</p>
+<p>Therefore, the observed difference of the relative yield from the null expectation is:</p>
+<p><span class="math display">\[\Delta RY_i^j = \frac{Y_i^j}{M_i} - \frac{1}{N^j}\]</span> <span class="math inline">\(\Delta RY_i^j\)</span> is going to be zero if a species’ performance in mixture <span class="math inline">\(j\)</span> is exactly what we would expect based on its monoculture performance. This would indicate that diversity <em>i.e.</em> growing in a mixture, has no influence on the performance of this particular species. If all species in all mixtures perform as expected based on their monocultures, then there are no discernible diversity effects, period.</p>
+<p>Let us now consider deviations from that null expectation; a species’ yield in a mixture can be higher than the null expectation, in which case <span class="math inline">\(\Delta RY_i^j &gt; 0\)</span> or lower, so <span class="math inline">\(\Delta RY_i^j &lt; 0\)</span>. In practice, these are never going to be exactly zero because, even in the absence of diversity effects, there would be some variation in how much a species yields in each experimental unit. But a more ecologically interesting source of deviation is if some species are more acquisitive than others, taking up resources faster than their competitors. In that case, their <span class="math inline">\(\Delta RY_i^j\)</span> will be higher than that of other species in the community, <em>regardless of its sign</em>. If these species are also more efficient in their use of resources, they will be species with higher monoculture yield, <span class="math inline">\(M_i\)</span> relative to these other species. In other words, if both of these are true, for a focal mixture <span class="math inline">\(j\)</span> we expect a positive covariance between the different species yield deviations <span class="math inline">\(\Delta RY_i^j\)</span> and their respective yields in monocultures <span class="math inline">\(M_i\)</span>.</p>
+<p><span class="math display">\[\operatorname{cov}(\mathbf{M}^j, \boldsymbol{\Delta} \mathbf{RY}^j) &gt; 0\]</span> where <span class="math inline">\(\mathbf{M}^j\)</span> is the vector of monoculture yields for all species in mixture <span class="math inline">\(j\)</span> and <span class="math inline">\(\boldsymbol{\Delta} \mathbf{RY}^j\)</span> is the vector of their deviations from the expected yield. It is also possible that species that are relatively productive on their own, <em>i.e.</em> good at using the available resources to produce biomass, are nevertheless not very competitive in the presence of other species. In that case, the covariance between monoculture yields and deviations from the expected yield would be negative.</p>
+<p>Let’s recap. Within a mixture, a species may yield more or less than what is expected based on its monoculture yield, indicating some influence of the presence of other species on its own productivity, or it may yield close to the null expectation, indicating a lack of such an influence. Then, the covariance between monoculture yields and deviations from the expected yield in a mixture can be positive if species that are productive alone also tend to outperform their competitors, and negative if they are less competitive, or close to zero if their monoculture yields are no indication of how they perform in the mixture.</p>
+<p>Covariance is calculated as: <span class="math display">\[\operatorname{cov}(\mathbf{M}^j, \boldsymbol{\Delta} \mathbf{RY}^j) = \frac{1}{N^j} \sum_{i=1}^{N^j} (M_i^j - \overline{M^j})(\Delta RY_i^j - \overline{\Delta RY^j})\]</span></p>
+<p>Note that the sum here is divided by <span class="math inline">\(N\)</span> rather than <span class="math inline">\(N-1\)</span>, which would be the conventional small-sample bias correction applied for example by the base R <code>cov()</code> function. The <span class="math inline">\(N-1\)</span> version gives an unbiased covariance <em>estimator</em>. Instead here we <em>calculate</em> covariance for the entire “population” i.e.&nbsp;all the species in this particular experimental unit.</p>
+<p>By its mathematical definition, covariance is a per species quantity. We can multiply it again by <span class="math inline">\(N^j\)</span>, the number of species that comprise the mixture, to get a community level quantity. This quantity is what <span class="citation" data-cites="loreau2001">Loreau and Hector (<a href="#ref-loreau2001" role="doc-biblioref">2001</a>)</span> defined as the <strong>selection effect</strong>: <span class="math display">\[SE^j = N^j \cdot \operatorname{cov}(\mathbf{M}^j, \boldsymbol{\Delta} \mathbf{RY}^j)\]</span></p>
+<p>It expresses the extent to which community-level deviations from monoculture-based expectations are attributable to a covariance—positive or negative—between species-level deviations and their monoculture performance.</p>
+<p>Now let us consider what is the average relative yield of the species in a mixture community <span class="math inline">\(j\)</span>. If the average species in the mixture does better than expected by its monoculture, <span class="math inline">\(\overline{\Delta RY^{j}}\)</span> will be positive. It will be negative if it does worse, or close to zero if positive deviations tend to cancel out with negative ones. Now recall that <span class="math inline">\(RY_i^j\)</span> and <span class="math inline">\(\Delta RY_i^j\)</span> are proportional quantities. Similarly, <span class="math inline">\(\overline{\Delta RY^{j}}\)</span> gives us the average <em>proportional</em> deviation from the expected yield. <span class="math inline">\(\overline{M^j}\)</span> is the monoculture yield of the average species in community <span class="math inline">\(j\)</span>. By multiplying the two, <span class="math inline">\(\overline{\Delta RY^{j}} \cdot \overline{M^j}\)</span>, we get the average per-species gain or loss in yield due to diversity effects. The multiplication with <span class="math inline">\(\overline{M^j}\)</span> takes us from the proportional scale back to the raw yield scale. So if the monoculture yield of the average species is large, then a proportional change will lead to a large change in absolute terms. If the monoculture yield average is small, even large proportional changes will amount to a small change in yield. Multiplying again by <span class="math inline">\(N^j\)</span>, we get the community-level change in yield that can be attributed to an increase or decrease in average species-level performance and is what <span class="citation" data-cites="loreau2001">Loreau and Hector (<a href="#ref-loreau2001" role="doc-biblioref">2001</a>)</span> defined as the <strong>complementarity effect</strong>:</p>
+<p><span class="math display">\[CE^j = N^j \cdot \overline{\Delta RY^{j}} \cdot \overline{M^j}\]</span></p>
+<p>Together, the two terms give us the net difference in yield:</p>
+<p><span class="math display">\[\Delta Y^j = N^j \cdot \operatorname{cov}(\mathbf{M}^j, \boldsymbol{\Delta} \mathbf{RY}^j) + N^j \cdot \overline{\Delta RY^{j}} \cdot \overline{M^j}\]</span></p>
+<p><span class="citation" data-cites="loreau2001">Loreau and Hector (<a href="#ref-loreau2001" role="doc-biblioref">2001</a>)</span> call this the <strong>net biodiversity effect</strong> i.e.</p>
+<p><span class="math display">\[NBE^j = SE^j + CE^j\]</span></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>loreau_hector <span class="ot">=</span> <span class="cf">function</span>(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    M_i,                <span class="co"># vector of species yield in monoculture</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    Y_i                 <span class="co"># vector of species yield in mixture</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>       ) {</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  N <span class="ot">=</span> <span class="fu">length</span>(M_i)       <span class="co"># number of species in the mixture</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  dRY <span class="ot">=</span> Y_i<span class="sc">/</span>M_i <span class="sc">-</span> <span class="dv">1</span><span class="sc">/</span>N   <span class="co"># deviation from expected relative yield of species i</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  M_bar <span class="ot">=</span> <span class="fu">mean</span>(M_i)     <span class="co"># average yield across the monocultures of constituent species</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  dRY_bar <span class="ot">=</span> <span class="fu">mean</span>(dRY)   <span class="co"># mean deviation</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  CE <span class="ot">=</span> N <span class="sc">*</span> dRY_bar <span class="sc">*</span> M_bar                    <span class="co"># complementarity effect</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  SE <span class="ot">=</span> <span class="fu">sum</span>((M_i <span class="sc">-</span> M_bar) <span class="sc">*</span> (dRY <span class="sc">-</span> dRY_bar))   <span class="co"># selection effect</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  NE <span class="ot">=</span> CE <span class="sc">+</span> SE                                <span class="co"># net effect</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(NE,CE,SE)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 
 
 
-<div class="quarto-title-meta">
+</section>
 
-    
-  
-    
-  </div>
-  
-
-
-</header>
-
-
-
-
-
-
-<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
-<div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="R0xNcyUyQ2Vycm9ycyUyQ3dyaXR0aW5n" data-listing-date-sort="1752444000000" data-listing-file-modified-sort="1752511997846" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="693">
-<div class="thumbnail"><a href="./posts/20250714-poisson-errors-fishy/index.html" class="no-external">
-
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/20250714-poisson-errors-fishy/index.html" class="no-external">What’s fishy about Poisson* distributed errors</a>
-</h3>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('R0xNcw=='); return false;">GLMs</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('ZXJyb3Jz'); return false;">errors</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('d3JpdHRpbmc='); return false;">writting</div>
-
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-loreau2001" class="csl-entry" role="listitem">
+Loreau, Michel, and Andy Hector. 2001. <span>“Partitioning Selection and Complementarity in Biodiversity Experiments.”</span> <em>Nature</em> 412 (6842): 72–76. <a href="https://doi.org/10.1038/35083573">https://doi.org/10.1038/35083573</a>.
 </div>
-<div class="delink listing-description"><a href="./posts/20250714-poisson-errors-fishy/index.html" class="no-external">
-<p>*or similar. Stop writing that please. Thank you.</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/20250714-poisson-errors-fishy/index.html" class="no-external">
-<div class="listing-date">
-Jul 14, 2025
-</div>
-<div class="listing-author">
-Angelos Amyntas
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="1" data-categories="ZGl2ZXJzaXR5JTJDU2hhbm5vbiUyMGVudHJvcHklMkNsb2dhcml0aG1z" data-listing-date-sort="1738969200000" data-listing-file-modified-sort="1739029302484" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="752">
-<div class="thumbnail"><a href="./posts/20250208-diversity-entropy/index.html" class="no-external">
-
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/20250208-diversity-entropy/index.html" class="no-external">Diversity, entropy and the effective number of species</a>
-</h3>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('ZGl2ZXJzaXR5'); return false;">diversity</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('U2hhbm5vbiUyMGVudHJvcHk='); return false;">Shannon entropy</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('bG9nYXJpdGhtcw=='); return false;">logarithms</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/20250208-diversity-entropy/index.html" class="no-external">
-This was originally a short detour in something longer I am working on. I decided to turn it into a standalone short explainer I can point to.
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/20250208-diversity-entropy/index.html" class="no-external">
-<div class="listing-date">
-Feb 8, 2025
-</div>
-<div class="listing-author">
-Angelos Amyntas
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="2" data-categories="cHJvcG9ydGlvbmFsJTIwZGF0YSUyQ0RpcmljaGxldCUyQ3BoeWxvZ2VuZXRpYyUyMHJlZ3Jlc3Npb24lMkNicm1z" data-listing-date-sort="1725660000000" data-listing-file-modified-sort="1752239383870" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="28" data-listing-word-count-sort="5464">
-<div class="thumbnail"><a href="./posts/20240907-roots-stems-leaves/index.html" class="no-external">
-
-<p class="card-img-top"><img src="posts/20240907-roots-stems-leaves/figs/fig1.png"  class="thumbnail-image card-img"/></p>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/20240907-roots-stems-leaves/index.html" class="no-external">Roots, stems &amp; leaves</a>
-</h3>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('cHJvcG9ydGlvbmFsJTIwZGF0YQ=='); return false;">proportional data</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('RGlyaWNobGV0'); return false;">Dirichlet</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('cGh5bG9nZW5ldGljJTIwcmVncmVzc2lvbg=='); return false;">phylogenetic regression</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('YnJtcw=='); return false;">brms</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/20240907-roots-stems-leaves/index.html" class="no-external">
-<p>modelling proportions and trying a phylogenetic regression, using data from 10.1002/ecy.3688</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/20240907-roots-stems-leaves/index.html" class="no-external">
-<div class="listing-date">
-Sep 7, 2024
-</div>
-<div class="listing-author">
-Angelos Amyntas
-</div>
-</a>
-</div>
-</div>
-</div>
-<div class="listing-no-matching d-none">No matching items</div>
-</div></main> <!-- /main -->
+</div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
