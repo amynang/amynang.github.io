@@ -43,7 +43,7 @@ $$RY_i^j =\frac{Y_i^j}{M_i}$$
 
 Now recall that, due to the substitutive design of the experiment, in a mixture of N species, species $i$ will start with 1/N of its monoculture amount. Therefore, 1/N is also the null expectation for the species' relative yield, that is *relative to its monoculture yield not to the mixture's total yield*. So if the species' yield when cultured alone is 40 biomass units, its expected yield when it is cultured with three other species *and therefore starts with a quarter of its monoculture starting amount*, would be $\frac{1}{4} \cdot40$ biomass units.
 
-Therefore, the observed difference of the relative yield from the null expectation is:
+Therefore, the difference of the observed relative yield from the null expectation is:
 
 $$\Delta RY_i^j = \frac{Y_i^j}{M_i} - \frac{1}{N^j}$$ $\Delta RY_i^j$ is going to be zero if a species' performance in mixture $j$ is exactly what we would expect based on its monoculture performance. This would indicate that diversity *i.e.* growing in a mixture, has no influence on the performance of this particular species. If all species in all mixtures perform as expected based on their monocultures, then there are no discernible diversity effects, period.
 
