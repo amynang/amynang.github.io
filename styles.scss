@@ -1,7 +1,12 @@
-@font-face {
-  font-family: "Constantia";
-  src: url("https://db.onlinewebfonts.com/c/0b9856633d4311a19df074ea509d8390?family=Constantia");
-}
+/*-- scss:defaults --*/
+
+// Import fonts: Aleo, Mulish, Nunito
+@import url("https://db.onlinewebfonts.com/c/0b9856633d4311a19df074ea509d8390?family=Constantia");
+
+
+
+
+/*-- scss:rules --*/
 
 .cent {
   text-align: center
@@ -12,10 +17,10 @@ a:hover {
 }
 
 body {
+  font-size: 19px;
   /*font-family: "Constantia", serif; */
   hyphens: auto; /* Enable hyphenation */
     -webkit-hyphens: auto; /* For Safari */
     -moz-hyphens: auto; /* For Firefox */
     text-align: justify; /* Justify the text */
 }
-

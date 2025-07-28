@@ -32,7 +32,10 @@ website:
 
 format:
   html:
-    css: styles.css
+    theme: 
+     - styles.scss
+    #css: styles.css
+    mainfont: Constantia
     toc: false
     highlight-style: zenburn
 editor: visual
