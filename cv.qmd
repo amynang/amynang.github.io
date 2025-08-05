@@ -8,4 +8,4 @@ fontcolor: rgb(48, 48, 18)
 backgroundcolor: rgb(247, 247, 239)
 ---
 
-![](files/amyntasCV.pdf){width="100%" height="800"}
+![](files/cvpdf.pdf){width="100%" height="800"}

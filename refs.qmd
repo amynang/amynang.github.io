@@ -1,0 +1,15 @@
+---
+title: "refs"
+format: 
+  html: 
+    css: styles.css
+editor: visual
+date: "2025-07-16"
+mainfont: constantia
+bibliography: references.bib
+csl: files/journal-of-animal-ecology.csl
+---
+
+[@amyntas2023; @amyntas2025; @amyntas2024]
+
+[@terlau2023; @dyer2023; @yi2025; @hennecke2025; @sünnemann2024a; @li2024a; @jochum2021a]

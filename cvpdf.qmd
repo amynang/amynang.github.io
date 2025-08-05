@@ -1,0 +1,135 @@
+---
+format:
+  pdf:
+    documentclass: scrartcl
+    papersize: a4
+    classoption: onecolumn
+    colorlinks: true
+    link-citations: true
+    mainfont: Constantia
+    mainfontoptions:
+    - RegularFont=files/constan.ttf
+    - BoldFont=files/constanb.ttf
+    - ItalicFont=files/constani.ttf
+    geometry:
+    - top=25mm
+    - left=25.5mm
+    - right=25.5mm
+    #- columnsep=10mm
+    header-includes:
+    - \renewcommand{\toprule}[2]{}
+    - \renewcommand{\bottomrule}[2]{}
+    pdf-engine: xelatex
+    keep-tex: true
+
+editor: source
+fontsize: 11pt
+---
+
+\begin{center}\begin{bfseries}Angelos Amyntas\end{bfseries}\end{center}
+
+\vspace{10mm}
+
+**Personal information**
+
+Date of birth: 1 July 1988
+
+Nationality: Greek
+
+Residence: Neustrelitz, Germany
+
+email: angelos.amyntas\@posteo.net
+
+website: <https://amynang.github.io/>
+
+github: <https://github.com/amynang>
+
+unique identifier: orcid.org/0000-0003-3777-3843
+
+\vspace{15mm}
+
+**Education**
+
+|  |  |
+|-------------------------|-----------------------------------------------|
+| 2020-2024 | PhD in Ecology - Friedrich Schiller University Jena, Germany |
+|  | research group: Theory in Biodiversity Science - iDiv |
+|  | Thesis subject: *Multi-trophic energy fluxes in soil food webs along plant diversity-productivity gradients; supervised* by Dr. Ulrich Brose |
+|  |  |
+| 2016-2019 | Master in Environmental Biology - University of Crete, Greece Thesis subject: *The formation of Carabidae assemblages in wetland ecosystems of Crete with a focus on artificial wetlands* |
+|  |  |
+| 2014 | Degree in Biology - Aristotle University of Thessaloniki, Greece |
+
+**Current position**
+
+|  |  |
+|-------------------------|-----------------------------------------------|
+| 2025.02.01 -  | Postdoc - Anne McLeod's Computational Ecology group Leibniz Institute of Freshwater Ecology and Inland Fisheries (IGB) |
+
+**Previous positions**
+
+|  |  |
+|-------------------------|-----------------------------------------------|
+| 2023.03.01 - 2024.09.30 | Research employee - Friedrich Schiller University Jena |
+| 2022.03.01 - 2023.02.28 | Research employee - University of Göttingen |
+| 2020.03.01 - 2022.02.28 | Research employee - Friedrich Schiller University Jena |
+| 2019.10.15 - 2020.02.28 | Research assistant - University of Leipzig |
+
+**Skills & Experience**
+
+|  |  |
+|-------------------------|-----------------------------------------------|
+| statistics | GL(M)Ms mostly through brms; I can work with fairly complex multilevel models in brms, or with simpler models directly in Stan; some familiarity with SEMs, GAMs |
+|  |  |
+| coding | R (advanced); Julia (basic); NetLogo (beginner) |
+|  |  |
+| software | InkScape, Adobe Illustrator |
+|  |  |
+| field | I coordinated and participated in the set-up and sampling of several field and mesocosm experiments. I have also trained and overseen the work of student assistants. |
+|  |  |
+| lab | microscopy, soil fauna extraction methods, invertebrate identification |
+
+**Conferences**
+
+|  |  |
+|-------------------------|-----------------------------------------------|
+| 2023 | British Ecological Society - Liverpool (poster)  |
+| 2023 | German Ecological Society - Leipzig (poster)     |
+| 2022 | British Ecological Society - Edinburgh (talk)    |
+| 2022 | German & French Ecological Society - Metz (talk) |
+| 2022 | SORTEE – online (reproducibility workshop)       |
+
+**Student supervision**
+
+|  |  |
+|-------------------------|-----------------------------------------------|
+| 2022-2024 | supervision of 2 master students |
+
+**List of publications**
+
+*as first author:*
+
+Amyntas, A., Gauzens, B., Ciobanu, M., Warnke, L., Maraun, M., Salamon, J.-A., Merkle, M., Bassi, L., Hennecke, J., Lange, M., Gleixner, G., Scheu, S., Eisenhauer, N., & Brose, U. (2025). Shared community history strengthens plant diversity effects on below-ground multitrophic functioning. Journal of Animal Ecology, 94(4), 555–565. <https://doi.org/10.1111/1365-2656.14241>
+
+Amyntas, A., Eisenhauer, N., Scheu, S., Klarner, B., Ilieva-Makulec, K., Madaj, A.-M., Gauzens, B., Li, J., Potapov, A. M., Rosenbaum, B., Bassi, L., Berkum, P. M. van, & Brose, U. (2024). Soil community history strengthens belowground multitrophic functioning across plant diversity levels in a grassland experiment. Nature Communications, 15(1). <https://doi.org/10.1038/s41467-024-54401-z>
+
+Amyntas, A., Berti, E., Gauzens, B., Albert, G., Yu, W., Werner, A. S., Eisenhauer, N., & Brose, U. (2023). Niche complementarity among plants and animals can alter the biodiversityecosystem functioning relationship. Functional Ecology, 37(10), 2652–2665. <https://doi.org/10.1111/1365-2435.14419>
+
+\vspace{10mm}
+
+*as contributing author:*
+
+Yi, H., Ferlian, O., Gauzens, B., Rebollo, R., Scheu, S., **Amyntas, A.**, Ciobanu, M., Potapov, A., Salamon, J.-A., & Eisenhauer, N. (2025). Belowground energy fluxes determine tree diversity effects on above- and belowground food webs. Current Biology, S096098222500346X. <https://doi.org/10.1016/j.cub.2025.03.034>
+
+Hennecke, J., Bassi, L., Albracht, C., **Amyntas, A.**, Bergmann, J., Eisenhauer, N., Fox, A., Heimbold, L., Heintz-Buschart, A., Kuyper, T. W., Lange, M., Pinheiro Alves De Souza, Y., Rai, A., Solbach, M. D., Mommer, L., & Weigelt, A. (2025). Plant Species Richness and the Root Economics Space Drive Soil Fungal Communities. Ecology Letters, 28(1), e70032. <https://doi.org/10.1111/ele.70032>
+
+Sünnemann, M., Barnes, A. D., **Amyntas, A.**, Ciobanu, M., Jochum, M., Lochner, A., Potapov, A. M., Reitz, T., Rosenbaum, B., Schädler, M., Zeuner, A., & Eisenhauer, N. (2024). Sustainable Land Use Strengthens Microbial and Herbivore Controls in Soil Food Webs in Current and Future Climates. Global Change Biology, 30(11), e17554. <https://doi.org/10.1111/gcb.17554>
+
+Li, Y., Schuldt, A., Ebeling, A., Eisenhauer, N., Huang, Y., Albert, G., Albracht, C., **Amyntas, A.**, Bonkowski, M., Bruelheide, H., Bröcher, M., Chesters, D., Chen, J., Chen, Y., Chen, J.-T., Ciobanu, M., Deng, X., Fornoff, F., Gleixner, G., … Liu, X. (2024). Plant diversity enhances ecosystem multifunctionality via multitrophic diversity. Nature Ecology & Evolution, 1–11. <https://doi.org/10.1038/s41559-024-02517-2>
+
+Dyer, A., Ryser, R., Brose, U., **Amyntas, A.**, Bodnar, N., Boy, T., Franziska Bucher, S., Cesarz, S., Eisenhauer, N., Gebler, A., Hines, J., Kyba, C. C. M., Menz, M. H. M., Rackwitz, K., Shatwell, T., Terlau, J. F., & Hirt, M. R. (2023). Insect communities under skyglow: diffuse night-time illuminance induces spatio-temporal shifts in movement and predation. Philosophical Transactions of the Royal Society B: Biological Sciences, 378(1892). <https://doi.org/10.1098/rstb.2022.0359>
+
+Terlau, J. F., Brose, U., Eisenhauer, N., **Amyntas, A.**, Boy, T., Dyer, A., Gebler, A., Hof, C., Liu, T., Scherber, C., Schlägel, U. E., Schmidt, A., & Hirt, M. R. (2023). Microhabitat conditions remedy heat stress effects on insect activity. Global Change Biology, 29(13), 3747–3758. <https://doi.org/10.1111/gcb.16712>
+
+Jochum, M., Barnes, A. D., Brose, U., Gauzens, B., Sünnemann, M., **Amyntas, A.**, & Eisenhauer, N. (2021). For flux’s sake: General considerations for energy-flux calculations in ecological communities. Ecology and Evolution, 11(19), 12948–12969. <https://doi.org/10.1002/ece3.8060>
+
