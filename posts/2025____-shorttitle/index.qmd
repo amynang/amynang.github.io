@@ -2,20 +2,22 @@
 title: "Eyeballing it: working with <span style='background:black;color:black;'>censored</span> data"
 draft: true
 draft-mode: unlinked
-description: "modelling interval-censored proportional data with brms+"
+description: "modelling censored proportional data with brms+"
 author: "Angelos Amyntas"
 date: 2025-07-13
+date-format: iso
 categories: [proportional data, censoring, ordinal regression, brms, Stan]
 toc: true
 toc-title: "jump to"
 format:
   html:
     css: styles.css
+theme: default
 editor: visual
 mainfont: constantia
-fontcolor: rgb(48, 48, 18)
-linkcolor: rgb(196,98,16)
-backgroundcolor: rgb(247, 247, 239)
+#fontcolor: rgb(48, 48, 18)
+#linkcolor: rgb(196,98,16)
+#backgroundcolor: rgb(247, 247, 239)
 highlight-style: zenburn
 bibliography: references.bib
 ---
@@ -32,7 +34,7 @@ Now consider the flip side of this: observations that are inherently imprecise b
 
 If an observation falls below the threshold of what a device can measure, the device will show zero. In practice, this zero stands for "less than the minimum" and is indistinguishable from a *true* zero (when the thing you are measuring is really absent). This is *left* *censoring*. When we get the largest value a device can measure, we have *right censoring*.
 
-*Interval censoring* is perhaps the most intuitive case; we know the true value falls within a specific range—say more than 5 and up to 10 *i.e.* (5, 10\]. Interval censoring can be a feature rather than a bug; in my broad neighbourhood in ecology, the typical example would be protocols designed for vegetation cover surveys, such as the Daubenmire scale [@Daubenmire1959]. Under such a measurement scheme, observations are assigned in one of several distinct classes: 0%, (0, 5\]%, (5, 25\]%, (25, 50\]% and so on, of ground covered by vegetation. The exact intervals will vary from case to case. Collecting data in this approximate fashion can be efficient and a standardized scheme ensures consistency among different surveyors.
+*Interval censoring* is perhaps the most intuitive case; we know the true value falls within a specific range—say more than 5 and up to 10 *i.e.* (5, 10\]. Censoring can be a feature rather than a bug; in my broad neighbourhood in ecology, the typical example would be protocols designed for vegetation cover surveys, such as the Daubenmire scale [@Daubenmire1959]. Under such a measurement scheme, observations are assigned in one of several distinct classes: 0%, (0, 5\]%, (5, 25\]%, (25, 50\]% and so on, of ground covered by vegetation. The exact intervals will vary from case to case. Collecting data in this approximate fashion can be efficient and a standardized scheme ensures consistency among different surveyors.
 
 In this post, I will use as an example case a study [@ebeling2021] that used a similar scheme to quantify leaf damage from herbivory by assigning each observation (the proportion of damage on an individual leaf) to one of four categories 0%, (0, 5\]%, (5, 25\]%, (25, 100)%. Notice that the scale starts with a precise zero (absence of damage) followed by increasingly large intervals. Even leaves of the same species will vary in size and exact shape; the more of a leaf that has been eaten away, the harder it is to specify the exact proportion of damage.
 
@@ -77,9 +79,9 @@ data = read_delim("data_LeafDamage_NutNet.csv", delim = ";") %>%
                          levels = c("GRASS","FORB","LEGUME")),
          # just making sure observations conform to the midpoint rule
          invert_damage.perc = case_when(invert_damage.perc ==  0 ~ 0,
-                                        invert_damage.perc  <  6 ~ 3,
-                                        invert_damage.perc  < 26 ~ 15,
-                                        invert_damage.perc >= 26 ~ 63),
+                                        invert_damage.perc <=  5 ~ 3,
+                                        invert_damage.perc <= 25 ~ 15,
+                                        invert_damage.perc  > 25 ~ 63),
          logdam = log(invert_damage.perc + 1))
 ```
 
@@ -201,10 +203,10 @@ For a cumulative model, {brms} accepts response data in two possible types: eith
 #| eval: false
 dataord = data %>% 
   mutate(# for the ordinal regression
-         damord = case_when(invert_damage.perc  == 0 ~ 1L,
-                            invert_damage.perc   < 6 ~ 2L,
-                            invert_damage.perc  < 26 ~ 3L,
-                            invert_damage.perc >= 26 ~ 4L) 
+         damord = case_when(invert_damage.perc ==  0 ~ 1L,
+                            invert_damage.perc <=  5 ~ 2L,
+                            invert_damage.perc <= 25 ~ 3L,
+                            invert_damage.perc  > 25 ~ 4L) 
          )
 ```
 
@@ -386,30 +388,73 @@ Even though the two models are very different in terms of their specification, t
 
 *Buckle up; things are about to escalate quickly.*
 
-We are finally going to introduce censoring explicitly into our model. Let's reconsider the data. We are dealing with observations of proportional leaf damage by herbivores, which have been collected in a way that produces censored observations. Continuous proportions bound in the open unit interval (0,1) are readily modeled with a Beta distribution. These data however include several—in fact the majority—of cases with no evidence of damage; they are in the \[0,1) interval. A mixture model, *zero inflated*[^8] Beta regression is the way to go here. We are modeling the probability of zero with a logistic regression *and* we are modeling the average proportion for the non-zero cases with a Beta distribution. This is supported in {brms} by specifying `family = zero_inflated_beta`.
+We are finally going to introduce censoring explicitly into our model. Let's reconsider the data. We are dealing with observations of proportional leaf damage by herbivores, which have been collected in a way that produces censored observations. Continuous proportions bound in the open unit interval (0,1) are readily modeled with a Beta distribution. These data however include several—in fact the majority—of cases with no evidence of damage; they are in the \[0,1) interval. A mixture model, *zero inflated*[^8] Beta regression is the way to go here. We are modeling the probability of zero with a logistic regression *and* we are modeling the average proportion, for the non-zero cases, with a Beta distribution. This is supported in {brms} by specifying `family = zero_inflated_beta`.
 
 [^8]: *augmented* if we want to be pedantic
 
-Next comes the censoring. For the censored observations *i.e.* all non-zero cases, we need to specify the lower and upper limit of the respective interval. Notice that I have set the lower limit of the first interval slightly above zero (0.01) and the upper limit of the last interval slightly below 1 (0.99). We also need to specify the type of censoring, in this case *interval.*
+Next comes the censoring. How does Stan (and brms) handle censoring? Observations are indexed as being left-, right- interval- or not censored. Then for left and right censored cases, values represent the threshold of measurement. For interval censored cases, values represent the lower bound of the interval and we have an auxiliary term for the upper bound. In {brms} syntax, this looks like this:
+
+```{r }
+#| eval: false
+ycens | cens(censor, upper)
+```
+
+where `censor` is the type of censoring and `upper` is the upper bound for interval censored observations. What goes into `ycens` depends on the type of censoring, as described just above.
+
+First, we have non-censored observations; zeros that denote absence of damage. Then, we have observations for which we know that the damage is up to 5%, those for which it is more than 5% and up to 25%, and those for which it is more than 25%. Because we are dealing with proportional data, which are inherently bound, it is natural to think of all of these categories as intervals. So the code below, would be a reasonable way to specify these intervals. Notice that, somewhat arbitrarily, I have set the lower limit of the first interval slightly above zero (0.01) and the upper limit of the last interval slightly below 1 (0.99). We also need to specify the type of censoring, in this case *interval.*
 
 ```{r}
 #| eval: false
 datacens = data %>% 
   mutate(# the lower limits of intervals
-         damagelow = case_when(invert_damage.perc  ==  0 ~ 0,
-                               invert_damage.perc   <  6 ~ .01,
-                               invert_damage.perc   < 26 ~ .06,
-                               invert_damage.perc  >= 26 ~ .26),
+         damagelow = case_when(invert_damage.perc ==  0 ~ 0,
+                               invert_damage.perc <=  5 ~ .01,
+                               invert_damage.perc <= 25 ~ .05,
+                               invert_damage.perc  > 25 ~ .25),
          # the upper limits of intervals
-         damagehigh = case_when(invert_damage.perc  ==  0 ~ 0,
-                                invert_damage.perc   <  6 ~ .05,
-                                invert_damage.perc   < 26 ~ .25,
-                                invert_damage.perc  >= 26 ~ .99),
+         damagehigh = case_when(invert_damage.perc ==  0 ~ 0,
+                                invert_damage.perc <=  5 ~ .05,
+                                invert_damage.perc <= 25 ~ .25,
+                                invert_damage.perc  > 25 ~ .99),
          # the type of intervals
-         censor = case_when(invert_damage.perc  ==  0 ~ "none",
-                            invert_damage.perc   <  6 ~ "interval",
-                            invert_damage.perc   < 26 ~ "interval",
-                            invert_damage.perc  >= 26 ~ "interval")) 
+         censor = case_when(invert_damage.perc ==  0 ~ "none",
+                            invert_damage.perc <=  5 ~ "interval",
+                            invert_damage.perc <= 25 ~ "interval",
+                            invert_damage.perc  > 25 ~ "interval")) 
+```
+
+and therefore, on the left-hand side of the model formula we would have:
+
+```{r}
+#| eval: false
+damagelow | cens(censor, damagehigh)
+```
+
+It turns out that this approach, and specifically those arbitrary thresholds, can get us into [trouble](https://discourse.mc-stan.org/t/posterior-predictive-check-for-zero-inflated-interval-censored-beta/39881/5). We can try to avoid the problem by making these thresholds *really* close to zero and one (`1e-7` and `1-1e-7` perhaps). But a more reliable way to proceed here, is to treat our \>25% observations as *right* censored and, perhaps less intuitively, our non-zero \<5% observations as *left* censored:
+
+```{r}
+#| eval: false
+datacens = data %>% 
+  mutate(# the lower limits of intervals
+    damagelow = case_when(invert_damage.perc ==  0 ~ 0,
+                          invert_damage.perc <=  5 ~ .01,
+                          invert_damage.perc <= 25 ~ .05,
+                          invert_damage.perc  > 25 ~ .25),
+    # the upper limits of intervals
+    damagehigh = case_when(invert_damage.perc ==  0 ~ 0,
+                           invert_damage.perc <=  5 ~ .05,
+                           invert_damage.perc <= 25 ~ .25,
+                           invert_damage.perc  > 25 ~ .99),
+    # the type of intervals
+    censor = case_when(invert_damage.perc ==  0 ~ "none",
+                       invert_damage.perc <=  5 ~ "left",
+                       invert_damage.perc <= 25 ~ "interval",
+                       invert_damage.perc  > 25 ~ "right"),
+    # what goes into ycens depends on the type of censoring
+    ycens = case_when(censor ==     "none" ~ 0,
+                      censor ==     "left" ~ damagehigh,
+                      censor == "interval" ~ damagelow,
+                      censor ==    "right" ~ damagelow)) 
 ```
 
 This is what the {brms} formula for such a model looks like:
@@ -417,7 +462,7 @@ This is what the {brms} formula for such a model looks like:
 ```{r}
 #| eval: false
 formula = bf(
-  damagelow | cens(censor, damagehigh) ~ treat + fgroup + treat:fgroup +
+  ycens | cens(censor, damagehigh) ~ treat + fgroup + treat:fgroup +
       (1 | site) + 
       (1 | taxon) + 
       (1 | site:plot:taxon),
@@ -428,16 +473,14 @@ formula = bf(
 )
 ```
 
-Lower limits are passed to the model in the place of the dependent variable. They are followed by `|` and then the `cens()` function that has two terms – the type of censoring and the upper limit for interval censored cases. The other formula is the zero inflation part.
-
-The full model would look like this:
+The other formula is the zero inflation part. The full model would look like this:
 
 ```{r}
 #| eval: false
 S5.1_cens = brm(
   data = datacens,
   bf(
-     damagelow | cens(censor, damagehigh) ~ treat + fgroup + treat:fgroup +
+     ycens | cens(censor, damagehigh) ~ treat + fgroup + treat:fgroup +
          (1 | site) + 
          (1 | taxon) + 
          (1 | site:plot:taxon),
@@ -798,21 +841,21 @@ Here is a function to do just that:
 ppc = function(fit, data, ndraws = 10) {
   levels = c("0", 
              "0.01–0.05", 
-             "0.05–0.26", 
-             "0.26–0.99")
+             "0.05–0.25", 
+             "0.25–0.99")
   
-  observed = case_when(data$invert_damage.perc == 0  ~ "0",
-                       data$invert_damage.perc < 6   ~ "0.01–0.05",
-                       data$invert_damage.perc < 26  ~ "0.05–0.26",
-                       data$invert_damage.perc >= 26 ~ "0.26–0.99")
+  observed = case_when(data$invert_damage.perc ==  0 ~ levels[1],
+                       data$invert_damage.perc <=  5 ~ levels[2],
+                       data$invert_damage.perc <= 25 ~ levels[3],
+                       data$invert_damage.perc  > 25 ~ levels[4])
   
   ypred = posterior_predict(fit, ndraws = ndraws)
   
   bins = function(x) {
-    case_when(x == 0   ~ "0",
-              x < 0.06 ~ "0.01–0.05",
-              x < 0.26 ~ "0.05–0.26",
-              x >= 0.26 ~ "0.26–0.99")
+    case_when(x ==    0 ~ levels[1],
+              x <= 0.05 ~ levels[2],
+              x <= 0.25 ~ levels[3],
+              x  > 0.25 ~ levels[4])
   }
   
   sim_bins = apply(ypred, 1, function(x) table(factor(bins(x),
@@ -832,8 +875,8 @@ ppc = function(fit, data, ndraws = 10) {
                  values_to = "Simulated") %>%
     group_by(Category) %>%
     summarise(mean = mean(Simulated),
-              lower = quantile(Simulated, 0.025),
-              upper = quantile(Simulated, 0.975))
+              lower = quantile(Simulated, 0.05),
+              upper = quantile(Simulated, 0.95))
   
   plot_df = left_join(obs_df, sim_summary, by = "Category")
   
@@ -842,7 +885,7 @@ ppc = function(fit, data, ndraws = 10) {
     geom_pointrange(aes(y = mean, ymin = lower, ymax = upper), 
                     color = "#152736", size = .25, fatten = 2) +
     labs(y = "Count", x = "Damage category",
-         subtitle = "bars = y, pointrange = yrep mean & 95% CI") +
+         subtitle = "bars = y, pointrange = yrep mean & 90% CI") +
     theme_minimal()
 }
 ```

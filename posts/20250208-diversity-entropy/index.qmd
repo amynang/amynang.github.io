@@ -3,6 +3,7 @@ title: "Diversity, entropy and the effective number of species"
 description: ""
 author: "Angelos Amyntas"
 date: 2025-02-08
+date-format: iso
 categories: [diversity, Shannon entropy, logarithms]
 format: html
 editor: visual

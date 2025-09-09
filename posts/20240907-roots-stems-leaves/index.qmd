@@ -3,6 +3,7 @@ title: "Roots, stems & leaves"
 description: "modelling proportions and trying a phylogenetic regression, using data from 10.1002/ecy.3688"
 author: "Angelos Amyntas"
 date: 2024-09-07
+date-format: iso
 categories: [proportional data, Dirichlet, phylogenetic regression, brms]
 toc: true
 toc-title: ""

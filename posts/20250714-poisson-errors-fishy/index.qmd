@@ -3,7 +3,8 @@ title: "What's fishy about Poisson* distributed errors"
 description: "*or similar. Stop writing that please. Thank you."
 author: "Angelos Amyntas"
 date: 2025-07-14
-categories: [GLMs, errors, writting]
+date-format: iso
+categories: [GLMs, errors, writing]
 format: html
 editor: visual
 mainfont: constantia
