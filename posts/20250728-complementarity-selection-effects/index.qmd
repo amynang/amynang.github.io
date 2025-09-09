@@ -74,7 +74,9 @@ $$\Delta Y^j = N^j \cdot \operatorname{cov}(\mathbf{M}^j, \boldsymbol{\Delta} \m
 
 $$NBE^j = SE^j + CE^j$$
 
-There, we have now put everything together. Now that all the bits are explained and everything is in its right place, let's move them around a bit to understand the logic of this partitioning. Before we do that, it will help to know that the expected value of the product of two random variables is equal to the product of the expected values of each variable plus their covariance:
+There, we have now put everything together.
+
+Now that all the bits are explained and everything is in its right place, let's move them around a bit to understand the logic of this partitioning. Before we do that, it will help to know that the expected value of the product of two random variables is equal to the product of the expected values of each variable plus their covariance:
 
 $$
 \mathbb{E}[XY] = \mathbb{E}[X] \cdot \mathbb{E}[Y] + \text{Cov}(X, Y)
