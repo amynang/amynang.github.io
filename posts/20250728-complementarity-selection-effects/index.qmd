@@ -57,7 +57,7 @@ Covariance is calculated as: $$\operatorname{cov}(\mathbf{M}^j, \boldsymbol{\Del
 
 Note that the sum here is divided by $N$ rather than $N-1$, which would be the conventional small-sample bias correction applied for example by the base R `cov()` function. The $N-1$ version gives an unbiased covariance *estimator*. Instead here we *calculate* covariance for the entire "population" i.e. all the species in this particular experimental unit.
 
-By its mathematical definition, covariance is a per species quantity. We can multiply it again by $N^j$, the number of species that comprise the mixture, to get a community level quantity. This quantity is what @loreau2001 defined as the **selection effect**: $$SE^j = N^j \cdot \operatorname{cov}(\mathbf{M}^j, \boldsymbol{\Delta} \mathbf{RY}^j)$$
+By its mathematical definition, the covariance we just calculated is a per species quantity. We can multiply it again by $N^j$, the number of species that comprise the mixture, to get a community level quantity. This quantity is what @loreau2001 defined as the **selection effect**: $$SE^j = N^j \cdot \operatorname{cov}(\mathbf{M}^j, \boldsymbol{\Delta} \mathbf{RY}^j)$$
 
 It expresses the extent to which community-level deviations from monoculture-based expectations are accounted for by a covariance—positive or negative—between species-level deviations and their monoculture performance.
 
@@ -72,6 +72,18 @@ $$\Delta Y^j = N^j \cdot \operatorname{cov}(\mathbf{M}^j, \boldsymbol{\Delta} \m
 @loreau2001 call this the **net biodiversity effect** i.e.
 
 $$NBE^j = SE^j + CE^j$$
+
+There, we have now put everything together. Now that all the bits are explained and everything is in its right place, let's move them around a bit to understand the logic of this partitioning. Before we do that, it will help to know that the expected value of the product of two random variables is equal to the product of the expected values of each variable plus their covariance:
+
+$$
+\mathbb{E}[XY] = \mathbb{E}[X] \cdot \mathbb{E}[Y] + \text{Cov}(X, Y)
+$$
+
+For a concrete example of this, consider several populations of a species, each with its own abundance *X* and average bodymass *Y*. If there is a negative correlation between abundance and average bodymass, then populations with high abundance are expected to have lower average bodymass. So, the expected biomass of a population (*i.e.* the biomass of the average population) is equal to the expected abundance (the abundance of the average population) multiplied by the expected average bodymass (the average bodymass of the average population) plus the (negative) covariance between population abundances and average bodymasses. Now let's look at our yield difference formula, rearranged:
+
+$$\frac{\Delta Y^j}{N^j} =\overline{M^j} \cdot  \overline{\Delta RY^{j}} + \operatorname{cov}(\mathbf{M}^j, \boldsymbol{\Delta} \mathbf{RY}^j)$$
+
+On the left hand side, we have the per-species difference in yield—the community-level difference in yield from the null expectation divided by the number of species. On the right, we have the product of the monoculture yield of the average species in community $j$ and the difference in relative yield of the average species, plus the covariance between monoculture yields and differences in relative yield for all species in $j$.
 
 ```{r}
 loreau_hector = function(
