@@ -79,7 +79,7 @@ There, we have now put everything together.
 Now that all the bits are explained and everything is in its right place, let's move them around a bit to understand the logic of this partitioning. Before we do that, it will help to know that the expected value of the product of two random variables is equal to the product of the expected values of each variable plus their covariance:
 
 $$
-\mathbb{E}[XY] = \mathbb{E}[X] \cdot \mathbb{E}[Y] + \text{Cov}(X, Y)
+\mathbb{E}[X \cdot Y] = \mathbb{E}[X] \cdot \mathbb{E}[Y] + \text{Cov}(X, Y)
 $$
 
 For a concrete example of this, consider several populations of a species, each with its own abundance *X* and average bodymass *Y*. If there is a negative correlation between abundance and average bodymass, then populations with high abundance are expected to have lower average bodymass. So, the expected biomass of a population (*i.e.* the biomass of the average population) is equal to the expected abundance (the abundance of the average population) multiplied by the expected average bodymass (the average bodymass of the average population) plus the (negative) covariance between population abundances and average bodymasses. Now let's look at our yield difference formula, rearranged:
