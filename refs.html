@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.31">
+<meta name="generator" content="quarto-1.11.9">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -10,10 +10,16 @@
 
 <title>refs</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -53,14 +59,15 @@ div.csl-indent {
 <meta name="quarto:offset" content="./">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-7e58e3368124f49f6e3733161a9b089d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-c50fc2874fcac956595ffed77daae241.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-c53bd731892beb8b5a9d63836250f284.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-749a164dbb17c3023d37f1c3323d9fce.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -93,13 +100,13 @@ div.csl-indent {
 <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-fixed fullcontent quarto-light">
+<body class="nav-fixed fullcontent quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark" aria-label="Site">
       <div class="navbar-container container-fluid">
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
@@ -128,13 +135,15 @@ div.csl-indent {
     <a class="nav-link" href="./posts.html"> 
 <span class="menu-text">posts</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://codeberg.org/amynang"> 
+<span class="menu-text"><img src="images/codeberg-logo_special_fake-transaprency.svg" style="height:1em"></span></a>
+  </li>  
 </ul>
           </div> <!-- /navcollapse -->
-            <div class="quarto-navbar-tools tools-wide">
+            <div class="quarto-navbar-tools">
     <a href="https://github.com/amynang" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
-    <a href="https://ecoevo.social/@amyntas" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-mastodon"></i></a>
     <a href="https://bsky.app/profile/amyntas.bsky.social" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-bluesky"></i></a>
-    <a href="https://bsky.app/profile/amyntas.bsky.social" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-twitter"></i></a>
 </div>
       </div> <!-- /container-fluid -->
     </nav>
@@ -145,7 +154,7 @@ div.csl-indent {
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content" id="quarto-document-content" tabindex="-1">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
@@ -189,10 +198,10 @@ Amyntas, A., Eisenhauer, N., Scheu, S., Klarner, B., Ilieva-Makulec, K., Madaj, 
 Amyntas, A., Gauzens, B., Ciobanu, M., Warnke, L., Maraun, M., Salamon, J.-A., Merkle, M., Bassi, L., Hennecke, J., Lange, M., Gleixner, G., Scheu, S., Eisenhauer, N., &amp; Brose, U. (2025). Shared community history strengthens plant diversity effects on below<span>-</span>ground multitrophic functioning. <em>Journal of Animal Ecology</em>, <em>94</em>(4), 555–565. <a href="https://doi.org/10.1111/1365-2656.14241">https://doi.org/10.1111/1365-2656.14241</a>
 </div>
 <div id="ref-dyer2023" class="csl-entry" role="listitem">
-Dyer, A., Ryser, R., Brose, U., Amyntas, A., Bodnar, N., Boy, T., Franziska Bucher, S., Cesarz, S., Eisenhauer, N., Gebler, A., Hines, J., Kyba, C. C. M., Menz, M. H. M., Rackwitz, K., Shatwell, T., Terlau, J. F., &amp; Hirt, M. R. (2023). Insect communities under skyglow: diffuse night-time illuminance induces spatio-temporal shifts in movement and predation. <em>Philosophical Transactions of the Royal Society B: Biological Sciences</em>, <em>378</em>(1892). <a href="https://doi.org/10.1098/rstb.2022.0359">https://doi.org/10.1098/rstb.2022.0359</a>
+Dyer, A., Ryser, R., Brose, U., Amyntas, A., Bodnar, N., Boy, T., Franziska Bucher, S., Cesarz, S., Eisenhauer, N., Gebler, A., Hines, J., Kyba, C. C. M., Menz, M. H. M., Rackwitz, K., Shatwell, T., Terlau, J. F., &amp; Hirt, M. R. (2023). Insect communities under skyglow: Diffuse night-time illuminance induces spatio-temporal shifts in movement and predation. <em>Philosophical Transactions of the Royal Society B: Biological Sciences</em>, <em>378</em>(1892). <a href="https://doi.org/10.1098/rstb.2022.0359">https://doi.org/10.1098/rstb.2022.0359</a>
 </div>
 <div id="ref-hennecke2025" class="csl-entry" role="listitem">
-Hennecke, J., Bassi, L., Albracht, C., Amyntas, A., Bergmann, J., Eisenhauer, N., Fox, A., Heimbold, L., Heintz-Buschart, A., Kuyper, T. W., Lange, M., Pinheiro Alves De Souza, Y., Rai, A., Solbach, M. D., Mommer, L., &amp; Weigelt, A. (2025). Plant Species Richness and the Root Economics Space Drive Soil Fungal Communities. <em>Ecology Letters</em>, <em>28</em>(1), e70032. <a href="https://doi.org/10.1111/ele.70032">https://doi.org/10.1111/ele.70032</a>
+Hennecke, J., Bassi, L., Albracht, C., Amyntas, A., Bergmann, J., Eisenhauer, N., Fox, A., Heimbold, L., Heintz-Buschart, A., Kuyper, T. W., Lange, M., Pinheiro Alves De Souza, Y., Rai, A., Solbach, M. D., Mommer, L., &amp; Weigelt, A. (2025). Plant species richness and the root economics space drive soil fungal communities. <em>Ecology Letters</em>, <em>28</em>(1), e70032. <a href="https://doi.org/10.1111/ele.70032">https://doi.org/10.1111/ele.70032</a>
 </div>
 <div id="ref-jochum2021a" class="csl-entry" role="listitem">
 Jochum, M., Barnes, A. D., Brose, U., Gauzens, B., Sünnemann, M., Amyntas, A., &amp; Eisenhauer, N. (2021). For flux’s sake: General considerations for energy<span>-</span>flux calculations in ecological communities. <em>Ecology and Evolution</em>, <em>11</em>(19), 12948–12969. <a href="https://doi.org/10.1002/ece3.8060">https://doi.org/10.1002/ece3.8060</a>
@@ -201,7 +210,7 @@ Jochum, M., Barnes, A. D., Brose, U., Gauzens, B., Sünnemann, M., Amyntas, A., 
 Li, Y., Schuldt, A., Ebeling, A., Eisenhauer, N., Huang, Y., Albert, G., Albracht, C., Amyntas, A., Bonkowski, M., Bruelheide, H., Bröcher, M., Chesters, D., Chen, J., Chen, Y., Chen, J.-T., Ciobanu, M., Deng, X., Fornoff, F., Gleixner, G., … Liu, X. (2024). Plant diversity enhances ecosystem multifunctionality via multitrophic diversity. <em>Nature Ecology &amp; Evolution</em>, 1–11. <a href="https://doi.org/10.1038/s41559-024-02517-2">https://doi.org/10.1038/s41559-024-02517-2</a>
 </div>
 <div id="ref-sünnemann2024a" class="csl-entry" role="listitem">
-Sünnemann, M., Barnes, A. D., Amyntas, A., Ciobanu, M., Jochum, M., Lochner, A., Potapov, A. M., Reitz, T., Rosenbaum, B., Schädler, M., Zeuner, A., &amp; Eisenhauer, N. (2024). Sustainable Land Use Strengthens Microbial and Herbivore Controls in Soil Food Webs in Current and Future Climates. <em>Global Change Biology</em>, <em>30</em>(11), e17554. <a href="https://doi.org/10.1111/gcb.17554">https://doi.org/10.1111/gcb.17554</a>
+Sünnemann, M., Barnes, A. D., Amyntas, A., Ciobanu, M., Jochum, M., Lochner, A., Potapov, A. M., Reitz, T., Rosenbaum, B., Schädler, M., Zeuner, A., &amp; Eisenhauer, N. (2024). Sustainable land use strengthens microbial and herbivore controls in soil food webs in current and future climates. <em>Global Change Biology</em>, <em>30</em>(11), e17554. <a href="https://doi.org/10.1111/gcb.17554">https://doi.org/10.1111/gcb.17554</a>
 </div>
 <div id="ref-terlau2023" class="csl-entry" role="listitem">
 Terlau, J. F., Brose, U., Eisenhauer, N., Amyntas, A., Boy, T., Dyer, A., Gebler, A., Hof, C., Liu, T., Scherber, C., Schlägel, U. E., Schmidt, A., &amp; Hirt, M. R. (2023). Microhabitat conditions remedy heat stress effects on insect activity. <em>Global Change Biology</em>, <em>29</em>(13), 3747–3758. <a href="https://doi.org/10.1111/gcb.16712">https://doi.org/10.1111/gcb.16712</a>
@@ -261,13 +270,14 @@ Yi, H., Ferlian, O., Gauzens, B., Rebollo, R., Scheu, S., Amyntas, A., Ciobanu, 
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -287,7 +297,8 @@ Yi, H., Ferlian, O., Gauzens, B., Rebollo, R., Scheu, S., Amyntas, A., Ciobanu, 
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
       // Inspect non-navigation links and adorn them if external
-     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
       for (var i=0; i<links.length; i++) {
         const link = links[i];
         if (!isInternal(link.href)) {
@@ -296,8 +307,69 @@ Yi, H., Ferlian, O., Gauzens, B., Rebollo, R., Scheu, S., Amyntas, A., Ciobanu, 
           if (link.dataset.originalHref !== undefined) {
             link.href = link.dataset.originalHref;
           }
+          if (!link.classList.contains('no-external-icon')) {
+          }
         }
       }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
     function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
       const config = {
         allowHTML: true,
@@ -311,6 +383,7 @@ Yi, H., Ferlian, O., Gauzens, B., Rebollo, R., Scheu, S., Amyntas, A., Ciobanu, 
         interactiveBorder: 10,
         theme: 'quarto',
         placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
       };
       if (contentFn) {
         config.content = contentFn;
@@ -473,44 +546,54 @@ Yi, H., Ferlian, O., Gauzens, B., Rebollo, R., Scheu, S., Amyntas, A., Ciobanu, 
           const lineIds = lines.map((line) => {
             return targetCell + "-" + line;
           })
-          let top = null;
-          let height = null;
-          let parent = null;
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
           if (lineIds.length > 0) {
-              //compute the position of the single el (top and bottom and make a div)
-              const el = window.document.getElementById(lineIds[0]);
-              top = el.offsetTop;
-              height = el.offsetHeight;
-              parent = el.parentElement.parentElement;
-            if (lineIds.length > 1) {
-              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-              height = bottom - top;
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
             }
-            if (top !== null && height !== null && parent !== null) {
-              // cook up a div (if necessary) and position it 
-              let div = window.document.getElementById("code-annotation-line-highlight");
-              if (div === null) {
-                div = window.document.createElement("div");
-                div.setAttribute("id", "code-annotation-line-highlight");
-                div.style.position = 'absolute';
-                parent.appendChild(div);
-              }
-              div.style.top = top - 2 + "px";
-              div.style.height = height + 4 + "px";
-              div.style.left = 0;
-              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-              if (gutterDiv === null) {
-                gutterDiv = window.document.createElement("div");
-                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-                gutterDiv.style.position = 'absolute';
-                const codeCell = window.document.getElementById(targetCell);
-                const gutter = codeCell.querySelector('.code-annotation-gutter');
-                gutter.appendChild(gutterDiv);
-              }
-              gutterDiv.style.top = top - 2 + "px";
-              gutterDiv.style.height = height + 4 + "px";
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
             }
+            placeBand(gutterDiv, el, lastEl);
             selectedAnnoteEl = annoteEl;
           }
         };
@@ -608,6 +691,9 @@ Yi, H., Ferlian, O., Gauzens, B., Rebollo, R., Scheu, S., Amyntas, A., Ciobanu, 
       }
     }
   });
+  </script>
+  <script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Scrollable code","output":"Scrollable output"};
   </script>
 </div> <!-- /content -->
 

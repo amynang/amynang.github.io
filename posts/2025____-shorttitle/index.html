@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.31">
+<meta name="generator" content="quarto-1.11.9">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -12,10 +12,16 @@
 
 <title>Eyeballing it: working with censored data</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -62,7 +68,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -90,14 +95,15 @@ div.csl-indent {
 <meta name="quarto:offset" content="../../">
 <script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7e58e3368124f49f6e3733161a9b089d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-c50fc2874fcac956595ffed77daae241.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-c53bd731892beb8b5a9d63836250f284.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-749a164dbb17c3023d37f1c3323d9fce.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -131,13 +137,13 @@ div.csl-indent {
 <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-fixed quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top quarto-banner"><div id="quarto-draft-alert" class="alert alert-warning"><i class="bi bi-pencil-square"></i>Draft</div>
-    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark" aria-label="Site">
       <div class="navbar-container container-fluid">
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
@@ -166,13 +172,15 @@ div.csl-indent {
     <a class="nav-link" href="../../posts.html"> 
 <span class="menu-text">posts</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://codeberg.org/amynang"> 
+<span class="menu-text"><img src="images/codeberg-logo_special_fake-transaprency.svg" style="height:1em"></span></a>
+  </li>  
 </ul>
           </div> <!-- /navcollapse -->
-            <div class="quarto-navbar-tools tools-wide">
+            <div class="quarto-navbar-tools">
     <a href="https://github.com/amynang" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
-    <a href="https://ecoevo.social/@amyntas" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-mastodon"></i></a>
     <a href="https://bsky.app/profile/amyntas.bsky.social" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-bluesky"></i></a>
-    <a href="https://bsky.app/profile/amyntas.bsky.social" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-twitter"></i></a>
 </div>
       </div> <!-- /container-fluid -->
     </nav>
@@ -222,7 +230,7 @@ div.csl-indent {
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
+        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
     <h2 id="toc-title">jump to</h2>
    
   <ul>
@@ -237,19 +245,19 @@ div.csl-indent {
 </nav>
     </div>
 <!-- main -->
-<main class="content quarto-banner-title-block" id="quarto-document-content">
+<main class="content quarto-banner-title-block" id="quarto-document-content" tabindex="-1">
 
 
 
 
 
-<div class="callout callout-style-default callout-caution callout-titled" title="warning">
+<div class="callout callout-style-default callout-caution callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-warning
+<span class="screen-reader-only">Caution</span>warning
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -278,7 +286,7 @@ warning
 <p>Good ol’ linear regression is notoriously<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> robust to having its assumptions violated. Arguably the <em>chaotic neutral</em> option here, is to rely on this legendary robustness and keep it simple. Which, as it happens, is what the authors of the original study did: they used the midpoint value of each range to represent the range of each observation. They then log(x+1) transformed those values and fitted a model with a Gaussian distribution. <span style="background:black;color:black;">Clutch your pearls if you must; I’m going to spoil this right here by saying that this model leads to more or less the same conclusions as anything fancier we’ll try later on</span>.</p>
 <p>We begin by (more or less) retracing their steps.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(brms)     </span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(cmdstanr) </span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidybayes)</span>
@@ -300,11 +308,11 @@ warning
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>                                        invert_damage.perc <span class="sc">&lt;=</span>  <span class="dv">5</span> <span class="sc">~</span> <span class="dv">3</span>,</span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>                                        invert_damage.perc <span class="sc">&lt;=</span> <span class="dv">25</span> <span class="sc">~</span> <span class="dv">15</span>,</span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>                                        invert_damage.perc  <span class="sc">&gt;</span> <span class="dv">25</span> <span class="sc">~</span> <span class="dv">63</span>),</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>         <span class="at">logdam =</span> <span class="fu">log</span>(invert_damage.perc <span class="sc">+</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>         <span class="at">logdam =</span> <span class="fu">log</span>(invert_damage.perc <span class="sc">+</span> <span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Our model has two categorical predictors<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>, treatment and functional group, as well as their interaction, as main effects. Then intercepts<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a> vary by site, taxon, and taxon within plot. Aside from the changed treatment coding, this model is the Bayesian equivalent to the one reported in Table S5 in Ebeling et al.&nbsp;(2021).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>S5<span class="fl">.1</span> <span class="ot">=</span> <span class="fu">brm</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>S5<span class="fl">.1</span> <span class="ot">=</span> <span class="fu">brm</span>(</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> data,</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bf</span>(</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    logdam <span class="sc">~</span> treat <span class="sc">+</span> fgroup <span class="sc">+</span> treat<span class="sc">:</span>fgroup <span class="sc">+</span></span>
@@ -319,13 +327,13 @@ warning
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">cores =</span> <span class="dv">4</span>, </span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">seed =</span> <span class="dv">123</span>,</span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"cmdstanr"</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Here are the estimates for the average (log-transformed) damage per group and treatment:</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">=</span> data <span class="sc">%&gt;%</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">=</span> data <span class="sc">%&gt;%</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_grid</span>(<span class="at">treat =</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">"Control"</span>,<span class="st">"N"</span>,<span class="st">"P"</span>,<span class="st">"NP"</span>), </span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Control"</span>,<span class="st">"N"</span>,<span class="st">"P"</span>,<span class="st">"NP"</span>)),</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">fgroup =</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">"GRASS"</span>, <span class="st">"FORB"</span>, <span class="st">"LEGUME"</span>), </span>
@@ -357,7 +365,7 @@ warning
 <span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"contrast"</span>) <span class="sc">+</span></span>
 <span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"difference"</span>) <span class="sc">+</span></span>
 <span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>fgroup) <span class="sc">+</span></span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <div class="quarto-figure quarto-figure-center">
@@ -376,7 +384,7 @@ warning
 <p>We see clear evidence of increased herbivory in both treatments with Nitrogen addition (N and NP) for grasses and forbs. Treatment plots with Phosphorus addition also show increased herbivory in grasses and forbs relative to controls but that difference is weaker.</p>
 <p>But let’s do a posterior predictive check, to see how well our model reproduces the distribution of the data:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pp_check</span>(S5<span class="fl">.1</span>, <span class="at">ndraws =</span> <span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pp_check</span>(S5<span class="fl">.1</span>, <span class="at">ndraws =</span> <span class="dv">100</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -386,7 +394,7 @@ warning
 </div>
 <p>Ouch<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>. The four spikes are the log-transformed midpoint values that our observations can take. They look like densities because <em>density</em> <em>overlay</em> is the default option in <code>pp_check()</code> but we just have four distinct values; a histogram would be more appropriate for these data.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pp_check</span>(S5<span class="fl">.1</span>, <span class="at">ndraws =</span> <span class="dv">5</span>, <span class="at">type =</span> <span class="st">"hist"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pp_check</span>(S5<span class="fl">.1</span>, <span class="at">ndraws =</span> <span class="dv">5</span>, <span class="at">type =</span> <span class="st">"hist"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -404,18 +412,18 @@ warning
 <p>Luckily for me and you, there is an excellent <a href="https://solomonkurz.netlify.app/blog/2021-12-29-notes-on-the-bayesian-cumulative-probit/">introduction</a><a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a> to cumulative probit models out there, that is both comprehensive <em>and</em> accessible (h/t to <a href="https://solomonkurz.netlify.app/">Solomon Kurz</a>). This means I can refer you to that for a deeper understanding of what these models do and how they accomplish it. Here we are just going to use such a model.</p>
 <p>For a cumulative model, {brms} accepts response data in two possible types: either as integers (representing ordinal levels) or as an ordered factor. Since later on we are going to handle our levels as if they <em>were</em> integers (numeric even!), I will go with the first option<a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>dataord <span class="ot">=</span> data <span class="sc">%&gt;%</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>dataord <span class="ot">=</span> data <span class="sc">%&gt;%</span> </span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="co"># for the ordinal regression</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">damord =</span> <span class="fu">case_when</span>(invert_damage.perc <span class="sc">==</span>  <span class="dv">0</span> <span class="sc">~</span> <span class="dv">1</span>L,</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                            invert_damage.perc <span class="sc">&lt;=</span>  <span class="dv">5</span> <span class="sc">~</span> <span class="dv">2</span>L,</span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>                            invert_damage.perc <span class="sc">&lt;=</span> <span class="dv">25</span> <span class="sc">~</span> <span class="dv">3</span>L,</span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>                            invert_damage.perc  <span class="sc">&gt;</span> <span class="dv">25</span> <span class="sc">~</span> <span class="dv">4</span>L) </span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>         )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>         )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Two things are different here. We have swapped the Gaussian distribution for the cumulative probit. We have also introduced a new relationship to be estimated, <code>disc ~ 0 + fgroup</code>. <code>disc</code> (for discrimination) is a distributional parameter. It relates to the variance of the latent variable, influencing the steepness of the CDF of the standard normal. Making <code>disc</code> dependent on <code>fgroup</code> means that we are also modeling the variance of the latent variable, allowing it to differ among groups. In other words, the transitions between damage levels can differ among groups, reflecting variation in the ability to discriminate between damage levels for grass, forb or legume leaves.</p>
 <p>Normally, to model other distributional parameters—besides the mean—in {brms} we’d simply separate the <em>mean</em> model from the <em>other parameter</em> model with a comma. Here though, disc needs special handling because we need to not only remove the intercept but also switch off cell mean coding, with <code>cmc=F</code>, <em>only</em> for <code>disc</code>. Which is why we pass it into the model in a separate <code>lf()</code>. The rationale for this is is explained by <span class="citation" data-cites="bürkner2019">Bürkner and Vuorre (<a href="#ref-bürkner2019" role="doc-biblioref">2019</a>)</span> (section <em>Unequal variances</em>).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>S5<span class="fl">.1</span>_ord <span class="ot">=</span> <span class="fu">brm</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>S5<span class="fl">.1</span>_ord <span class="ot">=</span> <span class="fu">brm</span>(</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dataord,</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">bf</span>(</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    damord <span class="sc">~</span> treat <span class="sc">+</span> fgroup <span class="sc">+</span> treat<span class="sc">:</span>fgroup <span class="sc">+</span></span>
@@ -431,11 +439,11 @@ warning
 <span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">cores =</span> <span class="dv">4</span>, </span>
 <span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">seed =</span> <span class="dv">42</span>,</span>
 <span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"cmdstanr"</span></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Let’s start with the posterior predictive check:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pp_check</span>(S5<span class="fl">.1</span>_ord, <span class="at">ndraws =</span> <span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pp_check</span>(S5<span class="fl">.1</span>_ord, <span class="at">ndraws =</span> <span class="dv">100</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -445,7 +453,7 @@ warning
 </div>
 <p>Again, this is not the most appropriate posterior predictive check we could do for this type of data but it is directly comparable to the very first one. You can see that the estimated “distribution” follows the spikes of the data. Here is a more appropriate option:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pp_check</span>(S5<span class="fl">.1</span>_ord, <span class="at">type =</span> <span class="st">"bars"</span>, <span class="at">ndraws =</span> <span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pp_check</span>(S5<span class="fl">.1</span>_ord, <span class="at">type =</span> <span class="st">"bars"</span>, <span class="at">ndraws =</span> <span class="dv">100</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -457,7 +465,7 @@ warning
 <div class="cell">
 <details class="code-fold">
 <summary>Show me anyway</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a> Family<span class="sc">:</span> cumulative </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a> Family<span class="sc">:</span> cumulative </span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  Links<span class="sc">:</span> mu <span class="ot">=</span> probit; disc <span class="ot">=</span> log </span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>Formula<span class="sc">:</span> damord <span class="sc">~</span> treat <span class="sc">+</span> fgroup <span class="sc">+</span> treat<span class="sc">:</span>fgroup <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> site) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> taxon) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> site<span class="sc">:</span>plot<span class="sc">:</span>taxon) </span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>         disc <span class="sc">~</span> <span class="dv">0</span> <span class="sc">+</span> fgroup</span>
@@ -499,14 +507,14 @@ warning
 <span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>Draws were sampled using <span class="fu">sample</span>(hmc). For each parameter, Bulk_ESS</span>
 <span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>and Tail_ESS are effective sample size measures, and Rhat is the potential</span>
-<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>scale reduction factor on split <span class="fu">chains</span> (at convergence, <span class="at">Rhat =</span> <span class="dv">1</span>).</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>scale reduction factor on split <span class="fu">chains</span> (at convergence, <span class="at">Rhat =</span> <span class="dv">1</span>).</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>One way we can plot model estimates in the ordinal scale is the following. The y-axis is the relative probability of the four different levels. For example, looking at grasses across treatments, we see that the probability of what we called severe damage (level 4) is zero. No damage (level 1) has the highest probability followed by little damage (2). Conversely, legumes are the group with the highest probability of levels 3 and 4 among the three functional groups.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>p3 <span class="ot">=</span> dataord <span class="sc">%&gt;%</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>p3 <span class="ot">=</span> dataord <span class="sc">%&gt;%</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_grid</span>(<span class="at">treat =</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">"Control"</span>,<span class="st">"N"</span>,<span class="st">"P"</span>,<span class="st">"NP"</span>), </span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Control"</span>,<span class="st">"N"</span>,<span class="st">"P"</span>,<span class="st">"NP"</span>)),</span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">fgroup =</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">"GRASS"</span>, <span class="st">"FORB"</span>, <span class="st">"LEGUME"</span>), </span>
@@ -519,7 +527,7 @@ warning
 <span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"damage level"</span>) <span class="sc">+</span></span>
 <span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
 <span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_grid</span>(<span class="fu">vars</span>(fgroup), <span class="fu">vars</span>(treat))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_grid</span>(<span class="fu">vars</span>(fgroup), <span class="fu">vars</span>(treat))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <div class="quarto-figure quarto-figure-center">
@@ -532,7 +540,7 @@ warning
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>p4 <span class="ot">=</span> dataord <span class="sc">%&gt;%</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>p4 <span class="ot">=</span> dataord <span class="sc">%&gt;%</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_grid</span>(<span class="at">treat =</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">"Control"</span>,<span class="st">"N"</span>,<span class="st">"P"</span>,<span class="st">"NP"</span>), </span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Control"</span>,<span class="st">"N"</span>,<span class="st">"P"</span>,<span class="st">"NP"</span>)),</span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">fgroup =</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">"GRASS"</span>, <span class="st">"FORB"</span>, <span class="st">"LEGUME"</span>), </span>
@@ -570,7 +578,7 @@ warning
 <span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"contrast"</span>) <span class="sc">+</span></span>
 <span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"difference"</span>) <span class="sc">+</span></span>
 <span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>fgroup) <span class="sc">+</span></span>
-<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <div class="quarto-figure quarto-figure-center">
@@ -594,12 +602,12 @@ warning
 <p>We are finally going to introduce censoring explicitly into our model. Let’s reconsider the data. We are dealing with observations of proportional leaf damage by herbivores, which have been collected in a way that produces censored observations. Continuous proportions bound in the open unit interval (0,1) are readily modeled with a Beta distribution. These data however include several—in fact the majority—of cases with no evidence of damage; they are in the [0,1) interval. A mixture model, <em>zero inflated</em><a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a> Beta regression is the way to go here. We are modeling the probability of zero with a logistic regression <em>and</em> we are modeling the average proportion, for the non-zero cases, with a Beta distribution. This is supported in {brms} by specifying <code>family = zero_inflated_beta</code>.</p>
 <p>Next comes the censoring. How does Stan (and brms) handle censoring? Observations are indexed as being left-, right- interval- or not censored. Then for left and right censored cases, values represent the threshold of measurement. For interval censored cases, values represent the lower bound of the interval and we have an auxiliary term for the upper bound. In {brms} syntax, this looks like this:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>ycens <span class="sc">|</span> <span class="fu">cens</span>(censor, upper)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>ycens <span class="sc">|</span> <span class="fu">cens</span>(censor, upper)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>where <code>censor</code> is the type of censoring and <code>upper</code> is the upper bound for interval censored observations. What goes into <code>ycens</code> depends on the type of censoring, as described just above.</p>
 <p>First, we have non-censored observations; zeros that denote absence of damage. Then, we have observations for which we know that the damage is up to 5%, those for which it is more than 5% and up to 25%, and those for which it is more than 25%. Because we are dealing with proportional data, which are inherently bound, it is natural to think of all of these categories as intervals. So the code below, would be a reasonable way to specify these intervals. Notice that, somewhat arbitrarily, I have set the lower limit of the first interval slightly above zero (0.01) and the upper limit of the last interval slightly below 1 (0.99). We also need to specify the type of censoring, in this case <em>interval.</em></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>datacens <span class="ot">=</span> data <span class="sc">%&gt;%</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>datacens <span class="ot">=</span> data <span class="sc">%&gt;%</span> </span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="co"># the lower limits of intervals</span></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">damagelow =</span> <span class="fu">case_when</span>(invert_damage.perc <span class="sc">==</span>  <span class="dv">0</span> <span class="sc">~</span> <span class="dv">0</span>,</span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>                               invert_damage.perc <span class="sc">&lt;=</span>  <span class="dv">5</span> <span class="sc">~</span> .<span class="dv">01</span>,</span>
@@ -614,15 +622,15 @@ warning
 <span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>         <span class="at">censor =</span> <span class="fu">case_when</span>(invert_damage.perc <span class="sc">==</span>  <span class="dv">0</span> <span class="sc">~</span> <span class="st">"none"</span>,</span>
 <span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>                            invert_damage.perc <span class="sc">&lt;=</span>  <span class="dv">5</span> <span class="sc">~</span> <span class="st">"interval"</span>,</span>
 <span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>                            invert_damage.perc <span class="sc">&lt;=</span> <span class="dv">25</span> <span class="sc">~</span> <span class="st">"interval"</span>,</span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>                            invert_damage.perc  <span class="sc">&gt;</span> <span class="dv">25</span> <span class="sc">~</span> <span class="st">"interval"</span>)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>                            invert_damage.perc  <span class="sc">&gt;</span> <span class="dv">25</span> <span class="sc">~</span> <span class="st">"interval"</span>)) </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>and therefore, on the left-hand side of the model formula we would have:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>damagelow <span class="sc">|</span> <span class="fu">cens</span>(censor, damagehigh)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>damagelow <span class="sc">|</span> <span class="fu">cens</span>(censor, damagehigh)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>It turns out that this approach, and specifically those arbitrary thresholds, can get us into <a href="https://discourse.mc-stan.org/t/posterior-predictive-check-for-zero-inflated-interval-censored-beta/39881/5">trouble</a>. We can try to avoid the problem by making these thresholds <em>really</em> close to zero and one (<code>1e-7</code> and <code>1-1e-7</code> perhaps). But a more reliable way to proceed here, is to treat our &gt;25% observations as <em>right</em> censored and, perhaps less intuitively, our non-zero &lt;5% observations as <em>left</em> censored:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>datacens <span class="ot">=</span> data <span class="sc">%&gt;%</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>datacens <span class="ot">=</span> data <span class="sc">%&gt;%</span> </span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="co"># the lower limits of intervals</span></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">damagelow =</span> <span class="fu">case_when</span>(invert_damage.perc <span class="sc">==</span>  <span class="dv">0</span> <span class="sc">~</span> <span class="dv">0</span>,</span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>                          invert_damage.perc <span class="sc">&lt;=</span>  <span class="dv">5</span> <span class="sc">~</span> .<span class="dv">01</span>,</span>
@@ -642,11 +650,11 @@ warning
 <span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">ycens =</span> <span class="fu">case_when</span>(censor <span class="sc">==</span>     <span class="st">"none"</span> <span class="sc">~</span> <span class="dv">0</span>,</span>
 <span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>                      censor <span class="sc">==</span>     <span class="st">"left"</span> <span class="sc">~</span> damagehigh,</span>
 <span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>                      censor <span class="sc">==</span> <span class="st">"interval"</span> <span class="sc">~</span> damagelow,</span>
-<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>                      censor <span class="sc">==</span>    <span class="st">"right"</span> <span class="sc">~</span> damagelow)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>                      censor <span class="sc">==</span>    <span class="st">"right"</span> <span class="sc">~</span> damagelow)) </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>This is what the {brms} formula for such a model looks like:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>formula <span class="ot">=</span> <span class="fu">bf</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>formula <span class="ot">=</span> <span class="fu">bf</span>(</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  ycens <span class="sc">|</span> <span class="fu">cens</span>(censor, damagehigh) <span class="sc">~</span> treat <span class="sc">+</span> fgroup <span class="sc">+</span> treat<span class="sc">:</span>fgroup <span class="sc">+</span></span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>      (<span class="dv">1</span> <span class="sc">|</span> site) <span class="sc">+</span> </span>
 <span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>      (<span class="dv">1</span> <span class="sc">|</span> taxon) <span class="sc">+</span> </span>
@@ -655,11 +663,11 @@ warning
 <span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>      (<span class="dv">1</span> <span class="sc">|</span> site) <span class="sc">+</span> </span>
 <span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>      (<span class="dv">1</span> <span class="sc">|</span> taxon) <span class="sc">+</span> </span>
 <span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>      (<span class="dv">1</span> <span class="sc">|</span> site<span class="sc">:</span>plot<span class="sc">:</span>taxon)</span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>The other formula is the zero inflation part. The full model would look like this:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>S5<span class="fl">.1</span>_cens <span class="ot">=</span> <span class="fu">brm</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>S5<span class="fl">.1</span>_cens <span class="ot">=</span> <span class="fu">brm</span>(</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> datacens,</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bf</span>(</span>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>     ycens <span class="sc">|</span> <span class="fu">cens</span>(censor, damagehigh) <span class="sc">~</span> treat <span class="sc">+</span> fgroup <span class="sc">+</span> treat<span class="sc">:</span>fgroup <span class="sc">+</span></span>
@@ -678,7 +686,7 @@ warning
 <span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>     <span class="at">cores =</span> <span class="dv">4</span>, </span>
 <span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>     <span class="at">seed =</span> <span class="dv">123</span>,</span>
 <span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>     <span class="at">backend =</span> <span class="st">"cmdstanr"</span></span>
-<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>We are actually… not going to fit this model! I have tried that and, after the &gt;8 hours it took to finish sampling, it turned out its performance was abysmal. Each chain was doing its own thing (high Rhats) and I could count the Bulk Effective Samples in my fingers. Tinkering with the model (non-flat priors, longer warmup) did not help. Now admittedly, a more seasoned Stan user might have accomplished something better but this looks like a very hard model to fit.</p>
 <section id="poking-under-the-hood" class="level4">
@@ -687,11 +695,11 @@ warning
 <p>While digging around in the {brms} github repository, I found a <a href="https://github.com/paul-buerkner/brms/issues/1657#issue">feature request</a>, submitted by Hans Van Calster, for {brms} to provide support for the first method, the <em>data augmentation</em> approach, that imputes the censored values. He also provided Stan code to show what this would look like, following {brms} conventions for writing Stan code.</p>
 <p>One nice feature of {brms} is that we can use the <code>stancode()</code> function to get the Stan code generated by {brms} for any given model.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stancode</span>(formula, <span class="at">data =</span> datacens, <span class="at">family =</span> <span class="fu">zero_inflated_beta</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stancode</span>(formula, <span class="at">data =</span> datacens, <span class="at">family =</span> <span class="fu">zero_inflated_beta</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>We can then <em>modify</em> this code and use it to fit a model directly with Cmdstan. Finally, we can pass the fitted object back into an empty <code>brm</code> object. The benefit of doing this is that any diagnostics, post-processing calculations or plotting we do is within territory familiar to {brms} users.</p>
 <p>In the code I am showing below, everything except the bits that relate to censoring is as it was generated by {brms}. The censoring bits come from Van Calster’s example. I have highlighted those using <code>////////</code> borders. I <em>think</em> I’ve put everything in its right place.</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode stan code-with-copy"><code class="sourceCode stan"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">// generated with {brms} 2.22.8 **and modified**</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode stan code-with-copy"><code class="sourceCode stan"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">// generated with {brms} 2.22.8 **and modified**</span></span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="kw">functions</span> {</span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">real</span> zero_inflated_beta_lpdf(<span class="dt">real</span> y, <span class="dt">real</span> mu, <span class="dt">real</span> phi, <span class="dt">real</span> zi) {</span>
 <span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">row_vector</span>[<span class="dv">2</span>] shape = [mu * phi, (<span class="dv">1</span> - mu) * phi];</span>
@@ -919,10 +927,10 @@ warning
 <span id="cb20-226"><a href="#cb20-226" aria-hidden="true" tabindex="-1"></a>  <span class="dt">real</span> b_Intercept = Intercept - dot_product(means_X, b);</span>
 <span id="cb20-227"><a href="#cb20-227" aria-hidden="true" tabindex="-1"></a>  <span class="co">// actual population-level intercept</span></span>
 <span id="cb20-228"><a href="#cb20-228" aria-hidden="true" tabindex="-1"></a>  <span class="dt">real</span> b_zi_Intercept = Intercept_zi - dot_product(means_X_zi, b_zi);</span>
-<span id="cb20-229"><a href="#cb20-229" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb20-229"><a href="#cb20-229" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Then we can save this as a .stan file and compile it with <code>cmdstan_model()</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>sdata <span class="ot">=</span> brms<span class="sc">::</span><span class="fu">make_standata</span>(formula, <span class="at">family =</span> <span class="fu">zero_inflated_beta</span>(), <span class="at">data =</span> datacens)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>sdata <span class="ot">=</span> brms<span class="sc">::</span><span class="fu">make_standata</span>(formula, <span class="at">family =</span> <span class="fu">zero_inflated_beta</span>(), <span class="at">data =</span> datacens)</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>model <span class="ot">=</span> <span class="fu">cmdstan_model</span>(<span class="st">"mcens.stan"</span>)</span>
 <span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -946,13 +954,13 @@ warning
 <span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>S5<span class="fl">.1</span>_cens<span class="sc">$</span>fit <span class="ot">=</span> <span class="fu">read_csv_as_stanfit</span>(stanfit<span class="sc">$</span><span class="fu">output_files</span>(), </span>
 <span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">model =</span> model)</span>
-<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>S5<span class="fl">.1</span>_cens <span class="ot">=</span> <span class="fu">rename_pars</span>(S5<span class="fl">.1</span>_cens)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>S5<span class="fl">.1</span>_cens <span class="ot">=</span> <span class="fu">rename_pars</span>(S5<span class="fl">.1</span>_cens)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Having fed the model output back into {brms}, we can then use the same procedure as before to handle posterior draws and plot estimates:</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>p6 <span class="ot">=</span> datacens <span class="sc">%&gt;%</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>p6 <span class="ot">=</span> datacens <span class="sc">%&gt;%</span></span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_grid</span>(<span class="at">treat =</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">"Control"</span>,<span class="st">"N"</span>,<span class="st">"P"</span>,<span class="st">"NP"</span>), </span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Control"</span>,<span class="st">"N"</span>,<span class="st">"P"</span>,<span class="st">"NP"</span>)),</span>
 <span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">fgroup =</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">"GRASS"</span>, <span class="st">"FORB"</span>, <span class="st">"LEGUME"</span>), </span>
@@ -984,7 +992,7 @@ warning
 <span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"contrast"</span>) <span class="sc">+</span></span>
 <span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"difference"</span>) <span class="sc">+</span></span>
 <span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>fgroup) <span class="sc">+</span></span>
-<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <div class="quarto-figure quarto-figure-center">
@@ -1005,7 +1013,7 @@ warning
 <p>In our case, we have assumed that the data generating process can be approximated by a mixture of a Bernoulli and a Beta distribution (our zero inflated Beta) conditional on our predictors. So <code>posterior_predict()</code> generates predictions from such a model. How do we compare those to our interval censored data? The solution I resorted to was to impose the censoring scheme to the model predictions as well. If we <em>were</em> observing data generated from a zero inflated Beta distribution and we used the same scheme as the one used to collect the actual data, they would be recorded using the same intervals. So why not compare the bar plot of the observed data to the censored model predictions!</p>
 <p>Here is a function to do just that:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>ppc <span class="ot">=</span> <span class="cf">function</span>(fit, data, <span class="at">ndraws =</span> <span class="dv">10</span>) {</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>ppc <span class="ot">=</span> <span class="cf">function</span>(fit, data, <span class="at">ndraws =</span> <span class="dv">10</span>) {</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  levels <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"0"</span>, </span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>             <span class="st">"0.01–0.05"</span>, </span>
 <span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>             <span class="st">"0.05–0.25"</span>, </span>
@@ -1054,11 +1062,11 @@ warning
 <span id="cb23-47"><a href="#cb23-47" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Count"</span>, <span class="at">x =</span> <span class="st">"Damage category"</span>,</span>
 <span id="cb23-48"><a href="#cb23-48" aria-hidden="true" tabindex="-1"></a>         <span class="at">subtitle =</span> <span class="st">"bars = y, pointrange = yrep mean &amp; 90% CI"</span>) <span class="sc">+</span></span>
 <span id="cb23-49"><a href="#cb23-49" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>()</span>
-<span id="cb23-50"><a href="#cb23-50" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb23-50"><a href="#cb23-50" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>blabla</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ppc</span>(S5<span class="fl">.1</span>_cens, datacens, <span class="at">ndraws =</span> <span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ppc</span>(S5<span class="fl">.1</span>_cens, datacens, <span class="at">ndraws =</span> <span class="dv">100</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -1069,18 +1077,18 @@ warning
 <p>Oops! This is not great. It looks like the Bernoulli part of our model is doing just fine, predicting as many zeros as we have in the data. The Beta part of the model however, is either under- or overpredicting the amount of data we have in each interval. My less-than-half-educated hunch here is that, with only three intervals in the (0, 1) range, the model is struggling where to attribute variation. I suspect that this type of model would work better if intervals where variable across observations<a href="#fn9" class="footnote-ref" id="fnref9" role="doc-noteref"><sup>9</sup></a> or if we had higher resolution i.e.&nbsp;more levels.</p>
 <p>I want to test that intuition and more specifically the second case; what if the data were collected with a 0, (0, 5], (5, 10], (10, 20], (20, 30], (30, 50], (50, 70], (70, 100) scheme? Would this model perform better with seven intervals instead of just three? We don’t have that kind of data. But we have just fitted a zero inflated Beta regression model that can generate predictions in the [0, 1) interval! So we can create a dataset with the exact same structure as our real data (sites, plots, taxa, treatments etc) and generate a single draw from the predictive distribution of our model. Remember that such predictions are the answer to the question <em>“what would be the value of a new observation?”</em>. So we are making a prediction for 10491 such new observations, one for each site:treatment:plot:group:taxon:replicate combination of our data. Then we can impose on this model-generated dataset the original censoring scheme and the high-resolution one, fit the same model on both and compare.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>newdata <span class="ot">=</span> datacens <span class="sc">%&gt;%</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>newdata <span class="ot">=</span> datacens <span class="sc">%&gt;%</span> </span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(site<span class="sc">:</span>taxon_replicate.plot) <span class="sc">%&gt;%</span> </span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_predicted_draws</span>(S5<span class="fl">.1</span>_cens, <span class="at">ndraws =</span> <span class="dv">1</span>,</span>
 <span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">re_formula =</span> <span class="cn">NULL</span>,</span>
 <span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>                      <span class="at">seed =</span> <span class="dv">42</span>) <span class="sc">%&gt;%</span> </span>
 <span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
 <span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(newdata, <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(newdata, <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Now we impose the two censoring methods:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># the original method</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># the original method</span></span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>newcens1 <span class="ot">=</span> newdata <span class="sc">%&gt;%</span> </span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="co"># the lower limits of intervals</span></span>
 <span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">damagelow =</span> <span class="fu">case_when</span>(.prediction  <span class="sc">==</span>   <span class="dv">0</span> <span class="sc">~</span> <span class="dv">0</span>,</span>
@@ -1125,13 +1133,13 @@ warning
 <span id="cb26-43"><a href="#cb26-43" aria-hidden="true" tabindex="-1"></a>                            .prediction <span class="sc">&lt;=</span> .<span class="dv">30</span> <span class="sc">~</span> <span class="st">"interval"</span>,</span>
 <span id="cb26-44"><a href="#cb26-44" aria-hidden="true" tabindex="-1"></a>                            .prediction <span class="sc">&lt;=</span> .<span class="dv">50</span> <span class="sc">~</span> <span class="st">"interval"</span>,</span>
 <span id="cb26-45"><a href="#cb26-45" aria-hidden="true" tabindex="-1"></a>                            .prediction <span class="sc">&lt;=</span> .<span class="dv">70</span> <span class="sc">~</span> <span class="st">"interval"</span>,</span>
-<span id="cb26-46"><a href="#cb26-46" aria-hidden="true" tabindex="-1"></a>                            .prediction  <span class="sc">&gt;</span> .<span class="dv">70</span> <span class="sc">~</span> <span class="st">"interval"</span>)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb26-46"><a href="#cb26-46" aria-hidden="true" tabindex="-1"></a>                            .prediction  <span class="sc">&gt;</span> .<span class="dv">70</span> <span class="sc">~</span> <span class="st">"interval"</span>)) </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Then we fit the model to the two datasets as before.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>sdata1 <span class="ot">=</span> brms<span class="sc">::</span><span class="fu">make_standata</span>(formula, <span class="at">family =</span> <span class="fu">zero_inflated_beta</span>(), <span class="at">data =</span> newcens1)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>sdata1 <span class="ot">=</span> brms<span class="sc">::</span><span class="fu">make_standata</span>(formula, <span class="at">family =</span> <span class="fu">zero_inflated_beta</span>(), <span class="at">data =</span> newcens1)</span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>sdata2 <span class="ot">=</span> brms<span class="sc">::</span><span class="fu">make_standata</span>(formula, <span class="at">family =</span> <span class="fu">zero_inflated_beta</span>(), <span class="at">data =</span> newcens2)</span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">cmdstan_model</span>(<span class="st">"mcens.stan"</span>)</span>
@@ -1152,7 +1160,7 @@ warning
 <span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">iter_sampling =</span> <span class="dv">4000</span>, </span>
 <span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">seed =</span> <span class="dv">123</span>, </span>
 <span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">parallel_chains =</span> <span class="dv">4</span></span>
-<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>TODO: Examine why the censored model performs poorly relative to ordinal, by generating data from the predictive distribution and then: censoring them with the existing scheme, censoring them with a scheme with more resolution e.g.&nbsp;0, 0-5, 5-10, 10-20, 20-40, 40-100.</p>
@@ -1167,7 +1175,7 @@ warning
 </section>
 
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-bürkner2019" class="csl-entry" role="listitem">
 Bürkner, Paul-Christian, and Matti Vuorre. 2019. <span>“Ordinal Regression Models in Psychology: A Tutorial.”</span> <em>Advances in Methods and Practices in Psychological Science</em> 2 (1): 77–101. <a href="https://doi.org/10.1177/2515245918823199">https://doi.org/10.1177/2515245918823199</a>.
 </div>
@@ -1175,7 +1183,7 @@ Bürkner, Paul-Christian, and Matti Vuorre. 2019. <span>“Ordinal Regression Mo
 Daubenmire, R. F. 1959. <span>“A Canopy-Coverage Method of Vegetational Analysis.”</span> <em>Northwest Science</em> 33: 43–64.
 </div>
 <div id="ref-ebeling2021" class="csl-entry" role="listitem">
-Ebeling, Anne, Alex T. Strauss, Peter B. Adler, Carlos A. Arnillas, Isabel C. Barrio, Lori A. Biederman, Elizabeth T. Borer, et al. 2021. <span>“Nutrient Enrichment Increases Invertebrate Herbivory and Pathogen Damage in Grasslands.”</span> <em>Journal of Ecology</em>, October, 1365–2745.13801. <a href="https://doi.org/10.1111/1365-2745.13801">https://doi.org/10.1111/1365-2745.13801</a>.
+Ebeling, Anne, Alex T. Strauss, Peter B. Adler, et al. 2021. <span>“Nutrient Enrichment Increases Invertebrate Herbivory and Pathogen Damage in Grasslands.”</span> <em>Journal of Ecology</em>, October 31, 1365–2745.13801. <a href="https://doi.org/10.1111/1365-2745.13801">https://doi.org/10.1111/1365-2745.13801</a>.
 </div>
 </div></section><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
 
@@ -1242,13 +1250,14 @@ Ebeling, Anne, Alex T. Strauss, Peter B. Adler, Carlos A. Arnillas, Isabel C. Ba
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1268,7 +1277,8 @@ Ebeling, Anne, Alex T. Strauss, Peter B. Adler, Carlos A. Arnillas, Isabel C. Ba
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
       // Inspect non-navigation links and adorn them if external
-     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
       for (var i=0; i<links.length; i++) {
         const link = links[i];
         if (!isInternal(link.href)) {
@@ -1277,8 +1287,69 @@ Ebeling, Anne, Alex T. Strauss, Peter B. Adler, Carlos A. Arnillas, Isabel C. Ba
           if (link.dataset.originalHref !== undefined) {
             link.href = link.dataset.originalHref;
           }
+          if (!link.classList.contains('no-external-icon')) {
+          }
         }
       }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
     function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
       const config = {
         allowHTML: true,
@@ -1292,6 +1363,7 @@ Ebeling, Anne, Alex T. Strauss, Peter B. Adler, Carlos A. Arnillas, Isabel C. Ba
         interactiveBorder: 10,
         theme: 'quarto',
         placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
       };
       if (contentFn) {
         config.content = contentFn;
@@ -1454,44 +1526,54 @@ Ebeling, Anne, Alex T. Strauss, Peter B. Adler, Carlos A. Arnillas, Isabel C. Ba
           const lineIds = lines.map((line) => {
             return targetCell + "-" + line;
           })
-          let top = null;
-          let height = null;
-          let parent = null;
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
           if (lineIds.length > 0) {
-              //compute the position of the single el (top and bottom and make a div)
-              const el = window.document.getElementById(lineIds[0]);
-              top = el.offsetTop;
-              height = el.offsetHeight;
-              parent = el.parentElement.parentElement;
-            if (lineIds.length > 1) {
-              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-              height = bottom - top;
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
             }
-            if (top !== null && height !== null && parent !== null) {
-              // cook up a div (if necessary) and position it 
-              let div = window.document.getElementById("code-annotation-line-highlight");
-              if (div === null) {
-                div = window.document.createElement("div");
-                div.setAttribute("id", "code-annotation-line-highlight");
-                div.style.position = 'absolute';
-                parent.appendChild(div);
-              }
-              div.style.top = top - 2 + "px";
-              div.style.height = height + 4 + "px";
-              div.style.left = 0;
-              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-              if (gutterDiv === null) {
-                gutterDiv = window.document.createElement("div");
-                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-                gutterDiv.style.position = 'absolute';
-                const codeCell = window.document.getElementById(targetCell);
-                const gutter = codeCell.querySelector('.code-annotation-gutter');
-                gutter.appendChild(gutterDiv);
-              }
-              gutterDiv.style.top = top - 2 + "px";
-              gutterDiv.style.height = height + 4 + "px";
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
             }
+            placeBand(gutterDiv, el, lastEl);
             selectedAnnoteEl = annoteEl;
           }
         };
@@ -1589,6 +1671,9 @@ Ebeling, Anne, Alex T. Strauss, Peter B. Adler, Carlos A. Arnillas, Isabel C. Ba
       }
     }
   });
+  </script>
+  <script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Scrollable code","output":"Scrollable output"};
   </script>
 </div> <!-- /content -->
 
