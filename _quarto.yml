@@ -8,11 +8,7 @@ website:
     tools:
     - icon: github 
       href: https://github.com/amynang
-    - icon: mastodon
-      href: https://ecoevo.social/@amyntas
     - icon: bluesky
-      href: https://bsky.app/profile/amyntas.bsky.social
-    - icon: twitter
       href: https://bsky.app/profile/amyntas.bsky.social
     search: false
     background: rgb(247, 247, 239)
@@ -29,6 +25,8 @@ website:
         text: contact
       - href: posts.qmd
         text: posts
+      - text: "![](images/codeberg-logo_special_fake-transaprency.svg){height=1em}"
+        href: https://codeberg.org/amynang
 
 format:
   html:
